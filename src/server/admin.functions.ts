@@ -133,8 +133,15 @@ export const adminUpdateClient = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     await assertAdmin(context.userId);
-    const { id, extend_days, ...rest } = data;
-    const patch: Record<string, unknown> = { ...rest };
+    const { id, extend_days, name, status, category, notes } = data;
+    const patch: {
+      name?: string; status?: "active" | "suspended"; category?: string;
+      notes?: string | null; expires_at?: string; duration_days?: number;
+    } = {};
+    if (name !== undefined) patch.name = name;
+    if (status !== undefined) patch.status = status;
+    if (category !== undefined) patch.category = category;
+    if (notes !== undefined) patch.notes = notes;
     if (extend_days) {
       const { data: cur } = await supabaseAdmin
         .from("api_clients").select("expires_at, duration_days").eq("id", id).maybeSingle();
