@@ -19,6 +19,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard.index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as DashboardWalletRouteImport } from './routes/dashboard.wallet'
+import { Route as DashboardTransactionsRouteImport } from './routes/dashboard.transactions'
 import { Route as DashboardKeysRouteImport } from './routes/dashboard.keys'
 import { Route as AdminStatsRouteImport } from './routes/admin.stats'
 import { Route as AdminLogsRouteImport } from './routes/admin.logs'
@@ -77,6 +78,11 @@ const AdminIndexRoute = AdminIndexRouteImport.update({
 const DashboardWalletRoute = DashboardWalletRouteImport.update({
   id: '/wallet',
   path: '/wallet',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardTransactionsRoute = DashboardTransactionsRouteImport.update({
+  id: '/transactions',
+  path: '/transactions',
   getParentRoute: () => DashboardRoute,
 } as any)
 const DashboardKeysRoute = DashboardKeysRouteImport.update({
@@ -141,6 +147,7 @@ export interface FileRoutesByFullPath {
   '/admin/logs': typeof AdminLogsRoute
   '/admin/stats': typeof AdminStatsRoute
   '/dashboard/keys': typeof DashboardKeysRoute
+  '/dashboard/transactions': typeof DashboardTransactionsRoute
   '/dashboard/wallet': typeof DashboardWalletRoute
   '/admin/': typeof AdminIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
@@ -160,6 +167,7 @@ export interface FileRoutesByTo {
   '/admin/logs': typeof AdminLogsRoute
   '/admin/stats': typeof AdminStatsRoute
   '/dashboard/keys': typeof DashboardKeysRoute
+  '/dashboard/transactions': typeof DashboardTransactionsRoute
   '/dashboard/wallet': typeof DashboardWalletRoute
   '/admin': typeof AdminIndexRoute
   '/dashboard': typeof DashboardIndexRoute
@@ -182,6 +190,7 @@ export interface FileRoutesById {
   '/admin/logs': typeof AdminLogsRoute
   '/admin/stats': typeof AdminStatsRoute
   '/dashboard/keys': typeof DashboardKeysRoute
+  '/dashboard/transactions': typeof DashboardTransactionsRoute
   '/dashboard/wallet': typeof DashboardWalletRoute
   '/admin/': typeof AdminIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
@@ -205,6 +214,7 @@ export interface FileRouteTypes {
     | '/admin/logs'
     | '/admin/stats'
     | '/dashboard/keys'
+    | '/dashboard/transactions'
     | '/dashboard/wallet'
     | '/admin/'
     | '/dashboard/'
@@ -224,6 +234,7 @@ export interface FileRouteTypes {
     | '/admin/logs'
     | '/admin/stats'
     | '/dashboard/keys'
+    | '/dashboard/transactions'
     | '/dashboard/wallet'
     | '/admin'
     | '/dashboard'
@@ -245,6 +256,7 @@ export interface FileRouteTypes {
     | '/admin/logs'
     | '/admin/stats'
     | '/dashboard/keys'
+    | '/dashboard/transactions'
     | '/dashboard/wallet'
     | '/admin/'
     | '/dashboard/'
@@ -334,6 +346,13 @@ declare module '@tanstack/react-router' {
       path: '/wallet'
       fullPath: '/dashboard/wallet'
       preLoaderRoute: typeof DashboardWalletRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/transactions': {
+      id: '/dashboard/transactions'
+      path: '/transactions'
+      fullPath: '/dashboard/transactions'
+      preLoaderRoute: typeof DashboardTransactionsRouteImport
       parentRoute: typeof DashboardRoute
     }
     '/dashboard/keys': {
@@ -426,12 +445,14 @@ const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
 interface DashboardRouteChildren {
   DashboardKeysRoute: typeof DashboardKeysRoute
+  DashboardTransactionsRoute: typeof DashboardTransactionsRoute
   DashboardWalletRoute: typeof DashboardWalletRoute
   DashboardIndexRoute: typeof DashboardIndexRoute
 }
 
 const DashboardRouteChildren: DashboardRouteChildren = {
   DashboardKeysRoute: DashboardKeysRoute,
+  DashboardTransactionsRoute: DashboardTransactionsRoute,
   DashboardWalletRoute: DashboardWalletRoute,
   DashboardIndexRoute: DashboardIndexRoute,
 }
