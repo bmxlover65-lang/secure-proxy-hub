@@ -45,6 +45,7 @@ export const Route = createFileRoute("/api/public/bondpay-callback")({
         const gatewayOrder = String(p.orderNo ?? p.order_no ?? p.tradeNo ?? p.trade_no ?? "");
         const amount = String(p.amount ?? "");
         const sig = String(p.signature ?? p.sign ?? "");
+        const currency = String(p.currency ?? p.cur ?? "INR").toUpperCase();
 
         // Map common gateway status values to our internal states
         const okStatuses = new Set(["success", "succeeded", "paid", "1", "completed", "ok"]);
@@ -56,10 +57,13 @@ export const Route = createFileRoute("/api/public/bondpay-callback")({
         if (!merchantOrder) {
           return new Response("missing merchantOrder", { status: 400 });
         }
+        if (!amount) {
+          return new Response("missing amount", { status: 400 });
+        }
 
         const { data: order } = await supabaseAdmin
           .from("payment_orders")
-          .select("id,user_id,coins,status,amount_inr")
+          .select("id,user_id,coins,status,amount_inr,currency,credited_at")
           .eq("merchant_order_no", merchantOrder)
           .maybeSingle();
 
@@ -67,41 +71,101 @@ export const Route = createFileRoute("/api/public/bondpay-callback")({
           return new Response("order not found", { status: 404 });
         }
 
-        // Idempotency: if already success, just ack
-        if (order.status === "success") {
+        // Idempotency: if already success/credited, just ack — don't re-credit even on retry
+        if (order.status === "success" || order.credited_at) {
+          await supabaseAdmin.from("payment_orders")
+            .update({
+              callback_received_at: new Date().toISOString(),
+              raw_callback: { ...p, _note: "duplicate_ack" } as unknown as Json,
+            })
+            .eq("id", order.id);
           return OK;
+        }
+
+        // Validate amount and currency match the stored pending order
+        const expectedAmt = Number(order.amount_inr);
+        const callbackAmt = Number(amount);
+        if (!Number.isFinite(callbackAmt) || Math.abs(callbackAmt - expectedAmt) > 0.01) {
+          await supabaseAdmin.from("payment_orders").update({
+            signature_status: "amount_mismatch",
+            callback_error: `Expected ₹${expectedAmt.toFixed(2)}, got ${amount}`,
+            callback_received_at: new Date().toISOString(),
+            raw_callback: payload,
+          }).eq("id", order.id);
+          return new Response("amount mismatch", { status: 400 });
+        }
+        const expectedCurrency = (order.currency || "INR").toUpperCase();
+        if (currency !== expectedCurrency) {
+          await supabaseAdmin.from("payment_orders").update({
+            signature_status: "currency_mismatch",
+            callback_error: `Expected ${expectedCurrency}, got ${currency}`,
+            callback_received_at: new Date().toISOString(),
+            raw_callback: payload,
+          }).eq("id", order.id);
+          return new Response("currency mismatch", { status: 400 });
         }
 
         // Optional signature verification (BondPay format: md5(merchant_id+amount+merchant_order_no+api_key))
         const merchantId = process.env.BONDPAY_MERCHANT_ID;
         const apiKey = process.env.BONDPAY_API_KEY;
+        let sigStatus: "verified" | "missing" | "failed" | "skipped" = "skipped";
         if (sig && merchantId && apiKey) {
-          const amt = amount || Number(order.amount_inr).toFixed(2);
-          const expected = md5(`${merchantId}${amt}${merchantOrder}${apiKey}`);
+          const expected = md5(`${merchantId}${amount}${merchantOrder}${apiKey}`);
           if (sig.toLowerCase() !== expected.toLowerCase()) {
             await supabaseAdmin.from("payment_orders")
-              .update({ raw_callback: { ...p, _sig_check: "failed", _expected: expected } as unknown as Json })
+              .update({
+                signature_status: "failed",
+                callback_error: "Invalid signature",
+                callback_received_at: new Date().toISOString(),
+                raw_callback: { ...p, _expected: expected } as unknown as Json,
+              })
               .eq("id", order.id);
             return new Response("invalid signature", { status: 401 });
           }
+          sigStatus = "verified";
+        } else if (!sig) {
+          sigStatus = "missing";
         }
 
         if (status === "success") {
-          // Credit wallet
+          // Credit wallet — use payment_orders.id as reference for unique-index idempotency
           const { error: rpcErr } = await supabaseAdmin.rpc("adjust_wallet", {
             _user_id: order.user_id,
             _delta: Number(order.coins),
             _type: "topup",
             _reason: `BondPay top-up ₹${order.amount_inr}`,
-            _reference: gatewayOrder || merchantOrder,
+            _reference: order.id,
           });
           if (rpcErr) {
+            // If unique-violation, treat as already credited (race / retry)
+            if (/duplicate key|unique/i.test(rpcErr.message)) {
+              await supabaseAdmin.from("payment_orders").update({
+                status: "success",
+                signature_status: sigStatus,
+                callback_received_at: new Date().toISOString(),
+                raw_callback: { ...p, _note: "already_credited" } as unknown as Json,
+              }).eq("id", order.id);
+              return OK;
+            }
+            await supabaseAdmin.from("payment_orders").update({
+              callback_error: rpcErr.message,
+              callback_received_at: new Date().toISOString(),
+              raw_callback: payload,
+            }).eq("id", order.id);
             // Don't ack — let the gateway retry
             return new Response(`error: ${rpcErr.message}`, { status: 500 });
           }
           await supabaseAdmin
             .from("payment_orders")
-            .update({ status: "success", gateway_order_no: gatewayOrder || null, raw_callback: payload })
+            .update({
+              status: "success",
+              gateway_order_no: gatewayOrder || null,
+              raw_callback: payload,
+              signature_status: sigStatus,
+              callback_received_at: new Date().toISOString(),
+              credited_at: new Date().toISOString(),
+              callback_error: null,
+            })
             .eq("id", order.id);
           return OK;
         }
@@ -109,7 +173,12 @@ export const Route = createFileRoute("/api/public/bondpay-callback")({
         if (status === "failed") {
           await supabaseAdmin
             .from("payment_orders")
-            .update({ status: "failed", raw_callback: payload })
+            .update({
+              status: "failed",
+              raw_callback: payload,
+              signature_status: sigStatus,
+              callback_received_at: new Date().toISOString(),
+            })
             .eq("id", order.id);
           return OK;
         }
@@ -117,7 +186,12 @@ export const Route = createFileRoute("/api/public/bondpay-callback")({
         // pending or unknown
         await supabaseAdmin
           .from("payment_orders")
-          .update({ status: "pending", raw_callback: payload })
+          .update({
+            status: "pending",
+            raw_callback: payload,
+            signature_status: sigStatus,
+            callback_received_at: new Date().toISOString(),
+          })
           .eq("id", order.id);
         return OK;
       },
