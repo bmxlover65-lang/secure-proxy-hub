@@ -3,42 +3,35 @@
 
 const BASE = "https://draw.hgzy.click";
 
-// category (lowercase) -> { game (lowercase) -> path }
-const ROUTES: Record<string, Record<string, string>> = {
-  wingo: {
-    "30s": "/WinGo/WinGo_30S.json",
-    "1m": "/WinGo/WinGo_1M.json",
-    "3m": "/WinGo/WinGo_3M.json",
-    "5m": "/WinGo/WinGo_5M.json",
-  },
-  d5: {
-    "1m": "/D5/D5_1M/GetHistoryIssuePage.json",
-    "3m": "/D5/D5_3M/GetHistoryIssuePage.json",
-    "5m": "/D5/D5_5M/GetHistoryIssuePage.json",
-    "10m": "/D5/D5_10M/GetHistoryIssuePage.json",
-  },
-  k3: {
-    "1m": "/K3/K3_1M/GetHistoryIssuePage.json",
-    "3m": "/K3/K3_3M/GetHistoryIssuePage.json",
-    "5m": "/K3/K3_5M/GetHistoryIssuePage.json",
-    "10m": "/K3/K3_10M/GetHistoryIssuePage.json",
-  },
-  motorace: {
-    "1m": "/MotoRace/MotoRace_1M/GetHistoryIssuePage.json",
-  },
+export type UpstreamType = "period" | "history";
+
+// Map lowercase category -> { folder name on upstream, prefix used in file names, supported games }
+const CATEGORY_META: Record<string, { folder: string; prefix: string; games: string[] }> = {
+  wingo: { folder: "WinGo", prefix: "WinGo", games: ["30s", "1m", "3m", "5m"] },
+  d5: { folder: "D5", prefix: "D5", games: ["1m", "3m", "5m", "10m"] },
+  k3: { folder: "K3", prefix: "K3", games: ["1m", "3m", "5m", "10m"] },
+  motorace: { folder: "MotoRace", prefix: "MotoRace", games: ["1m"] },
 };
 
-export const SUPPORTED_GAMES: { category: string; games: string[] }[] = Object.entries(ROUTES).map(
-  ([category, games]) => ({ category, games: Object.keys(games) }),
-);
+export const SUPPORTED_GAMES: { category: string; games: string[] }[] = Object.entries(
+  CATEGORY_META,
+).map(([category, m]) => ({ category, games: m.games }));
 
-export function buildUpstreamUrl(category: string, game: string): string | null {
+export function buildUpstreamUrl(
+  category: string,
+  game: string,
+  type: UpstreamType = "period",
+): string | null {
   const c = category.toLowerCase();
   const g = game.toLowerCase();
-  const path = ROUTES[c]?.[g];
-  if (!path) return null;
-  const ts = Date.now();
-  return `${BASE}${path}?ts=${ts}`;
+  const meta = CATEGORY_META[c];
+  if (!meta || !meta.games.includes(g)) return null;
+  const file = `${meta.prefix}_${g.toUpperCase()}`; // e.g. WinGo_30S
+  const path =
+    type === "history"
+      ? `/${meta.folder}/${file}/GetHistoryIssuePage.json`
+      : `/${meta.folder}/${file}.json`;
+  return `${BASE}${path}?ts=${Date.now()}`;
 }
 
 export async function fetchUpstream(url: string): Promise<{
