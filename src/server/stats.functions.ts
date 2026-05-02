@@ -15,7 +15,16 @@ type Aggregated = {
 
 // In-memory cache (per worker instance). Keyed by range+client.
 const CACHE_TTL_MS = 60_000;
+const SLOW_MS = 800;
 const cache = new Map<string, { data: Aggregated; expires: number }>();
+const metrics = {
+  hits: 0,
+  misses: 0,
+  invalidations: 0,
+  slowQueries: 0,
+  lastQueryMs: 0,
+  lastSlowAt: 0 as number | null,
+};
 
 export const getStats = createServerFn({ method: "GET" })
   .inputValidator((d) =>
@@ -32,9 +41,14 @@ export const getStats = createServerFn({ method: "GET" })
     const key = `${days}:${clientId ?? "all"}`;
     const now = Date.now();
     const hit = cache.get(key);
-    if (hit && hit.expires > now) return hit.data;
+    if (hit && hit.expires > now) {
+      metrics.hits++;
+      return hit.data;
+    }
+    metrics.misses++;
 
     const since = new Date(now - days * 86_400_000).toISOString();
+    const t0 = Date.now();
     let q = supabaseAdmin
       .from("request_logs")
       .select("created_at, category, game, status_code, success, endpoint")
@@ -43,6 +57,12 @@ export const getStats = createServerFn({ method: "GET" })
       .limit(10_000);
     if (clientId) q = q.eq("client_id", clientId);
     const { data: rows, error } = await q;
+    const elapsed = Date.now() - t0;
+    metrics.lastQueryMs = elapsed;
+    if (elapsed > SLOW_MS) {
+      metrics.slowQueries++;
+      metrics.lastSlowAt = Date.now();
+    }
     if (error) throw new Error(error.message);
 
     const dayMap = new Map<string, { date: string; success: number; failed: number }>();
@@ -85,3 +105,27 @@ export const getStats = createServerFn({ method: "GET" })
     cache.set(key, { data: result, expires: now + CACHE_TTL_MS });
     return result;
   });
+
+export const invalidateStatsCache = createServerFn({ method: "POST" }).handler(async () => {
+  const size = cache.size;
+  cache.clear();
+  metrics.invalidations++;
+  return { cleared: size };
+});
+
+export const getStatsCacheMetrics = createServerFn({ method: "GET" }).handler(async () => {
+  const now = Date.now();
+  const entries = Array.from(cache.entries()).map(([key, v]) => ({
+    key,
+    ttlMs: Math.max(0, v.expires - now),
+    total: v.data.total,
+  }));
+  const total = metrics.hits + metrics.misses;
+  return {
+    ...metrics,
+    hitRate: total ? Math.round((metrics.hits / total) * 100) : 0,
+    entries,
+    ttlMs: CACHE_TTL_MS,
+    slowThresholdMs: SLOW_MS,
+  };
+});
