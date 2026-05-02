@@ -171,6 +171,48 @@ export type Database = {
         }
         Relationships: []
       }
+      payment_orders: {
+        Row: {
+          amount_inr: number
+          coins: number
+          created_at: string
+          gateway_order_no: string | null
+          id: string
+          merchant_order_no: string
+          payment_url: string | null
+          raw_callback: Json | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount_inr: number
+          coins: number
+          created_at?: string
+          gateway_order_no?: string | null
+          id?: string
+          merchant_order_no: string
+          payment_url?: string | null
+          raw_callback?: Json | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount_inr?: number
+          coins?: number
+          created_at?: string
+          gateway_order_no?: string | null
+          id?: string
+          merchant_order_no?: string
+          payment_url?: string | null
+          raw_callback?: Json | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
