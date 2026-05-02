@@ -25,9 +25,11 @@ function getRequestHostname(request: Request): string | null {
 }
 
 function domainMatches(host: string, pattern: string): boolean {
-  const h = host.toLowerCase();
   const p = pattern.toLowerCase().trim();
   if (!p) return false;
+  if (p === "*") return true;
+  const h = (host || "").toLowerCase();
+  if (!h) return false;
   if (p.startsWith("*.")) {
     const base = p.slice(2);
     return h === base || h.endsWith("." + base);
@@ -152,11 +154,12 @@ export const Route = createFileRoute("/api/public/proxy")({
           .select("domain")
           .eq("client_id", client.id);
         const domains = (domainsRows || []).map((r) => r.domain);
+        const hasWildcard = domains.some((d) => (d || "").trim() === "*");
         if (domains.length === 0) {
           await log(client.id, 403, false, "No domains configured", 0);
           return jsonResponse({ code: 403, msg: "Domain not allowed" }, 403);
         }
-        if (!host || !domains.some((d) => domainMatches(host, d))) {
+        if (!hasWildcard && (!host || !domains.some((d) => domainMatches(host, d)))) {
           await log(client.id, 403, false, `Domain ${host ?? "missing"} not whitelisted`, 0);
           return jsonResponse({ code: 403, msg: "Domain not allowed", your_domain: host ?? null }, 403);
         }
