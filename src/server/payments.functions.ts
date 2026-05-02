@@ -73,6 +73,7 @@ export const createTopupOrder = createServerFn({ method: "POST" })
       coins: data.coins,
       status: "pending",
       payment_url: body.payment_url,
+      currency: "INR",
     });
 
     return { payment_url: body.payment_url as string, merchant_order_no: merchantOrderNo, amount_inr: inr, coins: data.coins };
