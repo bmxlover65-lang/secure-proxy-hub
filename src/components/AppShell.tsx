@@ -2,7 +2,7 @@ import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useAuth } from "@/lib/auth-context";
 import { Button } from "@/components/ui/button";
 import {
-  LayoutDashboard, Users, ScrollText, Activity, BookOpen, LogOut,
+  LayoutDashboard, Users, ScrollText, Activity, BookOpen, LogOut, BarChart3,
   Shield, Menu, X, ChevronRight,
 } from "lucide-react";
 import { useState, type ReactNode } from "react";
@@ -13,6 +13,7 @@ const adminNav: NavItem[] = [
   { to: "/admin", label: "Dashboard", icon: LayoutDashboard, description: "Overview & stats" },
   { to: "/admin/clients", label: "API Clients", icon: Users, description: "Keys, IPs & domains" },
   { to: "/admin/logs", label: "Request Logs", icon: ScrollText, description: "Activity history" },
+  { to: "/admin/stats", label: "Statistics", icon: BarChart3, description: "Usage charts" },
   { to: "/admin/health", label: "API Health", icon: Activity, description: "Test endpoints" },
   { to: "/admin/docs", label: "API Docs", icon: BookOpen, description: "Integration guide" },
 ];
