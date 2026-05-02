@@ -23,7 +23,7 @@ function AdminSettings() {
   useEffect(() => {
     fetchSettings().then((s) => {
       setCoinsPerKey(Number(s.coins_per_api_key ?? 1000));
-      setRupeesPer1000(Number(s.paise_per_1000_coins ?? 200000) / 100);
+      setRupeesPer1000(Number(s.paise_per_1000_coins ?? 2000));
       setSignupBonus(Number(s.signup_bonus_coins ?? 0));
     }).catch(() => {});
   }, [fetchSettings]);
@@ -31,7 +31,7 @@ function AdminSettings() {
   const save = async () => {
     setSaving(true);
     try {
-      await update({ data: { coins_per_api_key: coinsPerKey, paise_per_1000_coins: Math.round(rupeesPer1000 * 100), signup_bonus_coins: signupBonus } });
+      await update({ data: { coins_per_api_key: coinsPerKey, paise_per_1000_coins: Math.round(rupeesPer1000), signup_bonus_coins: signupBonus } });
       toast.success("Settings saved");
     } catch (e) { toast.error((e as Error).message); } finally { setSaving(false); }
   };
