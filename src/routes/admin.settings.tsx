@@ -16,14 +16,14 @@ function AdminSettings() {
   const fetchSettings = useServerFn(getPublicSettings);
   const update = useServerFn(adminUpdateSettings);
   const [coinsPerKey, setCoinsPerKey] = useState(1000);
-  const [paisePer1000, setPaisePer1000] = useState(2000);
+  const [rupeesPer1000, setRupeesPer1000] = useState(2000);
   const [signupBonus, setSignupBonus] = useState(0);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     fetchSettings().then((s) => {
       setCoinsPerKey(Number(s.coins_per_api_key ?? 1000));
-      setPaisePer1000(Number(s.paise_per_1000_coins ?? 2000));
+      setRupeesPer1000(Number(s.paise_per_1000_coins ?? 200000) / 100);
       setSignupBonus(Number(s.signup_bonus_coins ?? 0));
     }).catch(() => {});
   }, [fetchSettings]);
@@ -31,7 +31,7 @@ function AdminSettings() {
   const save = async () => {
     setSaving(true);
     try {
-      await update({ data: { coins_per_api_key: coinsPerKey, paise_per_1000_coins: paisePer1000, signup_bonus_coins: signupBonus } });
+      await update({ data: { coins_per_api_key: coinsPerKey, paise_per_1000_coins: Math.round(rupeesPer1000 * 100), signup_bonus_coins: signupBonus } });
       toast.success("Settings saved");
     } catch (e) { toast.error((e as Error).message); } finally { setSaving(false); }
   };
@@ -42,7 +42,11 @@ function AdminSettings() {
       <Card style={{ background: "var(--gradient-card)" }} className="border-border/60">
         <CardContent className="p-6 space-y-4">
           <div><Label>Coins per API key</Label><Input type="number" value={coinsPerKey} onChange={(e) => setCoinsPerKey(parseInt(e.target.value || "0", 10))} /></div>
-          <div><Label>Paise per 1000 coins (₹{(paisePer1000 / 100).toFixed(2)} per 1000)</Label><Input type="number" value={paisePer1000} onChange={(e) => setPaisePer1000(parseInt(e.target.value || "0", 10))} /></div>
+          <div>
+            <Label>Price in ₹ per 1000 coins</Label>
+            <Input type="number" step="1" value={rupeesPer1000} onChange={(e) => setRupeesPer1000(parseFloat(e.target.value || "0"))} />
+            <p className="mt-1 text-xs text-muted-foreground">Enter rupees (e.g. <strong>2000</strong> = ₹2000 per 1000 coins).</p>
+          </div>
           <div><Label>Signup bonus coins</Label><Input type="number" value={signupBonus} onChange={(e) => setSignupBonus(parseInt(e.target.value || "0", 10))} /></div>
           <Button onClick={save} disabled={saving}>{saving ? "Saving…" : "Save settings"}</Button>
         </CardContent>
