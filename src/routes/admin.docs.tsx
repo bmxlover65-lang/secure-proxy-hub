@@ -3,7 +3,7 @@ import { PageHeader } from "@/components/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { BookOpen, Copy, Globe, KeyRound, ShieldCheck, AlertTriangle } from "lucide-react";
+import { BookOpen, Copy, Globe, KeyRound, ShieldCheck, AlertTriangle, FolderTree, CalendarClock } from "lucide-react";
 import { SUPPORTED_GAMES } from "@/server/upstream";
 import { toast } from "sonner";
 
@@ -51,6 +51,18 @@ function DocsPage() {
 
       <Card style={{ background: "var(--gradient-card)" }} className="border-border/60">
         <CardHeader>
+          <CardTitle className="flex items-center gap-2"><CalendarClock className="h-5 w-5 text-primary" /> Keys: per-category &amp; time-limited</CardTitle>
+          <CardDescription>Each API key is bound to exactly one game category and expires after the configured number of days.</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-2 text-sm text-muted-foreground">
+          <p>Issue separate keys per category — for example a WinGo key cannot call <span className="font-mono">category=k3</span>. Requests with a mismatched category return <span className="font-mono">403</span>.</p>
+          <p>When a key passes its expiry date the proxy returns <span className="font-mono">403 API key expired</span>. Use the <strong className="text-foreground">Extend</strong> action on the Clients page to add more days.</p>
+          <p>There is no per-minute rate limit. Access is controlled purely by category, IP whitelist, domain whitelist, and expiry.</p>
+        </CardContent>
+      </Card>
+
+      <Card style={{ background: "var(--gradient-card)" }} className="border-border/60">
+        <CardHeader>
           <CardTitle className="flex items-center gap-2"><KeyRound className="h-5 w-5 text-primary" /> Query parameters</CardTitle>
         </CardHeader>
         <CardContent>
@@ -66,7 +78,7 @@ function DocsPage() {
               </thead>
               <tbody className="font-mono text-xs">
                 <tr className="border-t border-border/60"><td className="px-3 py-2">api_key</td><td className="px-3 py-2">Yes</td><td className="px-3 py-2">HAPI_…</td><td className="px-3 py-2 font-sans">Client's API key.</td></tr>
-                <tr className="border-t border-border/60"><td className="px-3 py-2">category</td><td className="px-3 py-2">Yes</td><td className="px-3 py-2">{SUPPORTED_GAMES.map((c) => c.category).join(" | ")}</td><td className="px-3 py-2 font-sans">Game category.</td></tr>
+                <tr className="border-t border-border/60"><td className="px-3 py-2">category</td><td className="px-3 py-2">Yes</td><td className="px-3 py-2">{SUPPORTED_GAMES.map((c) => c.category).join(" | ")}</td><td className="px-3 py-2 font-sans">Must match the category the API key was issued for.</td></tr>
                 <tr className="border-t border-border/60"><td className="px-3 py-2">game</td><td className="px-3 py-2">Yes</td><td className="px-3 py-2">e.g. 30s, 1m, 3m, 5m, 10m</td><td className="px-3 py-2 font-sans">Game variant (depends on category, see below).</td></tr>
                 <tr className="border-t border-border/60"><td className="px-3 py-2">type</td><td className="px-3 py-2">No</td><td className="px-3 py-2">period | history</td><td className="px-3 py-2 font-sans">"period" returns the current/next draw, "history" returns the recent draw history. Defaults to "period".</td></tr>
               </tbody>
@@ -100,7 +112,7 @@ function DocsPage() {
         <CardContent className="space-y-3 text-sm text-muted-foreground">
           <p><strong className="text-foreground">IP check:</strong> the request's source IP must be in the client's allowed IPs list. We read <span className="font-mono">x-forwarded-for</span>, <span className="font-mono">cf-connecting-ip</span>, and <span className="font-mono">x-real-ip</span>.</p>
           <p><strong className="text-foreground">Domain check:</strong> the request's <span className="font-mono">Origin</span> (or fallback <span className="font-mono">Referer</span>) hostname must match an allowed domain. Wildcards like <span className="font-mono">*.example.com</span> are supported.</p>
-          <p><strong className="text-foreground">Rate limit:</strong> per-client per-minute, configurable.</p>
+          <p><strong className="text-foreground">Expiry:</strong> each key has a fixed validity window (in days) — expired keys are rejected with 403.</p>
           <div className="flex items-start gap-2 rounded-md border border-warning/30 bg-warning/10 p-3 text-xs text-warning-foreground">
             <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-warning" />
             <div>The upstream source URL is never returned in any response. Clients only ever see <span className="font-mono">{PUBLIC_BASE}</span>.</div>
@@ -168,16 +180,52 @@ echo $response;`}</CodeBlock>
                   [400, "Missing api_key", "api_key, category or game param missing"],
                   [401, "Invalid API key", "Key not found"],
                   [403, "Account suspended", "Client status is suspended"],
+                  [403, "API key expired", "Validity window has passed"],
+                  [403, "Wrong category", "Key was issued for a different category"],
                   [403, "IP not allowed", "Source IP not whitelisted"],
                   [403, "Domain not allowed", "Origin/Referer host not whitelisted"],
                   [404, "Unknown category/game", "Combination not supported"],
-                  [429, "Rate limit exceeded", "Too many requests this minute"],
                   [502, "Upstream error", "Source temporarily unreachable"],
                 ].map(([s, m, d]) => (
                   <tr key={`${s}-${m}`} className="border-t border-border/60">
                     <td className="px-3 py-2 font-mono">{s}</td>
                     <td className="px-3 py-2 font-mono">{m}</td>
                     <td className="px-3 py-2 text-muted-foreground">{d}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card style={{ background: "var(--gradient-card)" }} className="border-border/60">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2"><FolderTree className="h-5 w-5 text-primary" /> Code map</CardTitle>
+          <CardDescription>Where each piece lives in the codebase.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="overflow-hidden rounded-lg border border-border/60">
+            <table className="w-full text-sm">
+              <thead className="bg-secondary/40 text-xs uppercase tracking-wider text-muted-foreground">
+                <tr><th className="px-3 py-2 text-left font-medium">Concern</th><th className="px-3 py-2 text-left font-medium">Path</th></tr>
+              </thead>
+              <tbody className="font-mono text-xs">
+                {[
+                  ["Public proxy endpoint", "src/routes/api/public/proxy.ts"],
+                  ["Upstream URL builder & fetcher", "src/server/upstream.ts"],
+                  ["Admin server functions (CRUD, tests)", "src/server/admin.functions.ts"],
+                  ["Admin: API clients page", "src/routes/admin.clients.tsx"],
+                  ["Admin: Health checks page", "src/routes/admin.health.tsx"],
+                  ["Admin: Request logs page", "src/routes/admin.logs.tsx"],
+                  ["Admin: API docs page", "src/routes/admin.docs.tsx"],
+                  ["Admin layout & nav", "src/routes/admin.tsx + src/components/AppShell.tsx"],
+                  ["Database schema (migrations)", "supabase/migrations/*.sql"],
+                  ["Generated DB types", "src/integrations/supabase/types.ts"],
+                ].map(([k, v]) => (
+                  <tr key={v} className="border-t border-border/60">
+                    <td className="px-3 py-2 font-sans">{k}</td>
+                    <td className="px-3 py-2">{v}</td>
                   </tr>
                 ))}
               </tbody>
