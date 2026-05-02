@@ -28,18 +28,32 @@ function HealthPage() {
     setResult(null);
     try {
       const r = await test({ data: { category, game } });
-      setResult(r);
-      if (!r.ok) toast.error(`Status ${r.status}`);
-      else toast.success(`OK in ${r.ms}ms`);
+      // Defensive: ensure r matches the expected shape (string body)
+      if (r && typeof r === "object" && "body" in r && typeof (r as any).body === "string") {
+        setResult(r);
+        if (!r.ok) toast.error(`Upstream status ${r.status}`);
+        else toast.success(`OK in ${r.ms}ms`);
+      } else {
+        toast.error("Unexpected response from server");
+      }
     } catch (e) {
-      toast.error((e as Error).message);
+      // Server fn may throw a Response (e.g. 401 from auth middleware)
+      let msg = "Request failed";
+      if (e instanceof Response) {
+        try { msg = await e.text(); } catch { /* ignore */ }
+        msg = `HTTP ${e.status}${msg ? `: ${msg.slice(0, 200)}` : ""}`;
+      } else if (e instanceof Error) {
+        msg = e.message;
+      }
+      toast.error(msg);
     } finally {
       setLoading(false);
     }
   };
 
-  let pretty = result?.body ?? "";
-  try { pretty = JSON.stringify(JSON.parse(result?.body ?? ""), null, 2); } catch { /* keep raw */ }
+  const rawBody = typeof result?.body === "string" ? result.body : "";
+  let pretty = rawBody;
+  try { pretty = JSON.stringify(JSON.parse(rawBody), null, 2); } catch { /* keep raw */ }
 
   return (
     <div className="space-y-6">
