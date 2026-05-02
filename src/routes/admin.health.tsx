@@ -1,14 +1,15 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { adminTestUpstream } from "@/server/admin.functions";
+import { adminTestUpstream, adminTestAllUpstreams } from "@/server/admin.functions";
 import { SUPPORTED_GAMES } from "@/server/upstream";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
 import { PageHeader } from "@/components/PageHeader";
 import { toast } from "sonner";
-import { Activity, Play, Loader2, Clock, Globe, CheckCircle2, XCircle } from "lucide-react";
+import { Activity, Play, Loader2, Clock, Globe, CheckCircle2, XCircle, RefreshCw, Zap } from "lucide-react";
 
 export const Route = createFileRoute("/admin/health")({
   component: HealthPage,
@@ -16,10 +17,15 @@ export const Route = createFileRoute("/admin/health")({
 
 function HealthPage() {
   const test = useServerFn(adminTestUpstream);
+  const testAll = useServerFn(adminTestAllUpstreams);
   const [category, setCategory] = useState("wingo");
   const [game, setGame] = useState("30s");
   const [result, setResult] = useState<{ ok: boolean; status: number; ms: number; url: string; body: string } | null>(null);
   const [loading, setLoading] = useState(false);
+  type AllRow = { category: string; game: string; url: string; ok: boolean; status: number; ms: number; error?: string };
+  const [allRows, setAllRows] = useState<AllRow[] | null>(null);
+  const [allLoading, setAllLoading] = useState(false);
+  const [checkedAt, setCheckedAt] = useState<string | null>(null);
 
   const games = SUPPORTED_GAMES.find((c) => c.category === category)?.games ?? [];
 
@@ -51,22 +57,120 @@ function HealthPage() {
     }
   };
 
+  const runAll = async () => {
+    setAllLoading(true);
+    try {
+      const r = await testAll({ data: undefined as any });
+      if (r && Array.isArray((r as any).results)) {
+        setAllRows((r as any).results as AllRow[]);
+        setCheckedAt((r as any).checkedAt ?? new Date().toISOString());
+        const okCount = (r as any).results.filter((x: AllRow) => x.ok).length;
+        const total = (r as any).results.length;
+        if (okCount === total) toast.success(`All ${total} endpoints healthy`);
+        else toast.warning(`${okCount}/${total} endpoints healthy`);
+      }
+    } catch (e) {
+      let msg = "Request failed";
+      if (e instanceof Response) {
+        try { msg = `HTTP ${e.status}: ${(await e.text()).slice(0, 200)}`; } catch { msg = `HTTP ${e.status}`; }
+      } else if (e instanceof Error) msg = e.message;
+      toast.error(msg);
+    } finally {
+      setAllLoading(false);
+    }
+  };
+
+  // Auto-run all on first mount
+  useEffect(() => { runAll(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, []);
+
   const rawBody = typeof result?.body === "string" ? result.body : "";
   let pretty = rawBody;
   try { pretty = JSON.stringify(JSON.parse(rawBody), null, 2); } catch { /* keep raw */ }
+
+  const okCount = allRows?.filter((r) => r.ok).length ?? 0;
+  const totalCount = allRows?.length ?? 0;
+  const avgMs = allRows && allRows.length > 0
+    ? Math.round(allRows.reduce((s, r) => s + (r.ms || 0), 0) / allRows.length)
+    : 0;
 
   return (
     <div className="space-y-6">
       <PageHeader
         icon={Activity}
         title="API Health"
-        description="Test the live upstream feed for any supported game."
+        description="Live status of every supported upstream game endpoint."
       />
+
+      {/* All-endpoints overview */}
+      <Card style={{ background: "var(--gradient-card)" }} className="border-border/60">
+        <CardHeader className="flex flex-row items-start justify-between gap-4 space-y-0">
+          <div>
+            <CardTitle className="flex items-center gap-2"><Zap className="h-5 w-5 text-primary" /> All endpoints</CardTitle>
+            <CardDescription>
+              {checkedAt
+                ? <>Last checked {new Date(checkedAt).toLocaleTimeString()}{totalCount > 0 ? ` · ${okCount}/${totalCount} healthy · avg ${avgMs}ms` : ""}</>
+                : "Run a check to see live status of every supported game."}
+            </CardDescription>
+          </div>
+          <Button onClick={runAll} disabled={allLoading} variant="outline" size="sm">
+            {allLoading
+              ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Checking…</>
+              : <><RefreshCw className="mr-2 h-4 w-4" /> Test all</>}
+          </Button>
+        </CardHeader>
+        <CardContent>
+          {allLoading && !allRows && (
+            <div className="flex items-center justify-center py-10 text-sm text-muted-foreground">
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Pinging upstream endpoints…
+            </div>
+          )}
+          {allRows && allRows.length > 0 && (
+            <div className="overflow-hidden rounded-xl border border-border/60">
+              <table className="w-full text-sm">
+                <thead className="bg-secondary/40 text-xs uppercase tracking-wider text-muted-foreground">
+                  <tr>
+                    <th className="px-3 py-2 text-left font-medium">Category</th>
+                    <th className="px-3 py-2 text-left font-medium">Game</th>
+                    <th className="px-3 py-2 text-left font-medium">Status</th>
+                    <th className="px-3 py-2 text-right font-medium">Latency</th>
+                    <th className="px-3 py-2 text-left font-medium">URL</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {allRows.map((r) => (
+                    <tr key={`${r.category}-${r.game}`} className="border-t border-border/60 hover:bg-secondary/20">
+                      <td className="px-3 py-2 font-medium uppercase">{r.category}</td>
+                      <td className="px-3 py-2 font-mono text-xs">{r.game}</td>
+                      <td className="px-3 py-2">
+                        {r.ok ? (
+                          <Badge className="border-success/30 bg-success/10 text-success hover:bg-success/15">
+                            <CheckCircle2 className="mr-1 h-3 w-3" /> {r.status} OK
+                          </Badge>
+                        ) : (
+                          <Badge variant="destructive" className="bg-destructive/15 text-destructive hover:bg-destructive/20">
+                            <XCircle className="mr-1 h-3 w-3" /> {r.status || "ERR"}
+                          </Badge>
+                        )}
+                      </td>
+                      <td className="px-3 py-2 text-right font-mono text-xs">
+                        {r.ms > 0 ? `${r.ms}ms` : "—"}
+                      </td>
+                      <td className="px-3 py-2 font-mono text-[11px] text-muted-foreground">
+                        <span className="block max-w-[420px] truncate">{r.url}</span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       <Card style={{ background: "var(--gradient-card)" }} className="border-border/60">
         <CardHeader>
-          <CardTitle>Test endpoint</CardTitle>
-          <CardDescription>Pick a category and game, then run a live request to the upstream API.</CardDescription>
+          <CardTitle>Inspect single endpoint</CardTitle>
+          <CardDescription>Pick a category and game, then run a live request to view the full JSON payload.</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid gap-3 sm:grid-cols-[1fr_1fr_auto]">
