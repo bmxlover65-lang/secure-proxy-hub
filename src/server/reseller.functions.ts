@@ -48,7 +48,6 @@ export const resellerCreateClient = createServerFn({ method: "POST" })
     z.object({
       name: z.string().trim().min(1).max(120),
       category: z.enum(["wingo", "k3", "d5", "motorace"]),
-      duration_days: z.number().int().min(1).max(3650).default(30),
       allowed_ips: z.array(z.string().trim().min(1).max(64)).max(50).default([]),
       allowed_domains: z.array(z.string().trim().min(1).max(255)).max(50).default([]),
       notes: z.string().max(500).optional(),
@@ -57,6 +56,7 @@ export const resellerCreateClient = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const userId = context.userId;
     const cost = await getSetting("coins_per_api_key", 1000);
+    const FIXED_DURATION_DAYS = 13;
 
     // Atomic-ish: rely on adjust_wallet to throw on insufficient_balance
     const { data: balRow, error: bErr } = await supabaseAdmin.rpc("adjust_wallet", {
@@ -72,14 +72,14 @@ export const resellerCreateClient = createServerFn({ method: "POST" })
     }
 
     const api_key = genKey();
-    const expires_at = new Date(Date.now() + data.duration_days * 86400_000).toISOString();
+    const expires_at = new Date(Date.now() + FIXED_DURATION_DAYS * 86400_000).toISOString();
     const { data: client, error } = await supabaseAdmin
       .from("api_clients")
       .insert({
         name: data.name,
         api_key,
         category: data.category,
-        duration_days: data.duration_days,
+        duration_days: FIXED_DURATION_DAYS,
         expires_at,
         notes: data.notes ?? null,
         user_id: userId,
