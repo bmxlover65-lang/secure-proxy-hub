@@ -186,7 +186,7 @@ function HealthPage() {
           <CardDescription>Pick a category and game, then run a live request to view the full JSON payload.</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid gap-3 sm:grid-cols-[1fr_1fr_auto]">
+          <div className="grid gap-3 sm:grid-cols-[1fr_1fr_1fr_auto]">
             <div className="space-y-1.5">
               <div className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Category</div>
               <Select value={category} onValueChange={(v) => { setCategory(v); const gs = SUPPORTED_GAMES.find((c) => c.category === v)?.games ?? []; setGame(gs[0] ?? ""); }}>
