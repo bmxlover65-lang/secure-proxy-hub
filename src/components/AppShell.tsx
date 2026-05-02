@@ -3,7 +3,7 @@ import { useAuth } from "@/lib/auth-context";
 import { Button } from "@/components/ui/button";
 import {
   LayoutDashboard, Users, ScrollText, Activity, BookOpen, LogOut, BarChart3,
-  Shield, Menu, X, ChevronRight,
+  Shield, Menu, X, ChevronRight, Database,
 } from "lucide-react";
 import { useState, type ReactNode } from "react";
 
@@ -14,6 +14,7 @@ const adminNav: NavItem[] = [
   { to: "/admin/clients", label: "API Clients", icon: Users, description: "Keys, IPs & domains" },
   { to: "/admin/logs", label: "Request Logs", icon: ScrollText, description: "Activity history" },
   { to: "/admin/stats", label: "Statistics", icon: BarChart3, description: "Usage charts" },
+  { to: "/admin/cache", label: "Cache Monitor", icon: Database, description: "Hit/miss & TTL" },
   { to: "/admin/health", label: "API Health", icon: Activity, description: "Test endpoints" },
   { to: "/admin/docs", label: "API Docs", icon: BookOpen, description: "Integration guide" },
 ];

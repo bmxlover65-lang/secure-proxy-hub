@@ -36,7 +36,6 @@ function StatsPage() {
   const [days, setDays] = useState("7");
   const [clientId, setClientId] = useState("all");
   const [live, setLive] = useState(true);
-  const [pulse, setPulse] = useState(0);
   const fetchStats = useServerFn(getStats);
   const invalidate = useServerFn(invalidateStatsCache);
   const reqId = useRef(0);
@@ -64,7 +63,6 @@ function StatsPage() {
       if (myReq !== reqId.current) return;
       clientCache.set(key, { data, expires: now + CLIENT_TTL_MS });
       setStats(data);
-      setPulse(Date.now());
     } finally {
       if (myReq === reqId.current) setLoading(false);
     }
