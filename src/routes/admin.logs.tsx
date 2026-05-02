@@ -18,6 +18,7 @@ type Row = {
   category: string | null; game: string | null; type: string | null;
   status_code: number | null; success: boolean; error_message: string | null;
   response_time_ms: number | null; client_id: string | null; endpoint: string | null;
+  host: string | null;
 };
 
 type Client = { id: string; name: string };
@@ -42,7 +43,7 @@ function LogsPage() {
   const load = useCallback(async () => {
     setLoading(true);
     let q = supabase.from("request_logs")
-      .select("id, created_at, ip_address, api_key, category, game, type, status_code, success, error_message, response_time_ms, client_id, endpoint")
+      .select("id, created_at, ip_address, api_key, category, game, type, status_code, success, error_message, response_time_ms, client_id, endpoint, host")
       .order("created_at", { ascending: false }).limit(1000);
     if (clientId !== "all") q = q.eq("client_id", clientId);
     if (category !== "all") q = q.eq("category", category);
@@ -65,7 +66,7 @@ function LogsPage() {
     if (!text) return rows;
     const q = text.toLowerCase();
     return rows.filter((r) =>
-      [r.ip_address, r.api_key, r.endpoint, r.error_message].filter(Boolean).join(" ").toLowerCase().includes(q),
+      [r.ip_address, r.api_key, r.endpoint, r.error_message, r.host].filter(Boolean).join(" ").toLowerCase().includes(q),
     );
   }, [rows, text]);
 
@@ -186,6 +187,7 @@ function LogsPage() {
                     <th className="pb-3 font-medium">Time</th>
                     <th className="pb-3 font-medium">IP</th>
                     <th className="pb-3 font-medium">Key</th>
+                    <th className="pb-3 font-medium">Host</th>
                     <th className="pb-3 font-medium">Endpoint</th>
                     <th className="pb-3 font-medium">Type</th>
                     <th className="pb-3 font-medium">Status</th>
@@ -199,6 +201,7 @@ function LogsPage() {
                       <td className="py-2.5 text-xs text-muted-foreground">{new Date(r.created_at).toLocaleString()}</td>
                       <td className="font-mono text-xs">{r.ip_address}</td>
                       <td className="font-mono text-xs text-muted-foreground">{r.api_key ? r.api_key.slice(0, 12) + "…" : "—"}</td>
+                      <td className="font-mono text-xs text-muted-foreground">{r.host ?? "—"}</td>
                       <td><span className="rounded-md bg-secondary/40 px-2 py-0.5 font-mono text-xs">{r.category}/{r.game}</span></td>
                       <td><span className="rounded-md bg-secondary/30 px-2 py-0.5 text-[10px] uppercase text-muted-foreground">{r.type ?? "—"}</span></td>
                       <td>

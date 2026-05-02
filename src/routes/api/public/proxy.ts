@@ -81,6 +81,7 @@ export const Route = createFileRoute("/api/public/proxy")({
               client_id: clientId,
               api_key: apiKey || null,
               ip_address: ip,
+              host: host,
               category: category || null,
               game: game || null,
               type,

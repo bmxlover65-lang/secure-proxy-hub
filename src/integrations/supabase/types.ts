@@ -150,6 +150,7 @@ export type Database = {
           endpoint: string | null
           error_message: string | null
           game: string | null
+          host: string | null
           id: string
           ip_address: string | null
           response_time_ms: number | null
@@ -165,6 +166,7 @@ export type Database = {
           endpoint?: string | null
           error_message?: string | null
           game?: string | null
+          host?: string | null
           id?: string
           ip_address?: string | null
           response_time_ms?: number | null
@@ -180,6 +182,7 @@ export type Database = {
           endpoint?: string | null
           error_message?: string | null
           game?: string | null
+          host?: string | null
           id?: string
           ip_address?: string | null
           response_time_ms?: number | null
