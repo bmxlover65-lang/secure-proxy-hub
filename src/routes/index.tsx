@@ -12,14 +12,36 @@ import {
 export const Route = createFileRoute("/")({
   component: Index,
   head: () => ({ meta: [
-    { title: "Hyper Softs SaaS — Premium API Proxy & Reseller Platform" },
-    { name: "description", content: "Issue per-client API keys, top up your wallet, monitor every request — built for resellers." },
-    { property: "og:title", content: "Hyper Softs SaaS — Premium API Proxy" },
-    { property: "og:description", content: "API keys, wallet billing, IP whitelisting and live logs in one platform." },
+    { title: "Hyper Softs SaaS — API Reseller Platform with IP Whitelist & Rate Limiting" },
+    { name: "description", content: "Premium API proxy for SASS lottery game resellers. IP whitelisting, domain locking, rate limiting, wallet billing & live request logs in one secure dashboard." },
+    { name: "keywords", content: "API reseller platform, lottery API, SASS lottery, API proxy, IP whitelist, rate limiting, secure API access, wallet billing, API key management, reseller dashboard" },
+    { name: "author", content: "Hyper Softs" },
+    { name: "robots", content: "index, follow" },
+    { property: "og:title", content: "Hyper Softs SaaS — Secure API Reseller Platform" },
+    { property: "og:description", content: "Mint API keys, top up your wallet & monitor every call. IP whitelist, domain locking and rate limiting built in." },
     { property: "og:image", content: "/og-image.jpg" },
     { property: "og:type", content: "website" },
+    { property: "og:site_name", content: "Hyper Softs SaaS" },
     { name: "twitter:card", content: "summary_large_image" },
+    { name: "twitter:title", content: "Hyper Softs SaaS — Secure API Reseller Platform" },
+    { name: "twitter:description", content: "API keys, wallet billing, IP whitelist & live logs — built for resellers." },
     { name: "twitter:image", content: "/og-image.jpg" },
+  ], links: [
+    { rel: "canonical", href: "https://sass.hyperapi.in/" },
+  ], scripts: [
+    {
+      type: "application/ld+json",
+      children: JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        name: "Hyper Softs SaaS",
+        applicationCategory: "BusinessApplication",
+        operatingSystem: "Web",
+        description: "Secure API reseller platform with IP whitelist, rate limiting, wallet billing and live request logs.",
+        offers: { "@type": "Offer", price: "0", priceCurrency: "INR" },
+        url: "https://sass.hyperapi.in/",
+      }),
+    },
   ] }),
 });
 
