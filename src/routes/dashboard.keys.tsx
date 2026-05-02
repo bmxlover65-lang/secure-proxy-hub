@@ -23,7 +23,6 @@ function KeysPage() {
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
   const [category, setCategory] = useState<"wingo" | "k3" | "d5" | "motorace">("wingo");
-  const [days, setDays] = useState(30);
   const [submitting, setSubmitting] = useState(false);
 
   const reload = useCallback(() => { fetchOverview().then(setData).catch(() => {}); }, [fetchOverview]);
@@ -38,7 +37,7 @@ function KeysPage() {
     if (balance < cost) return toast.error("Insufficient balance. Top up your wallet.");
     setSubmitting(true);
     try {
-      const res = await create({ data: { name: name.trim(), category, duration_days: days, allowed_ips: ["*"], allowed_domains: ["*"] } });
+      const res = await create({ data: { name: name.trim(), category, allowed_ips: ["*"], allowed_domains: ["*"] } });
       toast.success(`API key created. ${cost} coins charged.`);
       navigator.clipboard.writeText(res.client.api_key);
       setOpen(false); setName(""); reload();
@@ -70,8 +69,7 @@ function KeysPage() {
                     </SelectContent>
                   </Select>
                 </div>
-                <div><Label>Duration (days)</Label><Input type="number" value={days} min={1} max={365} onChange={(e) => setDays(parseInt(e.target.value || "30", 10))} /></div>
-                <div className="flex items-center gap-2 rounded-md bg-secondary/40 p-3 text-sm"><Coins className="h-4 w-4 text-primary" /> Cost: <strong>{cost.toLocaleString()} coins</strong></div>
+                <div className="flex items-center gap-2 rounded-md bg-secondary/40 p-3 text-sm"><Coins className="h-4 w-4 text-primary" /> Cost: <strong>{cost.toLocaleString()} coins</strong> · Validity: <strong>13 days</strong></div>
               </div>
               <DialogFooter>
                 <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
