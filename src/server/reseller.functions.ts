@@ -181,6 +181,22 @@ export const resellerSetDomains = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+export const resellerListAccess = createServerFn({ method: "POST" })
+  .middleware([sendSupabaseAuth, requireSupabaseAuth])
+  .inputValidator((d) => z.object({ client_id: z.string().uuid() }).parse(d))
+  .handler(async ({ data, context }) => {
+    const { data: existing } = await supabaseAdmin.from("api_clients").select("user_id").eq("id", data.client_id).maybeSingle();
+    if (!existing || existing.user_id !== context.userId) throw new Error("Not allowed");
+    const [{ data: ips }, { data: doms }] = await Promise.all([
+      supabaseAdmin.from("allowed_ips").select("ip_address").eq("client_id", data.client_id),
+      supabaseAdmin.from("allowed_domains").select("domain").eq("client_id", data.client_id),
+    ]);
+    return {
+      ips: (ips ?? []).map((r) => r.ip_address),
+      domains: (doms ?? []).map((r) => r.domain),
+    };
+  });
+
 export const resellerListLogs = createServerFn({ method: "GET" })
   .middleware([sendSupabaseAuth, requireSupabaseAuth])
   .handler(async ({ context }) => {
