@@ -28,7 +28,7 @@ export function AuthLayout({ children, title, subtitle }: { children: ReactNode;
           >
             <Shield className="h-5 w-5 text-primary-foreground" />
           </div>
-          <div className="text-base font-semibold tracking-tight">HyperAPI Admin</div>
+          <div className="text-base font-semibold tracking-tight">Hyper Softs SaaS</div>
         </div>
         <div className="hidden items-center gap-2 rounded-full border border-border/40 bg-card/40 px-3 py-1.5 text-xs backdrop-blur-md sm:flex">
           <span className="relative flex h-2 w-2">

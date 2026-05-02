@@ -39,7 +39,7 @@ export function AppShell({ children, mode }: { children: ReactNode; mode: "admin
           <Shield className="h-5 w-5 text-primary-foreground" />
         </div>
         <div className="min-w-0">
-          <div className="text-sm font-semibold leading-tight">HyperAPI Admin</div>
+          <div className="text-sm font-semibold leading-tight">Hyper Softs SaaS</div>
           <div className="text-[11px] uppercase tracking-wider text-muted-foreground">{mode}</div>
         </div>
       </div>
