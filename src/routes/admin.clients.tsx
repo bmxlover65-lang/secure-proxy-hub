@@ -380,7 +380,7 @@ function CreateClientDialog({ onCreate }: { onCreate: (p: { name: string; catego
     <DialogContent>
       <DialogHeader>
         <DialogTitle>Create a new API client</DialogTitle>
-        <DialogDescription>One key per game category. Validity is fixed at <strong>13 days</strong>.</DialogDescription>
+        <DialogDescription>One key per game category. Validity is fixed at <strong>30 days</strong>.</DialogDescription>
       </DialogHeader>
       <div className="space-y-4">
         <div className="space-y-2"><Label>Name</Label><Input placeholder="Acme Corp" value={name} onChange={(e) => setName(e.target.value)} /></div>
