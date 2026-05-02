@@ -81,33 +81,39 @@ export type Database = {
       api_clients: {
         Row: {
           api_key: string
+          category: string
           created_at: string
+          duration_days: number | null
+          expires_at: string | null
           id: string
           name: string
           notes: string | null
-          rate_limit_per_minute: number
           status: string
           updated_at: string
           user_id: string | null
         }
         Insert: {
           api_key: string
+          category?: string
           created_at?: string
+          duration_days?: number | null
+          expires_at?: string | null
           id?: string
           name: string
           notes?: string | null
-          rate_limit_per_minute?: number
           status?: string
           updated_at?: string
           user_id?: string | null
         }
         Update: {
           api_key?: string
+          category?: string
           created_at?: string
+          duration_days?: number | null
+          expires_at?: string | null
           id?: string
           name?: string
           notes?: string | null
-          rate_limit_per_minute?: number
           status?: string
           updated_at?: string
           user_id?: string | null
@@ -149,6 +155,7 @@ export type Database = {
           response_time_ms: number | null
           status_code: number | null
           success: boolean
+          type: string | null
         }
         Insert: {
           api_key?: string | null
@@ -163,6 +170,7 @@ export type Database = {
           response_time_ms?: number | null
           status_code?: number | null
           success?: boolean
+          type?: string | null
         }
         Update: {
           api_key?: string | null
@@ -177,6 +185,7 @@ export type Database = {
           response_time_ms?: number | null
           status_code?: number | null
           success?: boolean
+          type?: string | null
         }
         Relationships: [
           {
