@@ -28,7 +28,7 @@ export function AuthLayout({ children, title, subtitle }: { children: ReactNode;
           >
             <Shield className="h-5 w-5 text-primary-foreground" />
           </div>
-          <div className="text-base font-semibold tracking-tight">Reseller Panel</div>
+          <div className="text-base font-semibold tracking-tight">HyperAPI Admin</div>
         </div>
         <div className="hidden items-center gap-2 rounded-full border border-border/40 bg-card/40 px-3 py-1.5 text-xs backdrop-blur-md sm:flex">
           <span className="relative flex h-2 w-2">
@@ -57,12 +57,12 @@ export function AuthLayout({ children, title, subtitle }: { children: ReactNode;
             </span>
           </h1>
           <p className="max-w-md text-base text-muted-foreground">
-            Manage resellers, monitor live traffic, and proxy requests securely with IP whitelisting and rate limiting — all from one dashboard.
+            Manage API clients, monitor live traffic, and proxy requests securely with IP whitelisting and rate limiting — all from one dashboard.
           </p>
           <div className="grid max-w-md grid-cols-2 gap-3">
             {[
               { icon: Zap, label: "Lightning fast", desc: "< 200ms" },
-              { icon: Lock, label: "IP whitelist", desc: "Per reseller" },
+              { icon: Lock, label: "IP whitelist", desc: "Per client" },
               { icon: BarChart3, label: "Live analytics", desc: "Real-time" },
               { icon: Shield, label: "Secure proxy", desc: "Token-based" },
             ].map((f) => (

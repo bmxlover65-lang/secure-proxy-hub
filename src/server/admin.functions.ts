@@ -15,15 +15,14 @@ async function assertAdmin(userId: string) {
   if (error || !data) throw new Error("Forbidden: admin only");
 }
 
-// Generate API key
 function genKey() {
   const bytes = new Uint8Array(20);
   crypto.getRandomValues(bytes);
   const hex = Array.from(bytes).map((b) => b.toString(16).padStart(2, "0")).join("").toUpperCase();
-  return `RSL_${hex}`;
+  return `HAPI_${hex}`;
 }
 
-// --- Admin: test upstream live (no auth on upstream, but admin-only call) ---
+// --- Admin: test single upstream live ---
 export const adminTestUpstream = createServerFn({ method: "POST" })
   .middleware([sendSupabaseAuth, requireSupabaseAuth])
   .inputValidator((d) =>
@@ -31,7 +30,7 @@ export const adminTestUpstream = createServerFn({ method: "POST" })
       category: z.string().min(1).max(40),
       game: z.string().min(1).max(10),
       type: z.enum(["period", "history"]).default("period"),
-    }).parse(d)
+    }).parse(d),
   )
   .handler(async ({ data, context }) => {
     await assertAdmin(context.userId);
@@ -46,7 +45,7 @@ export const adminTestUpstream = createServerFn({ method: "POST" })
     }
   });
 
-// --- Admin: test ALL supported upstream endpoints in parallel ---
+// --- Admin: test all upstream endpoints ---
 export const adminTestAllUpstreams = createServerFn({ method: "POST" })
   .middleware([sendSupabaseAuth, requireSupabaseAuth])
   .handler(async ({ context }) => {
@@ -69,27 +68,28 @@ export const adminTestAllUpstreams = createServerFn({ method: "POST" })
           const msg = e instanceof Error ? e.message : "fetch error";
           return { category: t.category, game: t.game, type: t.type, url: t.url, ok: false, status: 0, ms: 0, error: msg };
         }
-      })
+      }),
     );
     return { results, checkedAt: new Date().toISOString() };
   });
 
-// --- Admin: create reseller ---
-export const adminCreateReseller = createServerFn({ method: "POST" })
+// --- API client CRUD ---
+export const adminCreateClient = createServerFn({ method: "POST" })
   .middleware([sendSupabaseAuth, requireSupabaseAuth])
   .inputValidator((d) =>
     z.object({
       name: z.string().trim().min(1).max(120),
       rate_limit_per_minute: z.number().int().min(1).max(100000).default(60),
       allowed_ips: z.array(z.string().trim().min(1).max(64)).max(50).default([]),
+      allowed_domains: z.array(z.string().trim().min(1).max(255)).max(50).default([]),
       notes: z.string().max(500).optional(),
-    }).parse(d)
+    }).parse(d),
   )
   .handler(async ({ data, context }) => {
     await assertAdmin(context.userId);
     const api_key = genKey();
-    const { data: reseller, error } = await supabaseAdmin
-      .from("resellers")
+    const { data: client, error } = await supabaseAdmin
+      .from("api_clients")
       .insert({
         name: data.name,
         api_key,
@@ -100,21 +100,22 @@ export const adminCreateReseller = createServerFn({ method: "POST" })
       .single();
     if (error) throw new Error(error.message);
 
-    if (data.allowed_ips.length > 0) {
-      await supabaseAdmin
-        .from("allowed_ips")
-        .insert(
-          data.allowed_ips
-            .map((ip) => ip.trim())
-            .filter(Boolean)
-            .map((ip) => ({ reseller_id: reseller.id, ip_address: ip }))
-        );
+    const ips = data.allowed_ips.map((s) => s.trim()).filter(Boolean);
+    if (ips.length > 0) {
+      await supabaseAdmin.from("allowed_ips").insert(
+        ips.map((ip) => ({ client_id: client.id, ip_address: ip })),
+      );
     }
-    return { reseller };
+    const domains = data.allowed_domains.map((s) => s.trim().toLowerCase()).filter(Boolean);
+    if (domains.length > 0) {
+      await supabaseAdmin.from("allowed_domains").insert(
+        domains.map((d) => ({ client_id: client.id, domain: d })),
+      );
+    }
+    return { client };
   });
 
-// --- Admin: update reseller (status, rate, name, notes) ---
-export const adminUpdateReseller = createServerFn({ method: "POST" })
+export const adminUpdateClient = createServerFn({ method: "POST" })
   .middleware([sendSupabaseAuth, requireSupabaseAuth])
   .inputValidator((d) =>
     z.object({
@@ -123,52 +124,51 @@ export const adminUpdateReseller = createServerFn({ method: "POST" })
       status: z.enum(["active", "suspended"]).optional(),
       rate_limit_per_minute: z.number().int().min(1).max(100000).optional(),
       notes: z.string().max(500).nullable().optional(),
-    }).parse(d)
+    }).parse(d),
   )
   .handler(async ({ data, context }) => {
     await assertAdmin(context.userId);
     const { id, ...patch } = data;
-    const { error } = await supabaseAdmin.from("resellers").update(patch).eq("id", id);
+    const { error } = await supabaseAdmin.from("api_clients").update(patch).eq("id", id);
     if (error) throw new Error(error.message);
     return { ok: true };
   });
 
-// --- Admin: regenerate API key ---
 export const adminRegenerateKey = createServerFn({ method: "POST" })
   .middleware([sendSupabaseAuth, requireSupabaseAuth])
   .inputValidator((d) => z.object({ id: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
     await assertAdmin(context.userId);
     const api_key = genKey();
-    const { error } = await supabaseAdmin.from("resellers").update({ api_key }).eq("id", data.id);
+    const { error } = await supabaseAdmin.from("api_clients").update({ api_key }).eq("id", data.id);
     if (error) throw new Error(error.message);
     return { api_key };
   });
 
-// --- Admin: delete reseller ---
-export const adminDeleteReseller = createServerFn({ method: "POST" })
+export const adminDeleteClient = createServerFn({ method: "POST" })
   .middleware([sendSupabaseAuth, requireSupabaseAuth])
   .inputValidator((d) => z.object({ id: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
     await assertAdmin(context.userId);
-    const { error } = await supabaseAdmin.from("resellers").delete().eq("id", data.id);
+    await supabaseAdmin.from("allowed_ips").delete().eq("client_id", data.id);
+    await supabaseAdmin.from("allowed_domains").delete().eq("client_id", data.id);
+    const { error } = await supabaseAdmin.from("api_clients").delete().eq("id", data.id);
     if (error) throw new Error(error.message);
     return { ok: true };
   });
 
-// --- Admin: replace IPs ---
 export const adminSetIps = createServerFn({ method: "POST" })
   .middleware([sendSupabaseAuth, requireSupabaseAuth])
   .inputValidator((d) =>
     z.object({
-      reseller_id: z.string().uuid(),
+      client_id: z.string().uuid(),
       ips: z.array(z.string().trim().min(1).max(64)).max(50),
-    }).parse(d)
+    }).parse(d),
   )
   .handler(async ({ data, context }) => {
     await assertAdmin(context.userId);
-    await supabaseAdmin.from("allowed_ips").delete().eq("reseller_id", data.reseller_id);
-    const rows = data.ips.map((ip) => ip.trim()).filter(Boolean).map((ip) => ({ reseller_id: data.reseller_id, ip_address: ip }));
+    await supabaseAdmin.from("allowed_ips").delete().eq("client_id", data.client_id);
+    const rows = data.ips.map((s) => s.trim()).filter(Boolean).map((ip) => ({ client_id: data.client_id, ip_address: ip }));
     if (rows.length > 0) {
       const { error } = await supabaseAdmin.from("allowed_ips").insert(rows);
       if (error) throw new Error(error.message);
@@ -176,7 +176,29 @@ export const adminSetIps = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
-// --- Admin: assign admin role to current user (bootstrap) ---
+export const adminSetDomains = createServerFn({ method: "POST" })
+  .middleware([sendSupabaseAuth, requireSupabaseAuth])
+  .inputValidator((d) =>
+    z.object({
+      client_id: z.string().uuid(),
+      domains: z.array(z.string().trim().min(1).max(255)).max(50),
+    }).parse(d),
+  )
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context.userId);
+    await supabaseAdmin.from("allowed_domains").delete().eq("client_id", data.client_id);
+    const rows = data.domains
+      .map((s) => s.trim().toLowerCase())
+      .filter(Boolean)
+      .map((domain) => ({ client_id: data.client_id, domain }));
+    if (rows.length > 0) {
+      const { error } = await supabaseAdmin.from("allowed_domains").insert(rows);
+      if (error) throw new Error(error.message);
+    }
+    return { ok: true };
+  });
+
+// --- Bootstrap: claim admin if none exists yet ---
 export const claimAdminIfNone = createServerFn({ method: "POST" })
   .middleware([sendSupabaseAuth, requireSupabaseAuth])
   .handler(async ({ context }) => {

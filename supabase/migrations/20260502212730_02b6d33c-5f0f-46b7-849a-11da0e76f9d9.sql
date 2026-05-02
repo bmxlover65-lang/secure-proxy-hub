@@ -1,0 +1,1 @@
+COMMENT ON TABLE public.api_clients IS 'Third-party API clients you sell access to';

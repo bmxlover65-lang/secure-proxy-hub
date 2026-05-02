@@ -20,7 +20,7 @@ function LogsPage() {
     setLoading(true);
     const { data } = await supabase
       .from("request_logs")
-      .select("id, created_at, ip_address, api_key, category, game, status_code, success, error_message, response_time_ms, reseller_id")
+      .select("id, created_at, ip_address, api_key, category, game, status_code, success, error_message, response_time_ms, client_id")
       .order("created_at", { ascending: false })
       .limit(500);
     setRows(data ?? []);
@@ -46,7 +46,7 @@ function LogsPage() {
       <PageHeader
         icon={ScrollText}
         title="Request Logs"
-        description="Last 500 proxy requests across all resellers."
+        description="Last 500 proxy requests across all clients."
         actions={
           <Button variant="outline" size="sm" onClick={load} disabled={loading}>
             {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <RefreshCw className="mr-2 h-4 w-4" />}

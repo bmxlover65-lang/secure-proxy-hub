@@ -12,6 +12,30 @@ function getClientIp(request: Request): string {
   );
 }
 
+function getRequestHostname(request: Request): string | null {
+  // Prefer Origin (set by browsers), fall back to Referer host.
+  const origin = request.headers.get("origin");
+  if (origin && origin !== "null") {
+    try { return new URL(origin).hostname.toLowerCase(); } catch { /* ignore */ }
+  }
+  const referer = request.headers.get("referer");
+  if (referer) {
+    try { return new URL(referer).hostname.toLowerCase(); } catch { /* ignore */ }
+  }
+  return null;
+}
+
+function domainMatches(host: string, pattern: string): boolean {
+  const h = host.toLowerCase();
+  const p = pattern.toLowerCase().trim();
+  if (!p) return false;
+  if (p.startsWith("*.")) {
+    const base = p.slice(2);
+    return h === base || h.endsWith("." + base);
+  }
+  return h === p;
+}
+
 function jsonResponse(body: unknown, status: number) {
   return new Response(JSON.stringify(body), {
     status,
@@ -44,9 +68,10 @@ export const Route = createFileRoute("/api/public/proxy")({
         const typeParam = (url.searchParams.get("type") || "period").toLowerCase();
         const type: "period" | "history" = typeParam === "history" ? "history" : "period";
         const ip = getClientIp(request);
+        const host = getRequestHostname(request);
 
         const log = async (
-          resellerId: string | null,
+          clientId: string | null,
           status: number,
           success: boolean,
           error: string | null,
@@ -54,7 +79,7 @@ export const Route = createFileRoute("/api/public/proxy")({
         ) => {
           try {
             await supabaseAdmin.from("request_logs").insert({
-              reseller_id: resellerId,
+              client_id: clientId,
               api_key: apiKey || null,
               ip_address: ip,
               category: category || null,
@@ -79,19 +104,19 @@ export const Route = createFileRoute("/api/public/proxy")({
           return jsonResponse({ code: 400, msg: "Missing category or game" }, 400);
         }
 
-        // Lookup reseller
-        const { data: reseller, error: rErr } = await supabaseAdmin
-          .from("resellers")
+        // Lookup api client
+        const { data: client, error: rErr } = await supabaseAdmin
+          .from("api_clients")
           .select("id, status, rate_limit_per_minute")
           .eq("api_key", apiKey)
           .maybeSingle();
 
-        if (rErr || !reseller) {
+        if (rErr || !client) {
           await log(null, 401, false, "Invalid API key", 0);
           return jsonResponse({ code: 401, msg: "Invalid API key" }, 401);
         }
-        if (reseller.status !== "active") {
-          await log(reseller.id, 403, false, "Account suspended", 0);
+        if (client.status !== "active") {
+          await log(client.id, 403, false, "Account suspended", 0);
           return jsonResponse({ code: 403, msg: "Account suspended" }, 403);
         }
 
@@ -99,13 +124,31 @@ export const Route = createFileRoute("/api/public/proxy")({
         const { data: ips } = await supabaseAdmin
           .from("allowed_ips")
           .select("ip_address")
-          .eq("reseller_id", reseller.id);
+          .eq("client_id", client.id);
         const allowed = (ips || []).map((r) => r.ip_address);
-        if (allowed.length > 0 && !allowed.includes(ip)) {
-          await log(reseller.id, 403, false, `IP ${ip} not whitelisted`, 0);
+        if (allowed.length === 0 || !allowed.includes(ip)) {
+          await log(client.id, 403, false, `IP ${ip} not whitelisted`, 0);
           return jsonResponse(
             { code: 403, msg: "IP not allowed", your_ip: ip },
-            403
+            403,
+          );
+        }
+
+        // Domain whitelist check (Origin / Referer)
+        const { data: domainsRows } = await supabaseAdmin
+          .from("allowed_domains")
+          .select("domain")
+          .eq("client_id", client.id);
+        const domains = (domainsRows || []).map((r) => r.domain);
+        if (domains.length === 0) {
+          await log(client.id, 403, false, "No domains configured", 0);
+          return jsonResponse({ code: 403, msg: "Domain not allowed" }, 403);
+        }
+        if (!host || !domains.some((d) => domainMatches(host, d))) {
+          await log(client.id, 403, false, `Domain ${host ?? "missing"} not whitelisted`, 0);
+          return jsonResponse(
+            { code: 403, msg: "Domain not allowed", your_domain: host ?? null },
+            403,
           );
         }
 
@@ -114,27 +157,27 @@ export const Route = createFileRoute("/api/public/proxy")({
         const { count } = await supabaseAdmin
           .from("request_logs")
           .select("id", { count: "exact", head: true })
-          .eq("reseller_id", reseller.id)
+          .eq("client_id", client.id)
           .gte("created_at", since);
-        if (count !== null && count >= reseller.rate_limit_per_minute) {
-          await log(reseller.id, 429, false, "Rate limit exceeded", 0);
+        if (count !== null && count >= client.rate_limit_per_minute) {
+          await log(client.id, 429, false, "Rate limit exceeded", 0);
           return jsonResponse({ code: 429, msg: "Rate limit exceeded" }, 429);
         }
 
         // Build upstream URL
         const upstream = buildUpstreamUrl(category, game, type);
         if (!upstream) {
-          await log(reseller.id, 404, false, "Unknown category/game", 0);
+          await log(client.id, 404, false, "Unknown category/game", 0);
           return jsonResponse(
             { code: 404, msg: "Unknown category/game combination" },
             404
           );
         }
 
-        // Forward
+        // Forward (NEVER expose upstream URL in response)
         try {
           const { status, body, ms } = await fetchUpstream(upstream);
-          await log(reseller.id, status, status === 200, null, ms);
+          await log(client.id, status, status === 200, null, ms);
           return new Response(body, {
             status,
             headers: {
@@ -144,8 +187,8 @@ export const Route = createFileRoute("/api/public/proxy")({
           });
         } catch (e) {
           const msg = e instanceof Error ? e.message : "Upstream fetch error";
-          await log(reseller.id, 502, false, msg, 0);
-          return jsonResponse({ code: 502, msg: "Upstream error", error: msg }, 502);
+          await log(client.id, 502, false, msg, 0);
+          return jsonResponse({ code: 502, msg: "Upstream error" }, 502);
         }
       },
     },

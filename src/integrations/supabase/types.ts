@@ -14,113 +14,71 @@ export type Database = {
   }
   public: {
     Tables: {
+      allowed_domains: {
+        Row: {
+          client_id: string
+          created_at: string
+          domain: string
+          id: string
+          label: string | null
+        }
+        Insert: {
+          client_id: string
+          created_at?: string
+          domain: string
+          id?: string
+          label?: string | null
+        }
+        Update: {
+          client_id?: string
+          created_at?: string
+          domain?: string
+          id?: string
+          label?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "allowed_domains_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "api_clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       allowed_ips: {
         Row: {
+          client_id: string
           created_at: string
           id: string
           ip_address: string
           label: string | null
-          reseller_id: string
         }
         Insert: {
+          client_id: string
           created_at?: string
           id?: string
           ip_address: string
           label?: string | null
-          reseller_id: string
         }
         Update: {
+          client_id?: string
           created_at?: string
           id?: string
           ip_address?: string
           label?: string | null
-          reseller_id?: string
         }
         Relationships: [
           {
             foreignKeyName: "allowed_ips_reseller_id_fkey"
-            columns: ["reseller_id"]
+            columns: ["client_id"]
             isOneToOne: false
-            referencedRelation: "resellers"
+            referencedRelation: "api_clients"
             referencedColumns: ["id"]
           },
         ]
       }
-      profiles: {
-        Row: {
-          created_at: string
-          email: string | null
-          full_name: string | null
-          id: string
-        }
-        Insert: {
-          created_at?: string
-          email?: string | null
-          full_name?: string | null
-          id: string
-        }
-        Update: {
-          created_at?: string
-          email?: string | null
-          full_name?: string | null
-          id?: string
-        }
-        Relationships: []
-      }
-      request_logs: {
-        Row: {
-          api_key: string | null
-          category: string | null
-          created_at: string
-          endpoint: string | null
-          error_message: string | null
-          game: string | null
-          id: string
-          ip_address: string | null
-          reseller_id: string | null
-          response_time_ms: number | null
-          status_code: number | null
-          success: boolean
-        }
-        Insert: {
-          api_key?: string | null
-          category?: string | null
-          created_at?: string
-          endpoint?: string | null
-          error_message?: string | null
-          game?: string | null
-          id?: string
-          ip_address?: string | null
-          reseller_id?: string | null
-          response_time_ms?: number | null
-          status_code?: number | null
-          success?: boolean
-        }
-        Update: {
-          api_key?: string | null
-          category?: string | null
-          created_at?: string
-          endpoint?: string | null
-          error_message?: string | null
-          game?: string | null
-          id?: string
-          ip_address?: string | null
-          reseller_id?: string | null
-          response_time_ms?: number | null
-          status_code?: number | null
-          success?: boolean
-        }
-        Relationships: [
-          {
-            foreignKeyName: "request_logs_reseller_id_fkey"
-            columns: ["reseller_id"]
-            isOneToOne: false
-            referencedRelation: "resellers"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      resellers: {
+      api_clients: {
         Row: {
           api_key: string
           created_at: string
@@ -155,6 +113,80 @@ export type Database = {
           user_id?: string | null
         }
         Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          email: string | null
+          full_name: string | null
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id?: string
+        }
+        Relationships: []
+      }
+      request_logs: {
+        Row: {
+          api_key: string | null
+          category: string | null
+          client_id: string | null
+          created_at: string
+          endpoint: string | null
+          error_message: string | null
+          game: string | null
+          id: string
+          ip_address: string | null
+          response_time_ms: number | null
+          status_code: number | null
+          success: boolean
+        }
+        Insert: {
+          api_key?: string | null
+          category?: string | null
+          client_id?: string | null
+          created_at?: string
+          endpoint?: string | null
+          error_message?: string | null
+          game?: string | null
+          id?: string
+          ip_address?: string | null
+          response_time_ms?: number | null
+          status_code?: number | null
+          success?: boolean
+        }
+        Update: {
+          api_key?: string | null
+          category?: string | null
+          client_id?: string | null
+          created_at?: string
+          endpoint?: string | null
+          error_message?: string | null
+          game?: string | null
+          id?: string
+          ip_address?: string | null
+          response_time_ms?: number | null
+          status_code?: number | null
+          success?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "request_logs_reseller_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "api_clients"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {
