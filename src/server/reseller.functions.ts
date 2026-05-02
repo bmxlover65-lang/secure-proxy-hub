@@ -286,6 +286,31 @@ export const adminUpdateSettings = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+export const adminSetUserRole = createServerFn({ method: "POST" })
+  .middleware([sendSupabaseAuth, requireSupabaseAuth])
+  .inputValidator((d) =>
+    z.object({
+      user_id: z.string().uuid(),
+      role: z.enum(["admin", "reseller"]),
+      action: z.enum(["add", "remove"]),
+    }).parse(d),
+  )
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context.userId);
+    if (data.action === "add") {
+      const { error } = await supabaseAdmin.from("user_roles").insert({ user_id: data.user_id, role: data.role });
+      if (error && !error.message.includes("duplicate")) throw new Error(error.message);
+    } else {
+      // Don't let admin remove their own admin role
+      if (data.user_id === context.userId && data.role === "admin") {
+        throw new Error("Cannot remove your own admin role");
+      }
+      const { error } = await supabaseAdmin.from("user_roles").delete().eq("user_id", data.user_id).eq("role", data.role);
+      if (error) throw new Error(error.message);
+    }
+    return { ok: true };
+  });
+
 export const getPublicSettings = createServerFn({ method: "GET" }).handler(async () => {
   const { data } = await supabaseAdmin.from("app_settings").select("key,value");
   const out: Record<string, number> = {};

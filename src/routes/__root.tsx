@@ -37,14 +37,17 @@ export const Route = createRootRoute({
       { property: "og:title", content: "Hyper Softs SaaS — API Proxy" },
       { property: "og:description", content: "Manage clients, API keys, IP whitelists and request logs." },
       { property: "og:type", content: "website" },
+      { property: "og:image", content: "/og-image.jpg" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:site", content: "@Lovable" },
+      { name: "twitter:image", content: "/og-image.jpg" },
     ],
     links: [
       {
         rel: "stylesheet",
         href: appCss,
       },
+      { rel: "icon", href: "/favicon.png", type: "image/png" },
     ],
   }),
   shellComponent: RootShell,

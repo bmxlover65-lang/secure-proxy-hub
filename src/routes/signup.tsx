@@ -59,7 +59,7 @@ function SignupPage() {
   };
 
   return (
-    <AuthLayout title="Create your account" subtitle="The first signup is automatically promoted to admin">
+    <AuthLayout title="Create your account" subtitle="Sign up as a reseller and start using the API platform">
       <form
         onSubmit={onSubmit}
         className="relative space-y-5 overflow-hidden rounded-2xl border border-border/40 bg-card/50 p-7 backdrop-blur-2xl"
@@ -74,7 +74,7 @@ function SignupPage() {
           <div className="flex h-7 w-7 items-center justify-center rounded-md bg-primary/20">
             <Sparkles className="h-3.5 w-3.5 text-primary" />
           </div>
-          <span className="text-xs text-foreground/90">First account becomes <strong className="font-semibold text-primary">administrator</strong></span>
+          <span className="text-xs text-foreground/90">Get a <strong className="font-semibold text-primary">reseller wallet</strong> after signup</span>
         </div>
 
         <div className="space-y-2">
