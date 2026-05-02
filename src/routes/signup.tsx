@@ -6,9 +6,9 @@ import { useAuth } from "@/lib/auth-context";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { AuthLayout } from "@/components/AuthLayout";
 import { toast } from "sonner";
-import { Shield } from "lucide-react";
+import { Mail, Lock, User as UserIcon, Loader2, ArrowRight, Sparkles } from "lucide-react";
 
 export const Route = createFileRoute("/signup")({
   component: SignupPage,
@@ -41,55 +41,75 @@ function SignupPage() {
       return;
     }
     setSubmitting(true);
-    const { error } = await supabase.auth.signUp({
-      email: parsed.data.email,
-      password: parsed.data.password,
-      options: {
-        emailRedirectTo: window.location.origin,
-        data: { full_name: parsed.data.full_name },
-      },
-    });
-    setSubmitting(false);
-    if (error) toast.error(error.message);
-    else toast.success("Account created — signing you in…");
+    try {
+      const { error } = await supabase.auth.signUp({
+        email: parsed.data.email,
+        password: parsed.data.password,
+        options: {
+          emailRedirectTo: window.location.origin,
+          data: { full_name: parsed.data.full_name },
+        },
+      });
+      if (error) toast.error(error.message);
+      else toast.success("Account created — signing you in…");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4">
-      <Card className="w-full max-w-md border-border" style={{ background: "var(--gradient-card)" }}>
-        <CardHeader className="text-center">
-          <div
-            className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-xl"
-            style={{ background: "var(--gradient-primary)" }}
-          >
-            <Shield className="h-6 w-6 text-primary-foreground" />
+    <AuthLayout title="Create your account" subtitle="The first signup is automatically promoted to admin">
+      <form
+        onSubmit={onSubmit}
+        className="space-y-5 rounded-2xl border border-border/60 p-6 shadow-[var(--shadow-soft)]"
+        style={{ background: "var(--gradient-card)" }}
+      >
+        <div className="flex items-center gap-2 rounded-lg border border-primary/20 bg-primary/10 p-3 text-xs">
+          <Sparkles className="h-4 w-4 text-primary" />
+          <span className="text-foreground/80">First account becomes administrator</span>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="full_name">Full name</Label>
+          <div className="relative">
+            <UserIcon className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input id="full_name" placeholder="John Doe" className="pl-10"
+              value={fullName} onChange={(e) => setFullName(e.target.value)} required />
           </div>
-          <CardTitle>Create account</CardTitle>
-          <CardDescription>The first signup automatically becomes admin</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={onSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="full_name">Full name</Label>
-              <Input id="full_name" value={fullName} onChange={(e) => setFullName(e.target.value)} required />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
-            </div>
-            <Button type="submit" className="w-full" disabled={submitting}>
-              {submitting ? "Creating…" : "Create account"}
-            </Button>
-            <p className="text-center text-sm text-muted-foreground">
-              Already have an account? <Link to="/login" className="text-primary hover:underline">Sign in</Link>
-            </p>
-          </form>
-        </CardContent>
-      </Card>
-    </div>
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="email">Email address</Label>
+          <div className="relative">
+            <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input id="email" type="email" placeholder="you@example.com" className="pl-10"
+              value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" required />
+          </div>
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="password">Password</Label>
+          <div className="relative">
+            <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input id="password" type="password" placeholder="At least 8 characters" className="pl-10"
+              value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="new-password" required />
+          </div>
+        </div>
+        <Button
+          type="submit"
+          className="group h-11 w-full text-sm font-semibold"
+          style={{ background: "var(--gradient-primary)", boxShadow: "var(--shadow-glow)" }}
+          disabled={submitting}
+        >
+          {submitting ? (
+            <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Creating account…</>
+          ) : (
+            <>Create account <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-0.5" /></>
+          )}
+        </Button>
+        <p className="text-center text-sm text-muted-foreground">
+          Already have an account?{" "}
+          <Link to="/login" className="font-medium text-primary hover:underline">Sign in</Link>
+        </p>
+      </form>
+    </AuthLayout>
   );
 }
