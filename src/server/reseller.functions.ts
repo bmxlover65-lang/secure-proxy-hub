@@ -64,7 +64,7 @@ export const resellerCreateClient = createServerFn({ method: "POST" })
       _delta: -cost,
       _type: "api_key_create",
       _reason: `API key creation: ${data.name}`,
-      _reference: null,
+      _reference: "",
     });
     if (bErr) {
       if (bErr.message?.includes("insufficient_balance")) throw new Error("Insufficient balance. Please top up your wallet.");
@@ -90,7 +90,7 @@ export const resellerCreateClient = createServerFn({ method: "POST" })
       // Refund on failure
       await supabaseAdmin.rpc("adjust_wallet", {
         _user_id: userId, _delta: cost, _type: "refund",
-        _reason: "Refund: API key create failed", _reference: null,
+        _reason: "Refund: API key create failed", _reference: "",
       });
       throw new Error(error.message);
     }
@@ -119,7 +119,7 @@ export const resellerUpdateClient = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { data: existing } = await supabaseAdmin.from("api_clients").select("user_id").eq("id", data.id).maybeSingle();
     if (!existing || existing.user_id !== context.userId) throw new Error("Not allowed");
-    const patch: Record<string, unknown> = {};
+    const patch: { name?: string; status?: "active" | "suspended"; notes?: string | null } = {};
     if (data.name !== undefined) patch.name = data.name;
     if (data.status !== undefined) patch.status = data.status;
     if (data.notes !== undefined) patch.notes = data.notes;
