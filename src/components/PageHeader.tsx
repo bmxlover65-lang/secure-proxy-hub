@@ -1,5 +1,4 @@
-import type { LucideIcon, ReactNode } from "react";
-import type { ComponentType } from "react";
+import type { ReactNode, ComponentType } from "react";
 
 export function PageHeader({
   icon: Icon,
