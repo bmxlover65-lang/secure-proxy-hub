@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { getStats } from "@/server/stats.functions";
+import { getStats, invalidateStatsCache } from "@/server/stats.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageHeader } from "@/components/PageHeader";
@@ -9,7 +9,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { BarChart3, Loader2, RefreshCw } from "lucide-react";
+import { BarChart3, Loader2, RefreshCw, Radio } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
 import {
   ResponsiveContainer, BarChart, Bar, LineChart, Line,
   PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
@@ -34,7 +35,10 @@ function StatsPage() {
   const [loading, setLoading] = useState(false);
   const [days, setDays] = useState("7");
   const [clientId, setClientId] = useState("all");
+  const [live, setLive] = useState(true);
+  const [pulse, setPulse] = useState(0);
   const fetchStats = useServerFn(getStats);
+  const invalidate = useServerFn(invalidateStatsCache);
   const reqId = useRef(0);
 
   const load = useCallback(async (force = false) => {
@@ -50,22 +54,47 @@ function StatsPage() {
     setLoading(true);
     const myReq = ++reqId.current;
     try {
+      if (force) {
+        try { await invalidate({}); } catch { /* ignore */ }
+        clientCache.delete(key);
+      }
       const data = await fetchStats({
         data: { days: Number(days), clientId: clientId === "all" ? null : clientId },
       });
       if (myReq !== reqId.current) return;
       clientCache.set(key, { data, expires: now + CLIENT_TTL_MS });
       setStats(data);
+      setPulse(Date.now());
     } finally {
       if (myReq === reqId.current) setLoading(false);
     }
-  }, [days, clientId, fetchStats]);
+  }, [days, clientId, fetchStats, invalidate]);
 
   useEffect(() => {
     supabase.from("api_clients").select("id, name").order("name")
       .then(({ data }) => setClients((data as Client[] | null) ?? []));
   }, []);
   useEffect(() => { load(); }, [load]);
+
+  // Realtime: invalidate on new logs (debounced) + auto-refresh fallback.
+  useEffect(() => {
+    if (!live) return;
+    let timer: ReturnType<typeof setTimeout> | null = null;
+    const trigger = () => {
+      if (timer) return;
+      timer = setTimeout(() => { timer = null; load(true); }, 1500);
+    };
+    const channel = supabase
+      .channel("stats-logs")
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "request_logs" }, trigger)
+      .subscribe();
+    const interval = setInterval(() => load(true), 15_000);
+    return () => {
+      if (timer) clearTimeout(timer);
+      clearInterval(interval);
+      supabase.removeChannel(channel);
+    };
+  }, [live, load]);
 
   const total = stats?.total ?? 0;
   const successCount = stats?.success ?? 0;
@@ -83,10 +112,17 @@ function StatsPage() {
         title="Usage Statistics"
         description="Visualize traffic by day, endpoint, category, and status."
         actions={
-          <Button variant="outline" size="sm" onClick={() => load(true)} disabled={loading}>
-            {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <RefreshCw className="mr-2 h-4 w-4" />}
-            Refresh
-          </Button>
+          <div className="flex items-center gap-3">
+            <label className="flex items-center gap-2 text-xs text-muted-foreground">
+              <Radio className={`h-3.5 w-3.5 ${live ? "text-success" : ""}`} />
+              Live
+              <Switch checked={live} onCheckedChange={setLive} />
+            </label>
+            <Button variant="outline" size="sm" onClick={() => load(true)} disabled={loading}>
+              {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <RefreshCw className="mr-2 h-4 w-4" />}
+              Refresh
+            </Button>
+          </div>
         }
       />
 
