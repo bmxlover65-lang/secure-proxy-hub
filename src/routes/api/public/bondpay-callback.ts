@@ -1,16 +1,18 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import type { Json } from "@/integrations/supabase/types";
 
 export const Route = createFileRoute("/api/public/bondpay-callback")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        let payload: Record<string, unknown> = {};
-        try { payload = await request.json(); } catch { /* ignore */ }
+        let payload: Json = {};
+        try { payload = (await request.json()) as Json; } catch { /* ignore */ }
 
-        const merchantOrder = String(payload.merchantOrder ?? payload.merchant_order_no ?? "");
-        const status = String(payload.status ?? "").toLowerCase();
-        const gatewayOrder = String(payload.orderNo ?? payload.order_no ?? "");
+        const p = (payload && typeof payload === "object" && !Array.isArray(payload)) ? payload as Record<string, unknown> : {};
+        const merchantOrder = String(p.merchantOrder ?? p.merchant_order_no ?? "");
+        const status = String(p.status ?? "").toLowerCase();
+        const gatewayOrder = String(p.orderNo ?? p.order_no ?? "");
 
         if (!merchantOrder) {
           return Response.json({ status: "error", message: "missing merchantOrder" }, { status: 400 });
