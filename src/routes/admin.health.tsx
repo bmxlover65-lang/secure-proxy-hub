@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { PageHeader } from "@/components/PageHeader";
+import { useAuth } from "@/lib/auth-context";
 import { toast } from "sonner";
 import { Activity, Play, Loader2, Clock, Globe, CheckCircle2, XCircle, RefreshCw, Zap } from "lucide-react";
 
@@ -18,6 +19,7 @@ export const Route = createFileRoute("/admin/health")({
 function HealthPage() {
   const test = useServerFn(adminTestUpstream);
   const testAll = useServerFn(adminTestAllUpstreams);
+  const { loading: authLoading } = useAuth();
   const [category, setCategory] = useState("wingo");
   const [game, setGame] = useState("30s");
   const [result, setResult] = useState<{ ok: boolean; status: number; ms: number; url: string; body: string } | null>(null);
@@ -60,7 +62,7 @@ function HealthPage() {
   const runAll = async () => {
     setAllLoading(true);
     try {
-      const r = await testAll({ data: undefined as any });
+      const r = await testAll({ data: {} as any });
       if (r && Array.isArray((r as any).results)) {
         setAllRows((r as any).results as AllRow[]);
         setCheckedAt((r as any).checkedAt ?? new Date().toISOString());
@@ -80,8 +82,14 @@ function HealthPage() {
     }
   };
 
-  // Auto-run all on first mount
-  useEffect(() => { runAll(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, []);
+  // Auto-run once auth session is hydrated (avoids 401 race on mount)
+  const [autoRan, setAutoRan] = useState(false);
+  useEffect(() => {
+    if (authLoading || autoRan) return;
+    setAutoRan(true);
+    runAll().catch(() => {});
+    /* eslint-disable-next-line react-hooks/exhaustive-deps */
+  }, [authLoading]);
 
   const rawBody = typeof result?.body === "string" ? result.body : "";
   let pretty = rawBody;
