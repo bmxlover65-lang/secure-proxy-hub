@@ -23,6 +23,7 @@ import { Route as DashboardTransactionsRouteImport } from './routes/dashboard.tr
 import { Route as DashboardLogsRouteImport } from './routes/dashboard.logs'
 import { Route as DashboardKeysRouteImport } from './routes/dashboard.keys'
 import { Route as DashboardDocsRouteImport } from './routes/dashboard.docs'
+import { Route as AdminUsersRouteImport } from './routes/admin.users'
 import { Route as AdminStatsRouteImport } from './routes/admin.stats'
 import { Route as AdminLogsRouteImport } from './routes/admin.logs'
 import { Route as AdminHealthRouteImport } from './routes/admin.health'
@@ -102,6 +103,11 @@ const DashboardDocsRoute = DashboardDocsRouteImport.update({
   path: '/docs',
   getParentRoute: () => DashboardRoute,
 } as any)
+const AdminUsersRoute = AdminUsersRouteImport.update({
+  id: '/users',
+  path: '/users',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminStatsRoute = AdminStatsRouteImport.update({
   id: '/stats',
   path: '/stats',
@@ -158,6 +164,7 @@ export interface FileRoutesByFullPath {
   '/admin/health': typeof AdminHealthRoute
   '/admin/logs': typeof AdminLogsRoute
   '/admin/stats': typeof AdminStatsRoute
+  '/admin/users': typeof AdminUsersRoute
   '/dashboard/docs': typeof DashboardDocsRoute
   '/dashboard/keys': typeof DashboardKeysRoute
   '/dashboard/logs': typeof DashboardLogsRoute
@@ -180,6 +187,7 @@ export interface FileRoutesByTo {
   '/admin/health': typeof AdminHealthRoute
   '/admin/logs': typeof AdminLogsRoute
   '/admin/stats': typeof AdminStatsRoute
+  '/admin/users': typeof AdminUsersRoute
   '/dashboard/docs': typeof DashboardDocsRoute
   '/dashboard/keys': typeof DashboardKeysRoute
   '/dashboard/logs': typeof DashboardLogsRoute
@@ -205,6 +213,7 @@ export interface FileRoutesById {
   '/admin/health': typeof AdminHealthRoute
   '/admin/logs': typeof AdminLogsRoute
   '/admin/stats': typeof AdminStatsRoute
+  '/admin/users': typeof AdminUsersRoute
   '/dashboard/docs': typeof DashboardDocsRoute
   '/dashboard/keys': typeof DashboardKeysRoute
   '/dashboard/logs': typeof DashboardLogsRoute
@@ -231,6 +240,7 @@ export interface FileRouteTypes {
     | '/admin/health'
     | '/admin/logs'
     | '/admin/stats'
+    | '/admin/users'
     | '/dashboard/docs'
     | '/dashboard/keys'
     | '/dashboard/logs'
@@ -253,6 +263,7 @@ export interface FileRouteTypes {
     | '/admin/health'
     | '/admin/logs'
     | '/admin/stats'
+    | '/admin/users'
     | '/dashboard/docs'
     | '/dashboard/keys'
     | '/dashboard/logs'
@@ -277,6 +288,7 @@ export interface FileRouteTypes {
     | '/admin/health'
     | '/admin/logs'
     | '/admin/stats'
+    | '/admin/users'
     | '/dashboard/docs'
     | '/dashboard/keys'
     | '/dashboard/logs'
@@ -400,6 +412,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardDocsRouteImport
       parentRoute: typeof DashboardRoute
     }
+    '/admin/users': {
+      id: '/admin/users'
+      path: '/users'
+      fullPath: '/admin/users'
+      preLoaderRoute: typeof AdminUsersRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/stats': {
       id: '/admin/stats'
       path: '/stats'
@@ -466,6 +485,7 @@ interface AdminRouteChildren {
   AdminHealthRoute: typeof AdminHealthRoute
   AdminLogsRoute: typeof AdminLogsRoute
   AdminStatsRoute: typeof AdminStatsRoute
+  AdminUsersRoute: typeof AdminUsersRoute
   AdminIndexRoute: typeof AdminIndexRoute
 }
 
@@ -476,6 +496,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminHealthRoute: AdminHealthRoute,
   AdminLogsRoute: AdminLogsRoute,
   AdminStatsRoute: AdminStatsRoute,
+  AdminUsersRoute: AdminUsersRoute,
   AdminIndexRoute: AdminIndexRoute,
 }
 
