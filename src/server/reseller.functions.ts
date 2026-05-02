@@ -48,8 +48,8 @@ export const resellerCreateClient = createServerFn({ method: "POST" })
     z.object({
       name: z.string().trim().min(1).max(120),
       category: z.enum(["wingo", "k3", "d5", "motorace"]),
-      allowed_ips: z.array(z.string().trim().min(1).max(64)).max(50).default([]),
-      allowed_domains: z.array(z.string().trim().min(1).max(255)).max(50).default([]),
+      allowed_ips: z.array(z.string().trim().min(1).max(64)).min(1, "At least one IP required").max(50),
+      allowed_domains: z.array(z.string().trim().min(1).max(255)).min(1, "At least one domain required").max(50),
       notes: z.string().max(500).optional(),
     }).parse(d),
   )
