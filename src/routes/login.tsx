@@ -27,6 +27,7 @@ function LoginPage() {
   const [password, setPassword] = useState("");
   const [showPwd, setShowPwd] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   useEffect(() => {
     if (!loading && session) navigate({ to: "/admin" });
@@ -34,16 +35,27 @@ function LoginPage() {
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setErrorMsg(null);
     const parsed = schema.safeParse({ email, password });
     if (!parsed.success) {
-      toast.error(parsed.error.issues[0].message);
+      const msg = parsed.error.issues[0].message;
+      setErrorMsg(msg);
+      toast.error(msg);
       return;
     }
     setSubmitting(true);
     try {
       const { error } = await supabase.auth.signInWithPassword(parsed.data);
-      if (error) toast.error(error.message);
-      else toast.success("Welcome back!");
+      if (error) {
+        const msg = error.message === "Invalid login credentials"
+          ? "Wrong email or password"
+          : error.message;
+        setErrorMsg(msg);
+        toast.error(msg);
+      } else {
+        toast.success("Welcome back!");
+        navigate({ to: "/admin" });
+      }
     } finally {
       setSubmitting(false);
     }
@@ -72,8 +84,9 @@ function LoginPage() {
               placeholder="you@example.com"
               className="h-12 border-border/60 bg-background/40 pl-11 text-base backdrop-blur transition-all focus-visible:border-primary/60 focus-visible:bg-background/70"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => { setEmail(e.target.value); setErrorMsg(null); }}
               autoComplete="email"
+              disabled={submitting}
               required
             />
           </div>
@@ -94,8 +107,9 @@ function LoginPage() {
               placeholder="••••••••"
               className="h-12 border-border/60 bg-background/40 pl-11 pr-11 text-base backdrop-blur transition-all focus-visible:border-primary/60 focus-visible:bg-background/70"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e) => { setPassword(e.target.value); setErrorMsg(null); }}
               autoComplete="current-password"
+              disabled={submitting}
               required
             />
             <button
@@ -109,11 +123,20 @@ function LoginPage() {
           </div>
         </div>
 
+        {errorMsg && (
+          <div
+            role="alert"
+            className="animate-fade-in rounded-lg border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive"
+          >
+            {errorMsg}
+          </div>
+        )}
+
         <Button
           type="submit"
           className="group relative h-12 w-full overflow-hidden text-sm font-semibold text-primary-foreground transition-all hover:scale-[1.01] active:scale-[0.99]"
           style={{ background: "var(--gradient-primary)", boxShadow: "var(--shadow-glow)" }}
-          disabled={submitting}
+          disabled={submitting || !email || !password}
         >
           {/* shimmer */}
           <span
