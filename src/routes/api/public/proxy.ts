@@ -144,7 +144,8 @@ export const Route = createFileRoute("/api/public/proxy")({
           .select("ip_address")
           .eq("client_id", client.id);
         const allowed = (ips || []).map((r) => r.ip_address);
-        if (allowed.length === 0 || !allowed.includes(ip)) {
+        const ipWildcard = allowed.some((a) => (a || "").trim() === "*");
+        if (!ipWildcard && (allowed.length === 0 || !allowed.includes(ip))) {
           await log(client.id, 403, false, `IP ${ip} not whitelisted`, 0);
           return jsonResponse({ code: 403, msg: "IP not allowed", your_ip: ip }, 403);
         }
