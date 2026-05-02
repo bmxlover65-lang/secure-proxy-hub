@@ -56,7 +56,7 @@ export function AuthLayout({ children, title, subtitle }: { children: ReactNode;
               className="bg-clip-text text-transparent"
               style={{ backgroundImage: "var(--gradient-hero)" }}
             >
-              lottery game data
+              lottery game data SaaS
             </span>
           </h1>
           <p className="max-w-md text-base text-muted-foreground">
