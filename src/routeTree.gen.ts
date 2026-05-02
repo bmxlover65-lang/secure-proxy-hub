@@ -11,9 +11,13 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SignupRouteImport } from './routes/signup'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as DashboardIndexRouteImport } from './routes/dashboard.index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
+import { Route as DashboardWalletRouteImport } from './routes/dashboard.wallet'
+import { Route as DashboardKeysRouteImport } from './routes/dashboard.keys'
 import { Route as AdminStatsRouteImport } from './routes/admin.stats'
 import { Route as AdminLogsRouteImport } from './routes/admin.logs'
 import { Route as AdminHealthRouteImport } from './routes/admin.health'
@@ -32,6 +36,11 @@ const LoginRoute = LoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DashboardRoute = DashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminRoute = AdminRouteImport.update({
   id: '/admin',
   path: '/admin',
@@ -42,10 +51,25 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DashboardIndexRoute = DashboardIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => DashboardRoute,
+} as any)
 const AdminIndexRoute = AdminIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AdminRoute,
+} as any)
+const DashboardWalletRoute = DashboardWalletRouteImport.update({
+  id: '/wallet',
+  path: '/wallet',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardKeysRoute = DashboardKeysRouteImport.update({
+  id: '/keys',
+  path: '/keys',
+  getParentRoute: () => DashboardRoute,
 } as any)
 const AdminStatsRoute = AdminStatsRouteImport.update({
   id: '/stats',
@@ -86,6 +110,7 @@ const ApiPublicProxyRoute = ApiPublicProxyRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
+  '/dashboard': typeof DashboardRouteWithChildren
   '/login': typeof LoginRoute
   '/signup': typeof SignupRoute
   '/admin/cache': typeof AdminCacheRoute
@@ -94,7 +119,10 @@ export interface FileRoutesByFullPath {
   '/admin/health': typeof AdminHealthRoute
   '/admin/logs': typeof AdminLogsRoute
   '/admin/stats': typeof AdminStatsRoute
+  '/dashboard/keys': typeof DashboardKeysRoute
+  '/dashboard/wallet': typeof DashboardWalletRoute
   '/admin/': typeof AdminIndexRoute
+  '/dashboard/': typeof DashboardIndexRoute
   '/api/public/proxy': typeof ApiPublicProxyRoute
 }
 export interface FileRoutesByTo {
@@ -107,13 +135,17 @@ export interface FileRoutesByTo {
   '/admin/health': typeof AdminHealthRoute
   '/admin/logs': typeof AdminLogsRoute
   '/admin/stats': typeof AdminStatsRoute
+  '/dashboard/keys': typeof DashboardKeysRoute
+  '/dashboard/wallet': typeof DashboardWalletRoute
   '/admin': typeof AdminIndexRoute
+  '/dashboard': typeof DashboardIndexRoute
   '/api/public/proxy': typeof ApiPublicProxyRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
+  '/dashboard': typeof DashboardRouteWithChildren
   '/login': typeof LoginRoute
   '/signup': typeof SignupRoute
   '/admin/cache': typeof AdminCacheRoute
@@ -122,7 +154,10 @@ export interface FileRoutesById {
   '/admin/health': typeof AdminHealthRoute
   '/admin/logs': typeof AdminLogsRoute
   '/admin/stats': typeof AdminStatsRoute
+  '/dashboard/keys': typeof DashboardKeysRoute
+  '/dashboard/wallet': typeof DashboardWalletRoute
   '/admin/': typeof AdminIndexRoute
+  '/dashboard/': typeof DashboardIndexRoute
   '/api/public/proxy': typeof ApiPublicProxyRoute
 }
 export interface FileRouteTypes {
@@ -130,6 +165,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/admin'
+    | '/dashboard'
     | '/login'
     | '/signup'
     | '/admin/cache'
@@ -138,7 +174,10 @@ export interface FileRouteTypes {
     | '/admin/health'
     | '/admin/logs'
     | '/admin/stats'
+    | '/dashboard/keys'
+    | '/dashboard/wallet'
     | '/admin/'
+    | '/dashboard/'
     | '/api/public/proxy'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -151,12 +190,16 @@ export interface FileRouteTypes {
     | '/admin/health'
     | '/admin/logs'
     | '/admin/stats'
+    | '/dashboard/keys'
+    | '/dashboard/wallet'
     | '/admin'
+    | '/dashboard'
     | '/api/public/proxy'
   id:
     | '__root__'
     | '/'
     | '/admin'
+    | '/dashboard'
     | '/login'
     | '/signup'
     | '/admin/cache'
@@ -165,13 +208,17 @@ export interface FileRouteTypes {
     | '/admin/health'
     | '/admin/logs'
     | '/admin/stats'
+    | '/dashboard/keys'
+    | '/dashboard/wallet'
     | '/admin/'
+    | '/dashboard/'
     | '/api/public/proxy'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRouteWithChildren
+  DashboardRoute: typeof DashboardRouteWithChildren
   LoginRoute: typeof LoginRoute
   SignupRoute: typeof SignupRoute
   ApiPublicProxyRoute: typeof ApiPublicProxyRoute
@@ -193,6 +240,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin': {
       id: '/admin'
       path: '/admin'
@@ -207,12 +261,33 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/dashboard/': {
+      id: '/dashboard/'
+      path: '/'
+      fullPath: '/dashboard/'
+      preLoaderRoute: typeof DashboardIndexRouteImport
+      parentRoute: typeof DashboardRoute
+    }
     '/admin/': {
       id: '/admin/'
       path: '/'
       fullPath: '/admin/'
       preLoaderRoute: typeof AdminIndexRouteImport
       parentRoute: typeof AdminRoute
+    }
+    '/dashboard/wallet': {
+      id: '/dashboard/wallet'
+      path: '/wallet'
+      fullPath: '/dashboard/wallet'
+      preLoaderRoute: typeof DashboardWalletRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/keys': {
+      id: '/dashboard/keys'
+      path: '/keys'
+      fullPath: '/dashboard/keys'
+      preLoaderRoute: typeof DashboardKeysRouteImport
+      parentRoute: typeof DashboardRoute
     }
     '/admin/stats': {
       id: '/admin/stats'
@@ -288,9 +363,26 @@ const AdminRouteChildren: AdminRouteChildren = {
 
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
+interface DashboardRouteChildren {
+  DashboardKeysRoute: typeof DashboardKeysRoute
+  DashboardWalletRoute: typeof DashboardWalletRoute
+  DashboardIndexRoute: typeof DashboardIndexRoute
+}
+
+const DashboardRouteChildren: DashboardRouteChildren = {
+  DashboardKeysRoute: DashboardKeysRoute,
+  DashboardWalletRoute: DashboardWalletRoute,
+  DashboardIndexRoute: DashboardIndexRoute,
+}
+
+const DashboardRouteWithChildren = DashboardRoute._addFileChildren(
+  DashboardRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRouteWithChildren,
+  DashboardRoute: DashboardRouteWithChildren,
   LoginRoute: LoginRoute,
   SignupRoute: SignupRoute,
   ApiPublicProxyRoute: ApiPublicProxyRoute,

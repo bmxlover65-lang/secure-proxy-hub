@@ -120,24 +120,78 @@ export type Database = {
         }
         Relationships: []
       }
+      app_settings: {
+        Row: {
+          key: string
+          updated_at: string
+          value: Json
+        }
+        Insert: {
+          key: string
+          updated_at?: string
+          value: Json
+        }
+        Update: {
+          key?: string
+          updated_at?: string
+          value?: Json
+        }
+        Relationships: []
+      }
+      coin_transactions: {
+        Row: {
+          amount: number
+          created_at: string
+          id: string
+          reason: string | null
+          reference: string | null
+          status: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          id?: string
+          reason?: string | null
+          reference?: string | null
+          status?: string
+          type: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          id?: string
+          reason?: string | null
+          reference?: string | null
+          status?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
           email: string | null
           full_name: string | null
           id: string
+          wallet_balance: number
         }
         Insert: {
           created_at?: string
           email?: string | null
           full_name?: string | null
           id: string
+          wallet_balance?: number
         }
         Update: {
           created_at?: string
           email?: string | null
           full_name?: string | null
           id?: string
+          wallet_balance?: number
         }
         Relationships: []
       }
@@ -226,6 +280,16 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      adjust_wallet: {
+        Args: {
+          _delta: number
+          _reason: string
+          _reference: string
+          _type: string
+          _user_id: string
+        }
+        Returns: number
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

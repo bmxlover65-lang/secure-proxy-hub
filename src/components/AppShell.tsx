@@ -3,7 +3,7 @@ import { useAuth } from "@/lib/auth-context";
 import { Button } from "@/components/ui/button";
 import {
   LayoutDashboard, Users, ScrollText, Activity, BookOpen, LogOut, BarChart3,
-  Shield, Menu, X, ChevronRight, Database,
+  Shield, Menu, X, ChevronRight, Database, KeyRound, Wallet, Receipt, Settings, Coins,
 } from "lucide-react";
 import { useState, type ReactNode } from "react";
 
@@ -11,19 +11,39 @@ interface NavItem { to: string; label: string; icon: typeof LayoutDashboard; des
 
 const adminNav: NavItem[] = [
   { to: "/admin", label: "Dashboard", icon: LayoutDashboard, description: "Overview & stats" },
-  { to: "/admin/clients", label: "API Clients", icon: Users, description: "Keys, IPs & domains" },
+  { to: "/admin/users", label: "Users", icon: Users, description: "Resellers & wallets" },
+  { to: "/admin/transactions", label: "Transactions", icon: Receipt, description: "Coin activity" },
+  { to: "/admin/clients", label: "API Clients", icon: KeyRound, description: "All keys" },
   { to: "/admin/logs", label: "Request Logs", icon: ScrollText, description: "Activity history" },
   { to: "/admin/stats", label: "Statistics", icon: BarChart3, description: "Usage charts" },
   { to: "/admin/cache", label: "Cache Monitor", icon: Database, description: "Hit/miss & TTL" },
   { to: "/admin/health", label: "API Health", icon: Activity, description: "Test endpoints" },
+  { to: "/admin/settings", label: "Settings", icon: Settings, description: "Pricing & config" },
   { to: "/admin/docs", label: "API Docs", icon: BookOpen, description: "Integration guide" },
 ];
 
-export function AppShell({ children, mode }: { children: ReactNode; mode: "admin" }) {
+const resellerNav: NavItem[] = [
+  { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard, description: "Wallet & overview" },
+  { to: "/dashboard/keys", label: "API Keys", icon: KeyRound, description: "Create & manage" },
+  { to: "/dashboard/wallet", label: "Wallet", icon: Wallet, description: "Balance & top-up" },
+  { to: "/dashboard/transactions", label: "Transactions", icon: Receipt, description: "Coin history" },
+  { to: "/dashboard/logs", label: "Request Logs", icon: ScrollText, description: "API call history" },
+  { to: "/dashboard/docs", label: "API Docs", icon: BookOpen, description: "Integration guide" },
+];
+
+export function AppShell({
+  children,
+  mode,
+  walletBalance,
+}: {
+  children: ReactNode;
+  mode: "admin" | "reseller";
+  walletBalance?: number;
+}) {
   const { user, signOut, isAdmin } = useAuth();
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-  const items = adminNav;
+  const items = mode === "admin" ? adminNav : resellerNav;
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const initials = (user?.email ?? "U").slice(0, 2).toUpperCase();
@@ -50,8 +70,9 @@ export function AppShell({ children, mode }: { children: ReactNode; mode: "admin
         </div>
         {items.map((it) => {
           const Icon = it.icon;
-          const active = pathname === it.to ||
-            (it.to !== "/admin" && pathname.startsWith(it.to));
+          const active =
+            pathname === it.to ||
+            (it.to !== "/admin" && it.to !== "/dashboard" && pathname.startsWith(it.to));
           return (
             <Link
               key={it.to}
@@ -144,6 +165,13 @@ export function AppShell({ children, mode }: { children: ReactNode; mode: "admin
             <ChevronRight className="h-4 w-4 text-muted-foreground/50" />
             <span className="font-medium">{currentItem.label}</span>
           </div>
+          {mode === "reseller" && walletBalance !== undefined && (
+            <div className="flex items-center gap-2 rounded-full border border-primary/40 bg-primary/10 px-3 py-1.5 text-xs">
+              <Coins className="h-3.5 w-3.5 text-primary" />
+              <span className="font-semibold text-foreground">{walletBalance.toLocaleString()}</span>
+              <span className="text-muted-foreground">coins</span>
+            </div>
+          )}
           <div className="hidden items-center gap-2 rounded-full border border-border/60 bg-secondary/40 px-3 py-1.5 text-xs sm:flex">
             <span className="relative flex h-2 w-2">
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-success opacity-75" />
