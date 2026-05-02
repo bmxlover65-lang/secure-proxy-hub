@@ -21,6 +21,7 @@ function WalletPage() {
   const [orders, setOrders] = useState<Awaited<ReturnType<typeof listMyOrders>>["orders"]>([]);
   const [coins, setCoins] = useState<number>(1000);
   const [loading, setLoading] = useState(false);
+  const [statusFilter, setStatusFilter] = useState<"all" | "pending" | "success" | "failed">("all");
 
   const reload = useCallback(() => {
     fetchOverview().then(setData).catch(() => {});
@@ -32,6 +33,7 @@ function WalletPage() {
   const paise = Number(data?.settings.paise_per_1000_coins ?? 2000);
   const inrPer1000 = paise / 100;
   const inrAmount = (coins / 1000) * inrPer1000;
+  const filteredOrders = statusFilter === "all" ? orders : orders.filter((o) => o.status === statusFilter);
 
   const startTopup = async () => {
     if (coins < 1000) return toast.error("Minimum 1000 coins");
