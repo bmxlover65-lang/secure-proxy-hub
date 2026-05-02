@@ -1,7 +1,7 @@
 // Maps category + game to upstream draw.ar-lottery01.com URL
 // Mirrors the folder layout in the user's screenshot.
 
-const BASE = "https://draw.ar-lottery01.com";
+const BASE = "https://draw.hgzy.click";
 
 // category (lowercase) -> { game (lowercase) -> path }
 const ROUTES: Record<string, Record<string, string>> = {
@@ -29,7 +29,7 @@ const ROUTES: Record<string, Record<string, string>> = {
 };
 
 export const SUPPORTED_GAMES: { category: string; games: string[] }[] = Object.entries(ROUTES).map(
-  ([category, games]) => ({ category, games: Object.keys(games) })
+  ([category, games]) => ({ category, games: Object.keys(games) }),
 );
 
 export function buildUpstreamUrl(category: string, game: string): string | null {
