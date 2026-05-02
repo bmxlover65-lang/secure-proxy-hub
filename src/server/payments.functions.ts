@@ -12,7 +12,7 @@ function md5(s: string) {
   return createHash("md5").update(s).digest("hex");
 }
 
-async function getPaisePer1000(): Promise<number> {
+async function getInrPer1000(): Promise<number> {
   const { data } = await supabaseAdmin.from("app_settings").select("value").eq("key", "paise_per_1000_coins").maybeSingle();
   const v = data?.value;
   const n = typeof v === "number" ? v : Number(v);
@@ -31,8 +31,8 @@ export const createTopupOrder = createServerFn({ method: "POST" })
     const apiKey = process.env.BONDPAY_API_KEY;
     if (!merchantId || !apiKey) throw new Error("Payment gateway not configured");
 
-    const paisePer1000 = await getPaisePer1000();
-    const inr = (data.coins / 1000) * (paisePer1000 / 100);
+    const inrPer1000 = await getInrPer1000();
+    const inr = (data.coins / 1000) * inrPer1000;
     const amountStr = inr.toFixed(2);
 
     const merchantOrderNo = `HSO_${Date.now()}_${Math.floor(Math.random() * 10000)}`;
