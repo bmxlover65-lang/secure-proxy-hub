@@ -233,8 +233,8 @@ export const getMyKeyMetrics = createServerFn({ method: "POST" })
       // Filtered path: aggregate via SQL using the indexed (client_id, created_at) lookup
       const { data: rows } = await supabaseAdmin.rpc("client_usage_in_range", {
         _client_ids: ids,
-        _from: (data.from ?? null) as string,
-        _to: (data.to ?? null) as string,
+        _from: data.from ?? "1970-01-01T00:00:00Z",
+        _to: data.to ?? "9999-12-31T00:00:00Z",
       });
       (rows as Array<{ client_id: string; total_requests: number; success_count: number; error_count: number; last_request_at: string | null }> | null ?? []).forEach((r) => {
         counts[r.client_id] = {
@@ -288,8 +288,8 @@ export const adminUserMetrics = createServerFn({ method: "POST" })
       });
     } else {
       const { data: rows } = await supabaseAdmin.rpc("user_usage_in_range", {
-        _from: (data.from ?? null) as string,
-        _to: (data.to ?? null) as string,
+        _from: data.from ?? "1970-01-01T00:00:00Z",
+        _to: data.to ?? "9999-12-31T00:00:00Z",
       });
       (rows as Array<{ user_id: string; total_requests: number; success_count: number; error_count: number; last_request_at: string | null }> | null ?? []).forEach((r) => {
         per[r.user_id] = {
