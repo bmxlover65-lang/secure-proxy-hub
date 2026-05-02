@@ -9,38 +9,203 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SignupRouteImport } from './routes/signup'
+import { Route as ResellerRouteImport } from './routes/reseller'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ResellerIndexRouteImport } from './routes/reseller.index'
+import { Route as AdminIndexRouteImport } from './routes/admin.index'
+import { Route as ResellerDocsRouteImport } from './routes/reseller.docs'
+import { Route as AdminResellersRouteImport } from './routes/admin.resellers'
+import { Route as AdminLogsRouteImport } from './routes/admin.logs'
+import { Route as AdminHealthRouteImport } from './routes/admin.health'
+import { Route as ApiPublicProxyRouteImport } from './routes/api/public/proxy'
 
+const SignupRoute = SignupRouteImport.update({
+  id: '/signup',
+  path: '/signup',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResellerRoute = ResellerRouteImport.update({
+  id: '/reseller',
+  path: '/reseller',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ResellerIndexRoute = ResellerIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => ResellerRoute,
+} as any)
+const AdminIndexRoute = AdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AdminRoute,
+} as any)
+const ResellerDocsRoute = ResellerDocsRouteImport.update({
+  id: '/docs',
+  path: '/docs',
+  getParentRoute: () => ResellerRoute,
+} as any)
+const AdminResellersRoute = AdminResellersRouteImport.update({
+  id: '/resellers',
+  path: '/resellers',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminLogsRoute = AdminLogsRouteImport.update({
+  id: '/logs',
+  path: '/logs',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminHealthRoute = AdminHealthRouteImport.update({
+  id: '/health',
+  path: '/health',
+  getParentRoute: () => AdminRoute,
+} as any)
+const ApiPublicProxyRoute = ApiPublicProxyRouteImport.update({
+  id: '/api/public/proxy',
+  path: '/api/public/proxy',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRouteWithChildren
+  '/login': typeof LoginRoute
+  '/reseller': typeof ResellerRouteWithChildren
+  '/signup': typeof SignupRoute
+  '/admin/health': typeof AdminHealthRoute
+  '/admin/logs': typeof AdminLogsRoute
+  '/admin/resellers': typeof AdminResellersRoute
+  '/reseller/docs': typeof ResellerDocsRoute
+  '/admin/': typeof AdminIndexRoute
+  '/reseller/': typeof ResellerIndexRoute
+  '/api/public/proxy': typeof ApiPublicProxyRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/login': typeof LoginRoute
+  '/signup': typeof SignupRoute
+  '/admin/health': typeof AdminHealthRoute
+  '/admin/logs': typeof AdminLogsRoute
+  '/admin/resellers': typeof AdminResellersRoute
+  '/reseller/docs': typeof ResellerDocsRoute
+  '/admin': typeof AdminIndexRoute
+  '/reseller': typeof ResellerIndexRoute
+  '/api/public/proxy': typeof ApiPublicProxyRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/admin': typeof AdminRouteWithChildren
+  '/login': typeof LoginRoute
+  '/reseller': typeof ResellerRouteWithChildren
+  '/signup': typeof SignupRoute
+  '/admin/health': typeof AdminHealthRoute
+  '/admin/logs': typeof AdminLogsRoute
+  '/admin/resellers': typeof AdminResellersRoute
+  '/reseller/docs': typeof ResellerDocsRoute
+  '/admin/': typeof AdminIndexRoute
+  '/reseller/': typeof ResellerIndexRoute
+  '/api/public/proxy': typeof ApiPublicProxyRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/admin'
+    | '/login'
+    | '/reseller'
+    | '/signup'
+    | '/admin/health'
+    | '/admin/logs'
+    | '/admin/resellers'
+    | '/reseller/docs'
+    | '/admin/'
+    | '/reseller/'
+    | '/api/public/proxy'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/login'
+    | '/signup'
+    | '/admin/health'
+    | '/admin/logs'
+    | '/admin/resellers'
+    | '/reseller/docs'
+    | '/admin'
+    | '/reseller'
+    | '/api/public/proxy'
+  id:
+    | '__root__'
+    | '/'
+    | '/admin'
+    | '/login'
+    | '/reseller'
+    | '/signup'
+    | '/admin/health'
+    | '/admin/logs'
+    | '/admin/resellers'
+    | '/reseller/docs'
+    | '/admin/'
+    | '/reseller/'
+    | '/api/public/proxy'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminRoute: typeof AdminRouteWithChildren
+  LoginRoute: typeof LoginRoute
+  ResellerRoute: typeof ResellerRouteWithChildren
+  SignupRoute: typeof SignupRoute
+  ApiPublicProxyRoute: typeof ApiPublicProxyRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/signup': {
+      id: '/signup'
+      path: '/signup'
+      fullPath: '/signup'
+      preLoaderRoute: typeof SignupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reseller': {
+      id: '/reseller'
+      path: '/reseller'
+      fullPath: '/reseller'
+      preLoaderRoute: typeof ResellerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,21 +213,96 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/reseller/': {
+      id: '/reseller/'
+      path: '/'
+      fullPath: '/reseller/'
+      preLoaderRoute: typeof ResellerIndexRouteImport
+      parentRoute: typeof ResellerRoute
+    }
+    '/admin/': {
+      id: '/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/reseller/docs': {
+      id: '/reseller/docs'
+      path: '/docs'
+      fullPath: '/reseller/docs'
+      preLoaderRoute: typeof ResellerDocsRouteImport
+      parentRoute: typeof ResellerRoute
+    }
+    '/admin/resellers': {
+      id: '/admin/resellers'
+      path: '/resellers'
+      fullPath: '/admin/resellers'
+      preLoaderRoute: typeof AdminResellersRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/logs': {
+      id: '/admin/logs'
+      path: '/logs'
+      fullPath: '/admin/logs'
+      preLoaderRoute: typeof AdminLogsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/health': {
+      id: '/admin/health'
+      path: '/health'
+      fullPath: '/admin/health'
+      preLoaderRoute: typeof AdminHealthRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/api/public/proxy': {
+      id: '/api/public/proxy'
+      path: '/api/public/proxy'
+      fullPath: '/api/public/proxy'
+      preLoaderRoute: typeof ApiPublicProxyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
+interface AdminRouteChildren {
+  AdminHealthRoute: typeof AdminHealthRoute
+  AdminLogsRoute: typeof AdminLogsRoute
+  AdminResellersRoute: typeof AdminResellersRoute
+  AdminIndexRoute: typeof AdminIndexRoute
+}
+
+const AdminRouteChildren: AdminRouteChildren = {
+  AdminHealthRoute: AdminHealthRoute,
+  AdminLogsRoute: AdminLogsRoute,
+  AdminResellersRoute: AdminResellersRoute,
+  AdminIndexRoute: AdminIndexRoute,
+}
+
+const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
+
+interface ResellerRouteChildren {
+  ResellerDocsRoute: typeof ResellerDocsRoute
+  ResellerIndexRoute: typeof ResellerIndexRoute
+}
+
+const ResellerRouteChildren: ResellerRouteChildren = {
+  ResellerDocsRoute: ResellerDocsRoute,
+  ResellerIndexRoute: ResellerIndexRoute,
+}
+
+const ResellerRouteWithChildren = ResellerRoute._addFileChildren(
+  ResellerRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminRoute: AdminRouteWithChildren,
+  LoginRoute: LoginRoute,
+  ResellerRoute: ResellerRouteWithChildren,
+  SignupRoute: SignupRoute,
+  ApiPublicProxyRoute: ApiPublicProxyRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-  }
-}
