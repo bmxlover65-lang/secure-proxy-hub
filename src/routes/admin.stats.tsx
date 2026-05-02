@@ -1,11 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useMemo, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
+import { useServerFn } from "@tanstack/react-start";
+import { getStats } from "@/server/stats.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageHeader } from "@/components/PageHeader";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { BarChart3, Loader2, RefreshCw } from "lucide-react";
 import {
   ResponsiveContainer, BarChart, Bar, LineChart, Line,
@@ -16,35 +19,47 @@ export const Route = createFileRoute("/admin/stats")({
   component: StatsPage,
 });
 
-type Row = {
-  created_at: string; client_id: string | null; category: string | null;
-  game: string | null; status_code: number | null; success: boolean;
-  endpoint: string | null;
-};
+type Aggregated = Awaited<ReturnType<typeof getStats>>;
 type Client = { id: string; name: string };
 
 const COLORS = ["#6366f1", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6", "#06b6d4", "#ec4899", "#84cc16"];
 
+// Module-level client cache so navigating away and back is instant.
+const clientCache = new Map<string, { data: Aggregated; expires: number }>();
+const CLIENT_TTL_MS = 60_000;
+
 function StatsPage() {
-  const [rows, setRows] = useState<Row[]>([]);
+  const [stats, setStats] = useState<Aggregated | null>(null);
   const [clients, setClients] = useState<Client[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [days, setDays] = useState("7");
   const [clientId, setClientId] = useState("all");
+  const fetchStats = useServerFn(getStats);
+  const reqId = useRef(0);
 
-  const load = useCallback(async () => {
+  const load = useCallback(async (force = false) => {
+    const key = `${days}:${clientId}`;
+    const now = Date.now();
+    const cached = clientCache.get(key);
+    if (!force && cached && cached.expires > now) {
+      setStats(cached.data);
+      setLoading(false);
+      return;
+    }
+    if (cached) setStats(cached.data); // show stale instantly
     setLoading(true);
-    const since = new Date(Date.now() - Number(days) * 86400_000).toISOString();
-    let q = supabase.from("request_logs")
-      .select("created_at, client_id, category, game, status_code, success, endpoint")
-      .gte("created_at", since)
-      .order("created_at", { ascending: false })
-      .limit(5000);
-    if (clientId !== "all") q = q.eq("client_id", clientId);
-    const { data } = await q;
-    setRows((data as Row[] | null) ?? []);
-    setLoading(false);
-  }, [days, clientId]);
+    const myReq = ++reqId.current;
+    try {
+      const data = await fetchStats({
+        data: { days: Number(days), clientId: clientId === "all" ? null : clientId },
+      });
+      if (myReq !== reqId.current) return;
+      clientCache.set(key, { data, expires: now + CLIENT_TTL_MS });
+      setStats(data);
+    } finally {
+      if (myReq === reqId.current) setLoading(false);
+    }
+  }, [days, clientId, fetchStats]);
 
   useEffect(() => {
     supabase.from("api_clients").select("id, name").order("name")
@@ -52,50 +67,14 @@ function StatsPage() {
   }, []);
   useEffect(() => { load(); }, [load]);
 
-  const byDay = useMemo(() => {
-    const m = new Map<string, { date: string; success: number; failed: number }>();
-    const n = Number(days);
-    for (let i = n - 1; i >= 0; i--) {
-      const d = new Date(Date.now() - i * 86400_000).toISOString().slice(0, 10);
-      m.set(d, { date: d.slice(5), success: 0, failed: 0 });
-    }
-    rows.forEach((r) => {
-      const k = r.created_at.slice(0, 10);
-      const v = m.get(k);
-      if (v) { if (r.success) v.success++; else v.failed++; }
-    });
-    return Array.from(m.values());
-  }, [rows, days]);
-
-  const byEndpoint = useMemo(() => {
-    const m = new Map<string, number>();
-    rows.forEach((r) => {
-      const k = r.endpoint || `${r.category}/${r.game}`;
-      m.set(k, (m.get(k) ?? 0) + 1);
-    });
-    return Array.from(m, ([name, count]) => ({ name, count }))
-      .sort((a, b) => b.count - a.count).slice(0, 10);
-  }, [rows]);
-
-  const byCategory = useMemo(() => {
-    const m = new Map<string, number>();
-    rows.forEach((r) => { const k = r.category || "unknown"; m.set(k, (m.get(k) ?? 0) + 1); });
-    return Array.from(m, ([name, value]) => ({ name, value }));
-  }, [rows]);
-
-  const byStatus = useMemo(() => {
-    const m = new Map<string, number>();
-    rows.forEach((r) => {
-      const c = r.status_code ?? 0;
-      const k = c === 0 ? "n/a" : `${Math.floor(c / 100)}xx`;
-      m.set(k, (m.get(k) ?? 0) + 1);
-    });
-    return Array.from(m, ([name, count]) => ({ name, count })).sort((a, b) => a.name.localeCompare(b.name));
-  }, [rows]);
-
-  const total = rows.length;
-  const successCount = rows.filter((r) => r.success).length;
+  const total = stats?.total ?? 0;
+  const successCount = stats?.success ?? 0;
   const successRate = total ? Math.round((successCount / total) * 100) : 0;
+  const byDay = stats?.byDay ?? [];
+  const byEndpoint = stats?.byEndpoint ?? [];
+  const byCategory = stats?.byCategory ?? [];
+  const byStatus = stats?.byStatus ?? [];
+  const showSkeleton = loading && !stats;
 
   return (
     <div className="space-y-6">
@@ -104,7 +83,7 @@ function StatsPage() {
         title="Usage Statistics"
         description="Visualize traffic by day, endpoint, category, and status."
         actions={
-          <Button variant="outline" size="sm" onClick={load} disabled={loading}>
+          <Button variant="outline" size="sm" onClick={() => load(true)} disabled={loading}>
             {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <RefreshCw className="mr-2 h-4 w-4" />}
             Refresh
           </Button>
@@ -139,29 +118,26 @@ function StatsPage() {
       </Card>
 
       <div className="grid gap-3 sm:grid-cols-3">
-        <Card className="border-border/60" style={{ background: "var(--gradient-card)" }}>
-          <CardContent className="p-4">
-            <div className="text-xs uppercase tracking-wider text-muted-foreground">Total requests</div>
-            <div className="mt-1 text-2xl font-bold">{total}</div>
-          </CardContent>
-        </Card>
-        <Card className="border-border/60" style={{ background: "var(--gradient-card)" }}>
-          <CardContent className="p-4">
-            <div className="text-xs uppercase tracking-wider text-muted-foreground">Success rate</div>
-            <div className="mt-1 text-2xl font-bold text-success">{successRate}%</div>
-          </CardContent>
-        </Card>
-        <Card className="border-border/60" style={{ background: "var(--gradient-card)" }}>
-          <CardContent className="p-4">
-            <div className="text-xs uppercase tracking-wider text-muted-foreground">Failed</div>
-            <div className="mt-1 text-2xl font-bold text-destructive">{total - successCount}</div>
-          </CardContent>
-        </Card>
+        {[
+          { label: "Total requests", value: total, cls: "" },
+          { label: "Success rate", value: `${successRate}%`, cls: "text-success" },
+          { label: "Failed", value: total - successCount, cls: "text-destructive" },
+        ].map((s) => (
+          <Card key={s.label} className="border-border/60" style={{ background: "var(--gradient-card)" }}>
+            <CardContent className="p-4">
+              <div className="text-xs uppercase tracking-wider text-muted-foreground">{s.label}</div>
+              {showSkeleton
+                ? <Skeleton className="mt-1 h-8 w-20" />
+                : <div className={`mt-1 text-2xl font-bold ${s.cls}`}>{s.value}</div>}
+            </CardContent>
+          </Card>
+        ))}
       </div>
 
       <Card className="border-border/60" style={{ background: "var(--gradient-card)" }}>
         <CardHeader><CardTitle className="text-base">Requests by day</CardTitle></CardHeader>
         <CardContent style={{ height: 300 }}>
+          {showSkeleton ? <Skeleton className="h-full w-full" /> : (
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={byDay}>
               <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
@@ -173,6 +149,7 @@ function StatsPage() {
               <Line type="monotone" dataKey="failed" stroke="#ef4444" strokeWidth={2} />
             </LineChart>
           </ResponsiveContainer>
+          )}
         </CardContent>
       </Card>
 
@@ -180,6 +157,7 @@ function StatsPage() {
         <Card className="border-border/60" style={{ background: "var(--gradient-card)" }}>
           <CardHeader><CardTitle className="text-base">Top endpoints</CardTitle></CardHeader>
           <CardContent style={{ height: 320 }}>
+            {showSkeleton ? <Skeleton className="h-full w-full" /> : (
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={byEndpoint} layout="vertical" margin={{ left: 60 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
@@ -189,12 +167,14 @@ function StatsPage() {
                 <Bar dataKey="count" fill="#6366f1" radius={[0, 4, 4, 0]} />
               </BarChart>
             </ResponsiveContainer>
+            )}
           </CardContent>
         </Card>
 
         <Card className="border-border/60" style={{ background: "var(--gradient-card)" }}>
           <CardHeader><CardTitle className="text-base">By category</CardTitle></CardHeader>
           <CardContent style={{ height: 320 }}>
+            {showSkeleton ? <Skeleton className="h-full w-full" /> : (
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie data={byCategory} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={100} label>
@@ -204,6 +184,7 @@ function StatsPage() {
                 <Legend />
               </PieChart>
             </ResponsiveContainer>
+            )}
           </CardContent>
         </Card>
       </div>
@@ -211,6 +192,7 @@ function StatsPage() {
       <Card className="border-border/60" style={{ background: "var(--gradient-card)" }}>
         <CardHeader><CardTitle className="text-base">By status code</CardTitle></CardHeader>
         <CardContent style={{ height: 280 }}>
+          {showSkeleton ? <Skeleton className="h-full w-full" /> : (
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={byStatus}>
               <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
@@ -220,6 +202,7 @@ function StatsPage() {
               <Bar dataKey="count" fill="#8b5cf6" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
+          )}
         </CardContent>
       </Card>
     </div>
