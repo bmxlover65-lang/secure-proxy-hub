@@ -12,7 +12,7 @@ import { Mail, Lock, Loader2, ArrowRight, Eye, EyeOff } from "lucide-react";
 
 export const Route = createFileRoute("/login")({
   component: LoginPage,
-  head: () => ({ meta: [{ title: "Sign in — Reseller Panel" }] }),
+  head: () => ({ meta: [{ title: "Sign in — HyperAPI Admin" }] }),
 });
 
 const schema = z.object({

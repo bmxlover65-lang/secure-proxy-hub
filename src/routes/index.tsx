@@ -28,7 +28,7 @@ function Index() {
             >
               <Shield className="h-5 w-5 text-primary-foreground" />
             </div>
-            <span className="font-semibold">Reseller Panel</span>
+            <span className="font-semibold">HyperAPI Admin</span>
           </div>
           <div className="flex gap-2">
             <Button asChild variant="ghost"><Link to="/login">Login</Link></Button>

@@ -12,7 +12,7 @@ import { Mail, Lock, User as UserIcon, Loader2, ArrowRight, Sparkles, Eye, EyeOf
 
 export const Route = createFileRoute("/signup")({
   component: SignupPage,
-  head: () => ({ meta: [{ title: "Create account — Reseller Panel" }] }),
+  head: () => ({ meta: [{ title: "Create account — HyperAPI Admin" }] }),
 });
 
 const schema = z.object({

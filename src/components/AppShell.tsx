@@ -37,7 +37,7 @@ export function AppShell({ children, mode }: { children: ReactNode; mode: "admin
           <Shield className="h-5 w-5 text-primary-foreground" />
         </div>
         <div className="min-w-0">
-          <div className="text-sm font-semibold leading-tight">Reseller Panel</div>
+          <div className="text-sm font-semibold leading-tight">HyperAPI Admin</div>
           <div className="text-[11px] uppercase tracking-wider text-muted-foreground">{mode}</div>
         </div>
       </div>
@@ -94,7 +94,7 @@ export function AppShell({ children, mode }: { children: ReactNode; mode: "admin
           <div className="min-w-0 flex-1">
             <div className="truncate text-xs font-medium">{user?.email}</div>
             <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
-              {isAdmin ? "Administrator" : "Reseller"}
+              {isAdmin ? "Administrator" : "User"}
             </div>
           </div>
           <Button

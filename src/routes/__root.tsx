@@ -31,10 +31,10 @@ export const Route = createRootRoute({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Reseller Panel — API Proxy" },
+      { title: "HyperAPI Admin — API Proxy" },
       { name: "description", content: "Manage clients, API keys, IP whitelists and request logs for your API proxy." },
       { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Reseller Panel — API Proxy" },
+      { property: "og:title", content: "HyperAPI Admin — API Proxy" },
       { property: "og:description", content: "Manage clients, API keys, IP whitelists and request logs." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
