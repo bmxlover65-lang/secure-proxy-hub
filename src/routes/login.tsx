@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { AuthLayout } from "@/components/AuthLayout";
 import { toast } from "sonner";
-import { Mail, Lock, Loader2, ArrowRight } from "lucide-react";
+import { Mail, Lock, Loader2, ArrowRight, Eye, EyeOff } from "lucide-react";
 
 export const Route = createFileRoute("/login")({
   component: LoginPage,
@@ -25,6 +25,7 @@ function LoginPage() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPwd, setShowPwd] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
@@ -52,18 +53,24 @@ function LoginPage() {
     <AuthLayout title="Welcome back" subtitle="Sign in to manage your reseller dashboard">
       <form
         onSubmit={onSubmit}
-        className="space-y-5 rounded-2xl border border-border/60 p-6 shadow-[var(--shadow-soft)]"
-        style={{ background: "var(--gradient-card)" }}
+        className="relative space-y-5 overflow-hidden rounded-2xl border border-border/40 bg-card/50 p-7 backdrop-blur-2xl"
+        style={{ boxShadow: "var(--shadow-elegant)" }}
       >
+        {/* subtle gradient border glow */}
+        <div
+          className="pointer-events-none absolute inset-x-0 top-0 h-px"
+          style={{ background: "linear-gradient(90deg, transparent, color-mix(in oklab, var(--primary) 60%, transparent), transparent)" }}
+        />
+
         <div className="space-y-2">
-          <Label htmlFor="email">Email address</Label>
-          <div className="relative">
-            <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Label htmlFor="email" className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Email</Label>
+          <div className="group relative">
+            <Mail className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground transition-colors group-focus-within:text-primary" />
             <Input
               id="email"
               type="email"
               placeholder="you@example.com"
-              className="pl-10"
+              className="h-12 border-border/60 bg-background/40 pl-11 text-base backdrop-blur transition-all focus-visible:border-primary/60 focus-visible:bg-background/70"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               autoComplete="email"
@@ -71,41 +78,64 @@ function LoginPage() {
             />
           </div>
         </div>
+
         <div className="space-y-2">
-          <Label htmlFor="password">Password</Label>
-          <div className="relative">
-            <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <div className="flex items-center justify-between">
+            <Label htmlFor="password" className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Password</Label>
+            <button type="button" className="text-xs text-muted-foreground transition-colors hover:text-primary">
+              Forgot?
+            </button>
+          </div>
+          <div className="group relative">
+            <Lock className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground transition-colors group-focus-within:text-primary" />
             <Input
               id="password"
-              type="password"
+              type={showPwd ? "text" : "password"}
               placeholder="••••••••"
-              className="pl-10"
+              className="h-12 border-border/60 bg-background/40 pl-11 pr-11 text-base backdrop-blur transition-all focus-visible:border-primary/60 focus-visible:bg-background/70"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               autoComplete="current-password"
               required
             />
+            <button
+              type="button"
+              onClick={() => setShowPwd((s) => !s)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-secondary/60 hover:text-foreground"
+              aria-label={showPwd ? "Hide password" : "Show password"}
+            >
+              {showPwd ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+            </button>
           </div>
         </div>
+
         <Button
           type="submit"
-          className="group h-11 w-full text-sm font-semibold"
+          className="group relative h-12 w-full overflow-hidden text-sm font-semibold text-primary-foreground transition-all hover:scale-[1.01] active:scale-[0.99]"
           style={{ background: "var(--gradient-primary)", boxShadow: "var(--shadow-glow)" }}
           disabled={submitting}
         >
-          {submitting ? (
-            <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Signing in…</>
-          ) : (
-            <>Sign in <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-0.5" /></>
-          )}
+          {/* shimmer */}
+          <span
+            className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/25 to-transparent transition-transform duration-700 group-hover:translate-x-full"
+          />
+          <span className="relative flex items-center justify-center">
+            {submitting ? (
+              <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Signing in…</>
+            ) : (
+              <>Sign in <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" /></>
+            )}
+          </span>
         </Button>
+
         <div className="relative py-1 text-center text-xs text-muted-foreground">
-          <div className="absolute inset-0 top-1/2 h-px bg-border" />
-          <span className="relative bg-card px-3" style={{ background: "var(--card)" }}>or</span>
+          <div className="absolute inset-0 top-1/2 h-px bg-border/60" />
+          <span className="relative bg-card/80 px-3 backdrop-blur-md">or</span>
         </div>
+
         <p className="text-center text-sm text-muted-foreground">
           Don't have an account?{" "}
-          <Link to="/signup" className="font-medium text-primary hover:underline">
+          <Link to="/signup" className="font-semibold text-primary transition-colors hover:text-primary/80">
             Create one
           </Link>
         </p>
