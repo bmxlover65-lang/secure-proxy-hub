@@ -180,6 +180,114 @@ function Index() {
         </div>
       </section>
 
+      {/* API Reseller Value Proposition */}
+      <section className="relative z-10 mx-auto max-w-6xl px-5 pb-20">
+        <div className="mb-10 text-center">
+          <div className="mb-3 text-xs font-medium uppercase tracking-[0.2em] text-primary">Why resellers choose us</div>
+          <h2 className="text-3xl font-bold tracking-tight md:text-4xl">
+            Secure API access, built for{" "}
+            <span className="bg-clip-text text-transparent" style={{ backgroundImage: "var(--gradient-hero)" }}>scale</span>
+          </h2>
+          <p className="mx-auto mt-3 max-w-2xl text-muted-foreground">
+            Every API key is locked down with enterprise-grade controls — IP whitelist, domain locking, and per-key rate limiting — so your business stays safe and predictable.
+          </p>
+        </div>
+
+        <div className="grid gap-5 md:grid-cols-3">
+          {/* IP Whitelist */}
+          <div
+            className="group relative overflow-hidden rounded-2xl border border-border/40 bg-card/50 p-7 backdrop-blur-md transition-all hover:-translate-y-1 hover:border-primary/40"
+            style={{ boxShadow: "var(--shadow-elegant)" }}
+          >
+            <div
+              className="pointer-events-none absolute -right-12 -top-12 h-32 w-32 rounded-full opacity-20 blur-2xl transition-opacity group-hover:opacity-40"
+              style={{ background: "var(--gradient-primary)" }}
+            />
+            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl ring-1 ring-primary/30" style={{ background: "var(--gradient-primary)", boxShadow: "var(--shadow-glow)" }}>
+              <ShieldCheck className="h-6 w-6 text-primary-foreground" />
+            </div>
+            <h3 className="text-lg font-semibold">IP Whitelist</h3>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Restrict every API key to specific server IPs. Requests from unknown sources are rejected at the edge — before they ever hit your billing.
+            </p>
+            <ul className="mt-4 space-y-2 text-sm">
+              {["Multiple IPs per key", "CIDR range support", "Edge-level enforcement"].map((t) => (
+                <li key={t} className="flex items-center gap-2 text-muted-foreground">
+                  <CheckCircle2 className="h-4 w-4 shrink-0 text-success" />
+                  {t}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Rate Limiting */}
+          <div
+            className="group relative overflow-hidden rounded-2xl border border-border/40 bg-card/50 p-7 backdrop-blur-md transition-all hover:-translate-y-1 hover:border-primary/40"
+            style={{ boxShadow: "var(--shadow-elegant)" }}
+          >
+            <div
+              className="pointer-events-none absolute -right-12 -top-12 h-32 w-32 rounded-full opacity-20 blur-2xl transition-opacity group-hover:opacity-40"
+              style={{ background: "var(--gradient-hero)" }}
+            />
+            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl ring-1 ring-primary/30" style={{ background: "var(--gradient-hero)", boxShadow: "var(--shadow-glow)" }}>
+              <Zap className="h-6 w-6 text-primary-foreground" />
+            </div>
+            <h3 className="text-lg font-semibold">Smart Rate Limiting</h3>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Per-key throttling protects your wallet from runaway scripts and abusive clients. Set sensible quotas and sleep easy at night.
+            </p>
+            <ul className="mt-4 space-y-2 text-sm">
+              {["Per-second & per-minute limits", "Burst protection", "Auto block on abuse"].map((t) => (
+                <li key={t} className="flex items-center gap-2 text-muted-foreground">
+                  <CheckCircle2 className="h-4 w-4 shrink-0 text-success" />
+                  {t}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Secure Access */}
+          <div
+            className="group relative overflow-hidden rounded-2xl border border-border/40 bg-card/50 p-7 backdrop-blur-md transition-all hover:-translate-y-1 hover:border-primary/40"
+            style={{ boxShadow: "var(--shadow-elegant)" }}
+          >
+            <div
+              className="pointer-events-none absolute -right-12 -top-12 h-32 w-32 rounded-full opacity-20 blur-2xl transition-opacity group-hover:opacity-40"
+              style={{ background: "var(--gradient-primary)" }}
+            />
+            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl ring-1 ring-primary/30" style={{ background: "var(--gradient-primary)", boxShadow: "var(--shadow-glow)" }}>
+              <Lock className="h-6 w-6 text-primary-foreground" />
+            </div>
+            <h3 className="text-lg font-semibold">Secure Access</h3>
+            <p className="mt-2 text-sm text-muted-foreground">
+              HTTPS-only proxy with token-based authentication, domain locking, and rotating keys. Your upstream credentials never leak to the client.
+            </p>
+            <ul className="mt-4 space-y-2 text-sm">
+              {["End-to-end TLS encryption", "Domain referer locking", "Instant key revocation"].map((t) => (
+                <li key={t} className="flex items-center gap-2 text-muted-foreground">
+                  <CheckCircle2 className="h-4 w-4 shrink-0 text-success" />
+                  {t}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+
+        {/* Bottom strip */}
+        <div className="mt-8 flex flex-wrap items-center justify-center gap-3 text-xs text-muted-foreground">
+          {[
+            { icon: BarChart3, t: "Real-time analytics" },
+            { icon: Globe2, t: "Global edge network" },
+            { icon: Shield, t: "DDoS protection" },
+            { icon: Activity, t: "99.99% uptime SLA" },
+          ].map(({ icon: I, t }) => (
+            <div key={t} className="inline-flex items-center gap-1.5 rounded-full border border-border/40 bg-card/40 px-3 py-1.5 backdrop-blur-md">
+              <I className="h-3.5 w-3.5 text-primary" /> {t}
+            </div>
+          ))}
+        </div>
+      </section>
+
       {/* Contact CTA */}
       <section className="relative z-10 mx-auto max-w-4xl px-5 pb-20">
         <div
