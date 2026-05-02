@@ -79,7 +79,8 @@ export const adminCreateClient = createServerFn({ method: "POST" })
   .inputValidator((d) =>
     z.object({
       name: z.string().trim().min(1).max(120),
-      rate_limit_per_minute: z.number().int().min(1).max(100000).default(60),
+      category: z.enum(["wingo", "k3", "d5", "motorace"]),
+      duration_days: z.number().int().min(1).max(3650),
       allowed_ips: z.array(z.string().trim().min(1).max(64)).max(50).default([]),
       allowed_domains: z.array(z.string().trim().min(1).max(255)).max(50).default([]),
       notes: z.string().max(500).optional(),
@@ -88,14 +89,17 @@ export const adminCreateClient = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     await assertAdmin(context.userId);
     const api_key = genKey();
+    const expires_at = new Date(Date.now() + data.duration_days * 86400_000).toISOString();
     const { data: client, error } = await supabaseAdmin
       .from("api_clients")
       .insert({
         name: data.name,
         api_key,
-        rate_limit_per_minute: data.rate_limit_per_minute,
+        category: data.category,
+        duration_days: data.duration_days,
+        expires_at,
         notes: data.notes ?? null,
-      })
+      } as never)
       .select()
       .single();
     if (error) throw new Error(error.message);
@@ -122,14 +126,24 @@ export const adminUpdateClient = createServerFn({ method: "POST" })
       id: z.string().uuid(),
       name: z.string().trim().min(1).max(120).optional(),
       status: z.enum(["active", "suspended"]).optional(),
-      rate_limit_per_minute: z.number().int().min(1).max(100000).optional(),
+      category: z.enum(["wingo", "k3", "d5", "motorace"]).optional(),
+      extend_days: z.number().int().min(1).max(3650).optional(),
       notes: z.string().max(500).nullable().optional(),
     }).parse(d),
   )
   .handler(async ({ data, context }) => {
     await assertAdmin(context.userId);
-    const { id, ...patch } = data;
-    const { error } = await supabaseAdmin.from("api_clients").update(patch).eq("id", id);
+    const { id, extend_days, ...rest } = data;
+    const patch: Record<string, unknown> = { ...rest };
+    if (extend_days) {
+      const { data: cur } = await supabaseAdmin
+        .from("api_clients").select("expires_at, duration_days").eq("id", id).maybeSingle();
+      const base = cur?.expires_at && new Date(cur.expires_at).getTime() > Date.now()
+        ? new Date(cur.expires_at).getTime() : Date.now();
+      patch.expires_at = new Date(base + extend_days * 86400_000).toISOString();
+      patch.duration_days = (cur?.duration_days ?? 0) + extend_days;
+    }
+    const { error } = await supabaseAdmin.from("api_clients").update(patch as never).eq("id", id);
     if (error) throw new Error(error.message);
     return { ok: true };
   });
