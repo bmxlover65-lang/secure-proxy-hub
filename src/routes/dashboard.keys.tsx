@@ -69,7 +69,7 @@ function KeysPage() {
                     </SelectContent>
                   </Select>
                 </div>
-                <div className="flex items-center gap-2 rounded-md bg-secondary/40 p-3 text-sm"><Coins className="h-4 w-4 text-primary" /> Cost: <strong>{cost.toLocaleString()} coins</strong> · Validity: <strong>13 days</strong></div>
+                <div className="flex items-center gap-2 rounded-md bg-secondary/40 p-3 text-sm"><Coins className="h-4 w-4 text-primary" /> Cost: <strong>{cost.toLocaleString()} coins</strong> · Validity: <strong>30 days</strong></div>
               </div>
               <DialogFooter>
                 <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
