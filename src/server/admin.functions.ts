@@ -2,7 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
-import { buildUpstreamUrl, fetchUpstream } from "./upstream";
+import { buildUpstreamUrl, fetchUpstream, SUPPORTED_GAMES } from "./upstream";
 
 async function assertAdmin(userId: string) {
   const { data, error } = await supabaseAdmin
@@ -42,6 +42,32 @@ export const adminTestUpstream = createServerFn({ method: "POST" })
       const msg = e instanceof Error ? e.message : "fetch error";
       return { ok: false, status: 0, ms: 0, url, body: msg };
     }
+  });
+
+// --- Admin: test ALL supported upstream endpoints in parallel ---
+export const adminTestAllUpstreams = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertAdmin(context.userId);
+    const targets: { category: string; game: string; url: string }[] = [];
+    for (const c of SUPPORTED_GAMES) {
+      for (const g of c.games) {
+        const url = buildUpstreamUrl(c.category, g);
+        if (url) targets.push({ category: c.category, game: g, url });
+      }
+    }
+    const results = await Promise.all(
+      targets.map(async (t) => {
+        try {
+          const { status, ms } = await fetchUpstream(t.url);
+          return { category: t.category, game: t.game, url: t.url, ok: status === 200, status, ms };
+        } catch (e) {
+          const msg = e instanceof Error ? e.message : "fetch error";
+          return { category: t.category, game: t.game, url: t.url, ok: false, status: 0, ms: 0, error: msg };
+        }
+      })
+    );
+    return { results, checkedAt: new Date().toISOString() };
   });
 
 // --- Admin: create reseller ---
