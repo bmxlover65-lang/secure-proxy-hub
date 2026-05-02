@@ -99,7 +99,7 @@ export const adminCreateClient = createServerFn({ method: "POST" })
         duration_days: data.duration_days,
         expires_at,
         notes: data.notes ?? null,
-      } as never)
+      })
       .select()
       .single();
     if (error) throw new Error(error.message);
@@ -143,7 +143,7 @@ export const adminUpdateClient = createServerFn({ method: "POST" })
       patch.expires_at = new Date(base + extend_days * 86400_000).toISOString();
       patch.duration_days = (cur?.duration_days ?? 0) + extend_days;
     }
-    const { error } = await supabaseAdmin.from("api_clients").update(patch as never).eq("id", id);
+    const { error } = await supabaseAdmin.from("api_clients").update(patch).eq("id", id);
     if (error) throw new Error(error.message);
     return { ok: true };
   });
