@@ -90,16 +90,45 @@ function WalletPage() {
         </Card>
       </div>
 
+      <div className="grid gap-3 sm:grid-cols-3">
+        {(["pending", "success", "failed"] as const).map((s) => {
+          const list = orders.filter((o) => o.status === s);
+          const sum = list.reduce((a, o) => a + Number(o.amount_inr), 0);
+          const cls = s === "success" ? "text-success" : s === "failed" ? "text-destructive" : "text-foreground";
+          return (
+            <Card key={s} className="border-border/60" style={{ background: "var(--gradient-card)" }}>
+              <CardContent className="p-4">
+                <div className="text-[11px] uppercase tracking-wider text-muted-foreground">{s}</div>
+                <div className={`mt-1 text-2xl font-bold ${cls}`}>{list.length}</div>
+                <div className="text-xs text-muted-foreground">₹{sum.toFixed(2)} total</div>
+              </CardContent>
+            </Card>
+          );
+        })}
+      </div>
+
       <Card style={{ background: "var(--gradient-card)" }} className="border-border/60">
         <CardContent className="p-0">
           <div className="flex items-center justify-between border-b border-border/40 p-4">
             <div>
-              <div className="font-semibold">Recent top-ups</div>
-              <div className="text-xs text-muted-foreground">Your payment orders</div>
+              <div className="font-semibold">Top-up orders</div>
+              <div className="text-xs text-muted-foreground">Pending, success and failed payments</div>
             </div>
-            <Button size="sm" variant="ghost" onClick={reload}><RefreshCw className="mr-1 h-3.5 w-3.5" /> Refresh</Button>
+            <div className="flex items-center gap-2">
+              <select
+                className="h-8 rounded-md border border-border/60 bg-background px-2 text-xs"
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value as typeof statusFilter)}
+              >
+                <option value="all">All</option>
+                <option value="pending">Pending</option>
+                <option value="success">Success</option>
+                <option value="failed">Failed</option>
+              </select>
+              <Button size="sm" variant="ghost" onClick={reload}><RefreshCw className="mr-1 h-3.5 w-3.5" /> Refresh</Button>
+            </div>
           </div>
-          {orders.length === 0 ? (
+          {filteredOrders.length === 0 ? (
             <div className="py-12 text-center text-sm text-muted-foreground">No orders yet.</div>
           ) : (
             <table className="w-full text-sm">
@@ -107,7 +136,7 @@ function WalletPage() {
                 <tr className="border-b border-border/40"><th className="p-3">Order</th><th>Coins</th><th>Amount</th><th>Status</th><th>Created</th><th></th></tr>
               </thead>
               <tbody>
-                {orders.map((o) => (
+                {filteredOrders.map((o) => (
                   <tr key={o.id} className="border-b border-border/30">
                     <td className="p-3 font-mono text-xs">{o.merchant_order_no}</td>
                     <td>{Number(o.coins).toLocaleString()}</td>
