@@ -1,14 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState, useCallback } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { adminListUsers, adminAdjustWallet, adminSetUserRole } from "@/server/reseller.functions";
+import { adminListUsers, adminAdjustWallet, adminSetUserRole, adminUserMetrics } from "@/server/reseller.functions";
 import { PageHeader } from "@/components/PageHeader";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Users, Coins, Shield, ShieldOff } from "lucide-react";
+import { Users, Coins, Shield, ShieldOff, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/admin/users")({ component: AdminUsers });
@@ -17,12 +17,22 @@ function AdminUsers() {
   const fetchUsers = useServerFn(adminListUsers);
   const adjust = useServerFn(adminAdjustWallet);
   const setRole = useServerFn(adminSetUserRole);
+  const fetchMetrics = useServerFn(adminUserMetrics);
   const [users, setUsers] = useState<Awaited<ReturnType<typeof adminListUsers>>["users"]>([]);
+  const [metrics, setMetrics] = useState<Record<string, { total: number; success: number; error: number; last: string | null }>>({});
+  const [from, setFrom] = useState("");
+  const [to, setTo] = useState("");
   const [open, setOpen] = useState<string | null>(null);
   const [amount, setAmount] = useState<number>(1000);
   const [reason, setReason] = useState("");
 
-  const reload = useCallback(() => { fetchUsers().then((r) => setUsers(r.users)).catch(() => {}); }, [fetchUsers]);
+  const reload = useCallback(() => {
+    fetchUsers().then((r) => setUsers(r.users)).catch(() => {});
+    const payload: { from?: string; to?: string } = {};
+    if (from) payload.from = new Date(from).toISOString();
+    if (to) payload.to = new Date(to).toISOString();
+    fetchMetrics({ data: payload }).then((r) => setMetrics(r.metrics)).catch(() => {});
+  }, [fetchUsers, fetchMetrics, from, to]);
   useEffect(() => { reload(); }, [reload]);
 
   const submit = async (uid: string) => {
@@ -43,16 +53,25 @@ function AdminUsers() {
 
   return (
     <div className="space-y-6">
-      <PageHeader icon={Users} title="Users" description="All registered users — manage wallets and roles." />
+      <PageHeader icon={Users} title="Users" description="All registered users — manage wallets, roles, and view usage." />
+      <Card style={{ background: "var(--gradient-card)" }} className="border-border/60">
+        <CardContent className="flex flex-wrap items-end gap-3 p-4">
+          <div><Label className="text-[11px]">From</Label><Input type="datetime-local" value={from} onChange={(e) => setFrom(e.target.value)} className="h-9 w-[200px]" /></div>
+          <div><Label className="text-[11px]">To</Label><Input type="datetime-local" value={to} onChange={(e) => setTo(e.target.value)} className="h-9 w-[200px]" /></div>
+          <Button size="sm" variant="outline" onClick={() => { setFrom(""); setTo(""); }}>Clear</Button>
+          <Button size="sm" onClick={reload}><RefreshCw className="mr-1 h-3.5 w-3.5" /> Apply</Button>
+        </CardContent>
+      </Card>
       <Card style={{ background: "var(--gradient-card)" }} className="border-border/60">
         <CardContent className="p-0">
           <table className="w-full text-sm">
             <thead className="text-left text-[11px] uppercase tracking-wider text-muted-foreground">
-              <tr className="border-b border-border/40"><th className="p-3">User</th><th>Roles</th><th>Balance</th><th>Keys</th><th>Joined</th><th></th></tr>
+              <tr className="border-b border-border/40"><th className="p-3">User</th><th>Roles</th><th>Balance</th><th>Keys</th><th>Requests</th><th>Last request</th><th>Joined</th><th></th></tr>
             </thead>
             <tbody>
               {users.map((u) => {
                 const isAdmin = u.roles.includes("admin");
+                const m = metrics[u.id];
                 return (
                   <tr key={u.id} className="border-b border-border/30">
                     <td className="p-3"><div className="font-medium">{u.full_name ?? u.email}</div><div className="text-xs text-muted-foreground">{u.email}</div></td>
@@ -65,6 +84,13 @@ function AdminUsers() {
                     </td>
                     <td className="font-mono">{Number(u.wallet_balance).toLocaleString()}</td>
                     <td>{u.client_count}</td>
+                    <td className="font-mono text-xs">
+                      {m ? <>
+                        <span>{m.total.toLocaleString()}</span>
+                        <span className="ml-1 text-[10px] text-muted-foreground">({m.success}✓ / {m.error}✗)</span>
+                      </> : "—"}
+                    </td>
+                    <td className="text-xs text-muted-foreground">{m?.last ? new Date(m.last).toLocaleString() : "—"}</td>
                     <td className="text-xs text-muted-foreground">{new Date(u.created_at).toLocaleDateString()}</td>
                     <td className="text-right pr-3">
                       <div className="flex justify-end gap-1">
