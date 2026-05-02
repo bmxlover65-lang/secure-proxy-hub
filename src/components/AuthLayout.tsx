@@ -53,10 +53,10 @@ export function AuthLayout({ children, title, subtitle }: { children: ReactNode;
           <h1 className="text-4xl font-bold leading-[1.1] tracking-tight md:text-5xl">
             Premium API access for{" "}
             <span
-              className="bg-clip-text text-transparent"
+              className="bg-clip-text text-transparent font-serif"
               style={{ backgroundImage: "var(--gradient-hero)" }}
             >
-              lottery game data SaaS
+              SASS Lottery Game
             </span>
           </h1>
           <p className="max-w-md text-base text-muted-foreground">
