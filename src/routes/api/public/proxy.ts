@@ -112,6 +112,15 @@ export const Route = createFileRoute("/api/public/proxy")({
           .maybeSingle();
 
         if (rErr || !client) {
+          console.error("[proxy] api_key lookup failed", {
+            apiKeyPrefix: apiKey.slice(0, 8),
+            apiKeyLen: apiKey.length,
+            hasError: !!rErr,
+            errorMsg: rErr?.message,
+            errorCode: rErr?.code,
+            envHasUrl: !!process.env.SUPABASE_URL,
+            envHasServiceKey: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
+          });
           await log(null, 401, false, "Invalid API key", 0);
           return jsonResponse({ code: 401, msg: "Invalid API key" }, 401);
         }
