@@ -87,7 +87,7 @@ export const adminCreateClient = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     await assertAdmin(context.userId);
-    const FIXED_DURATION_DAYS = 13;
+    const FIXED_DURATION_DAYS = 30;
     const api_key = genKey();
     const expires_at = new Date(Date.now() + FIXED_DURATION_DAYS * 86400_000).toISOString();
     const { data: client, error } = await supabaseAdmin
