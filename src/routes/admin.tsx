@@ -29,10 +29,11 @@ function AdminLayout() {
             await refreshRoles();
             toast.success("Admin access granted (bootstrap)");
           } else {
-            navigate({ to: "/reseller" });
+            toast.error("Not an admin account");
+            navigate({ to: "/login" });
           }
         })
-        .catch(() => navigate({ to: "/reseller" }));
+        .catch(() => navigate({ to: "/login" }));
     }
   }, [loading, session, isAdmin, navigate, claim, refreshRoles]);
 
