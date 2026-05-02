@@ -14,6 +14,7 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
+import { Route as AdminStatsRouteImport } from './routes/admin.stats'
 import { Route as AdminLogsRouteImport } from './routes/admin.logs'
 import { Route as AdminHealthRouteImport } from './routes/admin.health'
 import { Route as AdminDocsRouteImport } from './routes/admin.docs'
@@ -43,6 +44,11 @@ const IndexRoute = IndexRouteImport.update({
 const AdminIndexRoute = AdminIndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminStatsRoute = AdminStatsRouteImport.update({
+  id: '/stats',
+  path: '/stats',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminLogsRoute = AdminLogsRouteImport.update({
@@ -80,6 +86,7 @@ export interface FileRoutesByFullPath {
   '/admin/docs': typeof AdminDocsRoute
   '/admin/health': typeof AdminHealthRoute
   '/admin/logs': typeof AdminLogsRoute
+  '/admin/stats': typeof AdminStatsRoute
   '/admin/': typeof AdminIndexRoute
   '/api/public/proxy': typeof ApiPublicProxyRoute
 }
@@ -91,6 +98,7 @@ export interface FileRoutesByTo {
   '/admin/docs': typeof AdminDocsRoute
   '/admin/health': typeof AdminHealthRoute
   '/admin/logs': typeof AdminLogsRoute
+  '/admin/stats': typeof AdminStatsRoute
   '/admin': typeof AdminIndexRoute
   '/api/public/proxy': typeof ApiPublicProxyRoute
 }
@@ -104,6 +112,7 @@ export interface FileRoutesById {
   '/admin/docs': typeof AdminDocsRoute
   '/admin/health': typeof AdminHealthRoute
   '/admin/logs': typeof AdminLogsRoute
+  '/admin/stats': typeof AdminStatsRoute
   '/admin/': typeof AdminIndexRoute
   '/api/public/proxy': typeof ApiPublicProxyRoute
 }
@@ -118,6 +127,7 @@ export interface FileRouteTypes {
     | '/admin/docs'
     | '/admin/health'
     | '/admin/logs'
+    | '/admin/stats'
     | '/admin/'
     | '/api/public/proxy'
   fileRoutesByTo: FileRoutesByTo
@@ -129,6 +139,7 @@ export interface FileRouteTypes {
     | '/admin/docs'
     | '/admin/health'
     | '/admin/logs'
+    | '/admin/stats'
     | '/admin'
     | '/api/public/proxy'
   id:
@@ -141,6 +152,7 @@ export interface FileRouteTypes {
     | '/admin/docs'
     | '/admin/health'
     | '/admin/logs'
+    | '/admin/stats'
     | '/admin/'
     | '/api/public/proxy'
   fileRoutesById: FileRoutesById
@@ -190,6 +202,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminIndexRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/stats': {
+      id: '/admin/stats'
+      path: '/stats'
+      fullPath: '/admin/stats'
+      preLoaderRoute: typeof AdminStatsRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/logs': {
       id: '/admin/logs'
       path: '/logs'
@@ -233,6 +252,7 @@ interface AdminRouteChildren {
   AdminDocsRoute: typeof AdminDocsRoute
   AdminHealthRoute: typeof AdminHealthRoute
   AdminLogsRoute: typeof AdminLogsRoute
+  AdminStatsRoute: typeof AdminStatsRoute
   AdminIndexRoute: typeof AdminIndexRoute
 }
 
@@ -241,6 +261,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminDocsRoute: AdminDocsRoute,
   AdminHealthRoute: AdminHealthRoute,
   AdminLogsRoute: AdminLogsRoute,
+  AdminStatsRoute: AdminStatsRoute,
   AdminIndexRoute: AdminIndexRoute,
 }
 
