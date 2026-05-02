@@ -37,7 +37,7 @@ function AdminDashboard() {
       <PageHeader
         icon={LayoutDashboard}
         title="Dashboard"
-        description="Real-time overview of your reseller proxy system."
+        description="Real-time overview of your API proxy system."
         actions={
           <Button asChild variant="outline" size="sm">
             <Link to="/admin/clients">

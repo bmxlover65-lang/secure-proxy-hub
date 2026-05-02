@@ -49,7 +49,7 @@ export function AppShell({ children, mode }: { children: ReactNode; mode: "admin
         {items.map((it) => {
           const Icon = it.icon;
           const active = pathname === it.to ||
-            (it.to !== "/admin" && it.to !== "/reseller" && pathname.startsWith(it.to));
+            (it.to !== "/admin" && pathname.startsWith(it.to));
           return (
             <Link
               key={it.to}

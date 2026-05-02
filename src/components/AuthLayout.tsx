@@ -57,12 +57,12 @@ export function AuthLayout({ children, title, subtitle }: { children: ReactNode;
             </span>
           </h1>
           <p className="max-w-md text-base text-muted-foreground">
-            Manage resellers, monitor live traffic, and proxy requests securely with IP whitelisting and rate limiting — all from one dashboard.
+            Manage API clients, monitor live traffic, and proxy requests securely with IP whitelisting and rate limiting — all from one dashboard.
           </p>
           <div className="grid max-w-md grid-cols-2 gap-3">
             {[
               { icon: Zap, label: "Lightning fast", desc: "< 200ms" },
-              { icon: Lock, label: "IP whitelist", desc: "Per reseller" },
+              { icon: Lock, label: "IP whitelist", desc: "Per client" },
               { icon: BarChart3, label: "Live analytics", desc: "Real-time" },
               { icon: Shield, label: "Secure proxy", desc: "Token-based" },
             ].map((f) => (
