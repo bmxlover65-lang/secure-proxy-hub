@@ -4,7 +4,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { buildUpstreamUrl, fetchUpstream } from "./upstream";
 
-async function assertAdmin(supabase: ReturnType<typeof supabaseAdmin.from> extends never ? never : any, userId: string) {
+async function assertAdmin(userId: string) {
   const { data, error } = await supabaseAdmin
     .from("user_roles")
     .select("role")
@@ -32,7 +32,7 @@ export const adminTestUpstream = createServerFn({ method: "POST" })
     }).parse(d)
   )
   .handler(async ({ data, context }) => {
-    await assertAdmin(context.supabase, context.userId);
+    await assertAdmin(context.userId);
     const url = buildUpstreamUrl(data.category, data.game);
     if (!url) return { ok: false, status: 404, ms: 0, url: "", body: "Unknown category/game" };
     try {
@@ -56,7 +56,7 @@ export const adminCreateReseller = createServerFn({ method: "POST" })
     }).parse(d)
   )
   .handler(async ({ data, context }) => {
-    await assertAdmin(context.supabase, context.userId);
+    await assertAdmin(context.userId);
     const api_key = genKey();
     const { data: reseller, error } = await supabaseAdmin
       .from("resellers")
@@ -96,7 +96,7 @@ export const adminUpdateReseller = createServerFn({ method: "POST" })
     }).parse(d)
   )
   .handler(async ({ data, context }) => {
-    await assertAdmin(context.supabase, context.userId);
+    await assertAdmin(context.userId);
     const { id, ...patch } = data;
     const { error } = await supabaseAdmin.from("resellers").update(patch).eq("id", id);
     if (error) throw new Error(error.message);
@@ -108,7 +108,7 @@ export const adminRegenerateKey = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d) => z.object({ id: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
-    await assertAdmin(context.supabase, context.userId);
+    await assertAdmin(context.userId);
     const api_key = genKey();
     const { error } = await supabaseAdmin.from("resellers").update({ api_key }).eq("id", data.id);
     if (error) throw new Error(error.message);
@@ -120,7 +120,7 @@ export const adminDeleteReseller = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d) => z.object({ id: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
-    await assertAdmin(context.supabase, context.userId);
+    await assertAdmin(context.userId);
     const { error } = await supabaseAdmin.from("resellers").delete().eq("id", data.id);
     if (error) throw new Error(error.message);
     return { ok: true };
@@ -136,7 +136,7 @@ export const adminSetIps = createServerFn({ method: "POST" })
     }).parse(d)
   )
   .handler(async ({ data, context }) => {
-    await assertAdmin(context.supabase, context.userId);
+    await assertAdmin(context.userId);
     await supabaseAdmin.from("allowed_ips").delete().eq("reseller_id", data.reseller_id);
     const rows = data.ips.map((ip) => ip.trim()).filter(Boolean).map((ip) => ({ reseller_id: data.reseller_id, ip_address: ip }));
     if (rows.length > 0) {
