@@ -44,6 +44,13 @@ export type Database = {
             referencedRelation: "api_clients"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "allowed_domains_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "client_usage_stats"
+            referencedColumns: ["client_id"]
+          },
         ]
       }
       allowed_ips: {
@@ -75,6 +82,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "api_clients"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "allowed_ips_reseller_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "client_usage_stats"
+            referencedColumns: ["client_id"]
           },
         ]
       }
@@ -294,6 +308,13 @@ export type Database = {
             referencedRelation: "api_clients"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "request_logs_reseller_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "client_usage_stats"
+            referencedColumns: ["client_id"]
+          },
         ]
       }
       user_roles: {
@@ -319,7 +340,27 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      client_usage_stats: {
+        Row: {
+          client_id: string | null
+          error_count: number | null
+          last_request_at: string | null
+          success_count: number | null
+          total_requests: number | null
+          user_id: string | null
+        }
+        Relationships: []
+      }
+      user_usage_stats: {
+        Row: {
+          error_count: number | null
+          last_request_at: string | null
+          success_count: number | null
+          total_requests: number | null
+          user_id: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       adjust_wallet: {
