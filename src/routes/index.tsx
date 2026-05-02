@@ -86,6 +86,9 @@ function Index() {
             </div>
           </div>
           <div className="flex items-center gap-2">
+            <Link to="/apis" className="hidden text-sm font-medium text-muted-foreground transition-colors hover:text-primary md:inline-flex">
+              Game APIs
+            </Link>
             <a
               href={`https://t.me/${TELEGRAM}`}
               target="_blank"
