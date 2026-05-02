@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, Fragment } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { adminListOrders } from "@/server/payments.functions";
 import { PageHeader } from "@/components/PageHeader";
@@ -99,8 +99,8 @@ function AdminOrders() {
                   <tr><td colSpan={9} className="p-8 text-center text-muted-foreground">No orders</td></tr>
                 )}
                 {filtered.map((o) => (
-                  <>
-                    <tr key={o.id} className="border-b border-border/30">
+                  <Fragment key={o.id}>
+                    <tr className="border-b border-border/30">
                       <td className="p-3 text-xs text-muted-foreground whitespace-nowrap">{new Date(o.created_at).toLocaleString()}</td>
                       <td className="text-xs">{o.user?.email ?? o.user_id.slice(0, 8)}</td>
                       <td className="font-mono text-[11px]">{o.merchant_order_no}</td>
@@ -119,13 +119,13 @@ function AdminOrders() {
                       </td>
                     </tr>
                     {expanded === o.id && (
-                      <tr key={o.id + "-raw"} className="border-b border-border/30 bg-background/40">
+                      <tr className="border-b border-border/30 bg-background/40">
                         <td colSpan={9} className="p-3">
                           <pre className="overflow-x-auto rounded bg-muted/30 p-3 text-[11px]">{JSON.stringify(o.raw_callback ?? { note: "no callback yet" }, null, 2)}</pre>
                         </td>
                       </tr>
                     )}
-                  </>
+                  </Fragment>
                 ))}
               </tbody>
             </table>

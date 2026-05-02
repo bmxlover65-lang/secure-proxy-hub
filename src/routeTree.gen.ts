@@ -27,6 +27,7 @@ import { Route as AdminUsersRouteImport } from './routes/admin.users'
 import { Route as AdminTransactionsRouteImport } from './routes/admin.transactions'
 import { Route as AdminStatsRouteImport } from './routes/admin.stats'
 import { Route as AdminSettingsRouteImport } from './routes/admin.settings'
+import { Route as AdminOrdersRouteImport } from './routes/admin.orders'
 import { Route as AdminLogsRouteImport } from './routes/admin.logs'
 import { Route as AdminHealthRouteImport } from './routes/admin.health'
 import { Route as AdminDocsRouteImport } from './routes/admin.docs'
@@ -125,6 +126,11 @@ const AdminSettingsRoute = AdminSettingsRouteImport.update({
   path: '/settings',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminOrdersRoute = AdminOrdersRouteImport.update({
+  id: '/orders',
+  path: '/orders',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminLogsRoute = AdminLogsRouteImport.update({
   id: '/logs',
   path: '/logs',
@@ -175,6 +181,7 @@ export interface FileRoutesByFullPath {
   '/admin/docs': typeof AdminDocsRoute
   '/admin/health': typeof AdminHealthRoute
   '/admin/logs': typeof AdminLogsRoute
+  '/admin/orders': typeof AdminOrdersRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/stats': typeof AdminStatsRoute
   '/admin/transactions': typeof AdminTransactionsRoute
@@ -200,6 +207,7 @@ export interface FileRoutesByTo {
   '/admin/docs': typeof AdminDocsRoute
   '/admin/health': typeof AdminHealthRoute
   '/admin/logs': typeof AdminLogsRoute
+  '/admin/orders': typeof AdminOrdersRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/stats': typeof AdminStatsRoute
   '/admin/transactions': typeof AdminTransactionsRoute
@@ -228,6 +236,7 @@ export interface FileRoutesById {
   '/admin/docs': typeof AdminDocsRoute
   '/admin/health': typeof AdminHealthRoute
   '/admin/logs': typeof AdminLogsRoute
+  '/admin/orders': typeof AdminOrdersRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/stats': typeof AdminStatsRoute
   '/admin/transactions': typeof AdminTransactionsRoute
@@ -257,6 +266,7 @@ export interface FileRouteTypes {
     | '/admin/docs'
     | '/admin/health'
     | '/admin/logs'
+    | '/admin/orders'
     | '/admin/settings'
     | '/admin/stats'
     | '/admin/transactions'
@@ -282,6 +292,7 @@ export interface FileRouteTypes {
     | '/admin/docs'
     | '/admin/health'
     | '/admin/logs'
+    | '/admin/orders'
     | '/admin/settings'
     | '/admin/stats'
     | '/admin/transactions'
@@ -309,6 +320,7 @@ export interface FileRouteTypes {
     | '/admin/docs'
     | '/admin/health'
     | '/admin/logs'
+    | '/admin/orders'
     | '/admin/settings'
     | '/admin/stats'
     | '/admin/transactions'
@@ -464,6 +476,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminSettingsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/orders': {
+      id: '/admin/orders'
+      path: '/orders'
+      fullPath: '/admin/orders'
+      preLoaderRoute: typeof AdminOrdersRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/logs': {
       id: '/admin/logs'
       path: '/logs'
@@ -522,6 +541,7 @@ interface AdminRouteChildren {
   AdminDocsRoute: typeof AdminDocsRoute
   AdminHealthRoute: typeof AdminHealthRoute
   AdminLogsRoute: typeof AdminLogsRoute
+  AdminOrdersRoute: typeof AdminOrdersRoute
   AdminSettingsRoute: typeof AdminSettingsRoute
   AdminStatsRoute: typeof AdminStatsRoute
   AdminTransactionsRoute: typeof AdminTransactionsRoute
@@ -535,6 +555,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminDocsRoute: AdminDocsRoute,
   AdminHealthRoute: AdminHealthRoute,
   AdminLogsRoute: AdminLogsRoute,
+  AdminOrdersRoute: AdminOrdersRoute,
   AdminSettingsRoute: AdminSettingsRoute,
   AdminStatsRoute: AdminStatsRoute,
   AdminTransactionsRoute: AdminTransactionsRoute,
