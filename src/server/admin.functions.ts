@@ -3,7 +3,7 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { sendSupabaseAuth } from "@/lib/server-function-auth";
-import { buildUpstreamUrl, fetchUpstream, SUPPORTED_GAMES } from "./upstream";
+import { buildUpstreamUrl, fetchUpstream, SUPPORTED_GAMES, type UpstreamType } from "./upstream";
 
 async function assertAdmin(userId: string) {
   const { data, error } = await supabaseAdmin
@@ -30,11 +30,12 @@ export const adminTestUpstream = createServerFn({ method: "POST" })
     z.object({
       category: z.string().min(1).max(40),
       game: z.string().min(1).max(10),
+      type: z.enum(["period", "history"]).default("period"),
     }).parse(d)
   )
   .handler(async ({ data, context }) => {
     await assertAdmin(context.userId);
-    const url = buildUpstreamUrl(data.category, data.game);
+    const url = buildUpstreamUrl(data.category, data.game, data.type);
     if (!url) return { ok: false, status: 404, ms: 0, url: "", body: "Unknown category/game" };
     try {
       const { status, body, ms } = await fetchUpstream(url);
@@ -50,21 +51,23 @@ export const adminTestAllUpstreams = createServerFn({ method: "POST" })
   .middleware([sendSupabaseAuth, requireSupabaseAuth])
   .handler(async ({ context }) => {
     await assertAdmin(context.userId);
-    const targets: { category: string; game: string; url: string }[] = [];
+    const targets: { category: string; game: string; type: UpstreamType; url: string }[] = [];
     for (const c of SUPPORTED_GAMES) {
       for (const g of c.games) {
-        const url = buildUpstreamUrl(c.category, g);
-        if (url) targets.push({ category: c.category, game: g, url });
+        for (const type of ["period", "history"] as UpstreamType[]) {
+          const url = buildUpstreamUrl(c.category, g, type);
+          if (url) targets.push({ category: c.category, game: g, type, url });
+        }
       }
     }
     const results = await Promise.all(
       targets.map(async (t) => {
         try {
           const { status, ms } = await fetchUpstream(t.url);
-          return { category: t.category, game: t.game, url: t.url, ok: status === 200, status, ms };
+          return { category: t.category, game: t.game, type: t.type, url: t.url, ok: status === 200, status, ms };
         } catch (e) {
           const msg = e instanceof Error ? e.message : "fetch error";
-          return { category: t.category, game: t.game, url: t.url, ok: false, status: 0, ms: 0, error: msg };
+          return { category: t.category, game: t.game, type: t.type, url: t.url, ok: false, status: 0, ms: 0, error: msg };
         }
       })
     );
