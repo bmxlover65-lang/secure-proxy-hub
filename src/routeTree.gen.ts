@@ -20,6 +20,7 @@ import { Route as DashboardIndexRouteImport } from './routes/dashboard.index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as DashboardWalletRouteImport } from './routes/dashboard.wallet'
 import { Route as DashboardTransactionsRouteImport } from './routes/dashboard.transactions'
+import { Route as DashboardLogsRouteImport } from './routes/dashboard.logs'
 import { Route as DashboardKeysRouteImport } from './routes/dashboard.keys'
 import { Route as AdminStatsRouteImport } from './routes/admin.stats'
 import { Route as AdminLogsRouteImport } from './routes/admin.logs'
@@ -85,6 +86,11 @@ const DashboardTransactionsRoute = DashboardTransactionsRouteImport.update({
   path: '/transactions',
   getParentRoute: () => DashboardRoute,
 } as any)
+const DashboardLogsRoute = DashboardLogsRouteImport.update({
+  id: '/logs',
+  path: '/logs',
+  getParentRoute: () => DashboardRoute,
+} as any)
 const DashboardKeysRoute = DashboardKeysRouteImport.update({
   id: '/keys',
   path: '/keys',
@@ -147,6 +153,7 @@ export interface FileRoutesByFullPath {
   '/admin/logs': typeof AdminLogsRoute
   '/admin/stats': typeof AdminStatsRoute
   '/dashboard/keys': typeof DashboardKeysRoute
+  '/dashboard/logs': typeof DashboardLogsRoute
   '/dashboard/transactions': typeof DashboardTransactionsRoute
   '/dashboard/wallet': typeof DashboardWalletRoute
   '/admin/': typeof AdminIndexRoute
@@ -167,6 +174,7 @@ export interface FileRoutesByTo {
   '/admin/logs': typeof AdminLogsRoute
   '/admin/stats': typeof AdminStatsRoute
   '/dashboard/keys': typeof DashboardKeysRoute
+  '/dashboard/logs': typeof DashboardLogsRoute
   '/dashboard/transactions': typeof DashboardTransactionsRoute
   '/dashboard/wallet': typeof DashboardWalletRoute
   '/admin': typeof AdminIndexRoute
@@ -190,6 +198,7 @@ export interface FileRoutesById {
   '/admin/logs': typeof AdminLogsRoute
   '/admin/stats': typeof AdminStatsRoute
   '/dashboard/keys': typeof DashboardKeysRoute
+  '/dashboard/logs': typeof DashboardLogsRoute
   '/dashboard/transactions': typeof DashboardTransactionsRoute
   '/dashboard/wallet': typeof DashboardWalletRoute
   '/admin/': typeof AdminIndexRoute
@@ -214,6 +223,7 @@ export interface FileRouteTypes {
     | '/admin/logs'
     | '/admin/stats'
     | '/dashboard/keys'
+    | '/dashboard/logs'
     | '/dashboard/transactions'
     | '/dashboard/wallet'
     | '/admin/'
@@ -234,6 +244,7 @@ export interface FileRouteTypes {
     | '/admin/logs'
     | '/admin/stats'
     | '/dashboard/keys'
+    | '/dashboard/logs'
     | '/dashboard/transactions'
     | '/dashboard/wallet'
     | '/admin'
@@ -256,6 +267,7 @@ export interface FileRouteTypes {
     | '/admin/logs'
     | '/admin/stats'
     | '/dashboard/keys'
+    | '/dashboard/logs'
     | '/dashboard/transactions'
     | '/dashboard/wallet'
     | '/admin/'
@@ -355,6 +367,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardTransactionsRouteImport
       parentRoute: typeof DashboardRoute
     }
+    '/dashboard/logs': {
+      id: '/dashboard/logs'
+      path: '/logs'
+      fullPath: '/dashboard/logs'
+      preLoaderRoute: typeof DashboardLogsRouteImport
+      parentRoute: typeof DashboardRoute
+    }
     '/dashboard/keys': {
       id: '/dashboard/keys'
       path: '/keys'
@@ -445,6 +464,7 @@ const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
 interface DashboardRouteChildren {
   DashboardKeysRoute: typeof DashboardKeysRoute
+  DashboardLogsRoute: typeof DashboardLogsRoute
   DashboardTransactionsRoute: typeof DashboardTransactionsRoute
   DashboardWalletRoute: typeof DashboardWalletRoute
   DashboardIndexRoute: typeof DashboardIndexRoute
@@ -452,6 +472,7 @@ interface DashboardRouteChildren {
 
 const DashboardRouteChildren: DashboardRouteChildren = {
   DashboardKeysRoute: DashboardKeysRoute,
+  DashboardLogsRoute: DashboardLogsRoute,
   DashboardTransactionsRoute: DashboardTransactionsRoute,
   DashboardWalletRoute: DashboardWalletRoute,
   DashboardIndexRoute: DashboardIndexRoute,
