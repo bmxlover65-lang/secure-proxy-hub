@@ -3,7 +3,7 @@ import { useAuth } from "@/lib/auth-context";
 import { Button } from "@/components/ui/button";
 import {
   LayoutDashboard, Users, ScrollText, Activity, BookOpen, LogOut,
-  Shield, KeyRound, Menu, X, ChevronRight,
+  Shield, Menu, X, ChevronRight,
 } from "lucide-react";
 import { useState, type ReactNode } from "react";
 
@@ -11,21 +11,17 @@ interface NavItem { to: string; label: string; icon: typeof LayoutDashboard; des
 
 const adminNav: NavItem[] = [
   { to: "/admin", label: "Dashboard", icon: LayoutDashboard, description: "Overview & stats" },
-  { to: "/admin/resellers", label: "Resellers", icon: Users, description: "Manage API keys" },
+  { to: "/admin/clients", label: "API Clients", icon: Users, description: "Keys, IPs & domains" },
   { to: "/admin/logs", label: "Request Logs", icon: ScrollText, description: "Activity history" },
   { to: "/admin/health", label: "API Health", icon: Activity, description: "Test endpoints" },
+  { to: "/admin/docs", label: "API Docs", icon: BookOpen, description: "Integration guide" },
 ];
 
-const resellerNav: NavItem[] = [
-  { to: "/reseller", label: "Overview", icon: KeyRound, description: "Your API key" },
-  { to: "/reseller/docs", label: "API Docs", icon: BookOpen, description: "Integration guide" },
-];
-
-export function AppShell({ children, mode }: { children: ReactNode; mode: "admin" | "reseller" }) {
+export function AppShell({ children, mode }: { children: ReactNode; mode: "admin" }) {
   const { user, signOut, isAdmin } = useAuth();
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-  const items = mode === "admin" ? adminNav : resellerNav;
+  const items = adminNav;
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const initials = (user?.email ?? "U").slice(0, 2).toUpperCase();
@@ -88,14 +84,6 @@ export function AppShell({ children, mode }: { children: ReactNode; mode: "admin
       </nav>
 
       <div className="border-t border-border/60 p-3">
-        {isAdmin && mode === "reseller" && (
-          <Link
-            to="/admin"
-            className="mb-2 flex items-center justify-between rounded-md bg-primary/10 px-3 py-2 text-xs font-medium text-primary hover:bg-primary/15"
-          >
-            Switch to Admin <ChevronRight className="h-3 w-3" />
-          </Link>
-        )}
         <div className="flex items-center gap-3 rounded-lg bg-secondary/40 p-2.5">
           <div
             className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-semibold text-primary-foreground"
