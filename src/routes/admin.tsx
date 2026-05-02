@@ -1,0 +1,50 @@
+import { createFileRoute, Outlet, useNavigate } from "@tanstack/react-router";
+import { useEffect } from "react";
+import { useAuth } from "@/lib/auth-context";
+import { useServerFn } from "@tanstack/react-start";
+import { claimAdminIfNone } from "@/server/admin.functions";
+import { AppShell } from "@/components/AppShell";
+import { toast } from "sonner";
+
+export const Route = createFileRoute("/admin")({
+  component: AdminLayout,
+});
+
+function AdminLayout() {
+  const { session, loading, isAdmin, refreshRoles } = useAuth();
+  const navigate = useNavigate();
+  const claim = useServerFn(claimAdminIfNone);
+
+  useEffect(() => {
+    if (loading) return;
+    if (!session) {
+      navigate({ to: "/login" });
+      return;
+    }
+    if (!isAdmin) {
+      // Try bootstrap claim — only works if no admin exists yet
+      claim()
+        .then(async (r) => {
+          if (r.claimed) {
+            await refreshRoles();
+            toast.success("Admin access granted (bootstrap)");
+          } else {
+            navigate({ to: "/reseller" });
+          }
+        })
+        .catch(() => navigate({ to: "/reseller" }));
+    }
+  }, [loading, session, isAdmin, navigate, claim, refreshRoles]);
+
+  if (loading || !session || !isAdmin) {
+    return (
+      <div className="flex min-h-screen items-center justify-center text-muted-foreground">Loading…</div>
+    );
+  }
+
+  return (
+    <AppShell mode="admin">
+      <Outlet />
+    </AppShell>
+  );
+}
