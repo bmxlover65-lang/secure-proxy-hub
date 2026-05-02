@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import { sendSupabaseAuth } from "@/lib/server-function-auth";
 import { buildUpstreamUrl, fetchUpstream, SUPPORTED_GAMES } from "./upstream";
 
 async function assertAdmin(userId: string) {
@@ -24,7 +25,7 @@ function genKey() {
 
 // --- Admin: test upstream live (no auth on upstream, but admin-only call) ---
 export const adminTestUpstream = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([sendSupabaseAuth, requireSupabaseAuth])
   .inputValidator((d) =>
     z.object({
       category: z.string().min(1).max(40),
@@ -46,7 +47,7 @@ export const adminTestUpstream = createServerFn({ method: "POST" })
 
 // --- Admin: test ALL supported upstream endpoints in parallel ---
 export const adminTestAllUpstreams = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([sendSupabaseAuth, requireSupabaseAuth])
   .handler(async ({ context }) => {
     await assertAdmin(context.userId);
     const targets: { category: string; game: string; url: string }[] = [];
@@ -72,7 +73,7 @@ export const adminTestAllUpstreams = createServerFn({ method: "POST" })
 
 // --- Admin: create reseller ---
 export const adminCreateReseller = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([sendSupabaseAuth, requireSupabaseAuth])
   .inputValidator((d) =>
     z.object({
       name: z.string().trim().min(1).max(120),
@@ -111,7 +112,7 @@ export const adminCreateReseller = createServerFn({ method: "POST" })
 
 // --- Admin: update reseller (status, rate, name, notes) ---
 export const adminUpdateReseller = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([sendSupabaseAuth, requireSupabaseAuth])
   .inputValidator((d) =>
     z.object({
       id: z.string().uuid(),
@@ -131,7 +132,7 @@ export const adminUpdateReseller = createServerFn({ method: "POST" })
 
 // --- Admin: regenerate API key ---
 export const adminRegenerateKey = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([sendSupabaseAuth, requireSupabaseAuth])
   .inputValidator((d) => z.object({ id: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
     await assertAdmin(context.userId);
@@ -143,7 +144,7 @@ export const adminRegenerateKey = createServerFn({ method: "POST" })
 
 // --- Admin: delete reseller ---
 export const adminDeleteReseller = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([sendSupabaseAuth, requireSupabaseAuth])
   .inputValidator((d) => z.object({ id: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
     await assertAdmin(context.userId);
@@ -154,7 +155,7 @@ export const adminDeleteReseller = createServerFn({ method: "POST" })
 
 // --- Admin: replace IPs ---
 export const adminSetIps = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([sendSupabaseAuth, requireSupabaseAuth])
   .inputValidator((d) =>
     z.object({
       reseller_id: z.string().uuid(),
@@ -174,7 +175,7 @@ export const adminSetIps = createServerFn({ method: "POST" })
 
 // --- Admin: assign admin role to current user (bootstrap) ---
 export const claimAdminIfNone = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([sendSupabaseAuth, requireSupabaseAuth])
   .handler(async ({ context }) => {
     const { data: existing } = await supabaseAdmin
       .from("user_roles")
