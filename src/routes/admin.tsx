@@ -1,8 +1,6 @@
 import { createFileRoute, Outlet, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { useAuth } from "@/lib/auth-context";
-import { useServerFn } from "@tanstack/react-start";
-import { claimAdminIfNone } from "@/server/admin.functions";
 import { AppShell } from "@/components/AppShell";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
@@ -12,31 +10,17 @@ export const Route = createFileRoute("/admin")({
 });
 
 function AdminLayout() {
-  const { session, loading, isAdmin, refreshRoles } = useAuth();
+  const { session, loading, isAdmin } = useAuth();
   const navigate = useNavigate();
-  const claim = useServerFn(claimAdminIfNone);
 
   useEffect(() => {
     if (loading) return;
-    if (!session) {
-      navigate({ to: "/login" });
-      return;
-    }
+    if (!session) { navigate({ to: "/login" }); return; }
     if (!isAdmin) {
-      // Try bootstrap claim — only works if no admin exists yet
-      claim()
-        .then(async (r) => {
-          if (r.claimed) {
-            await refreshRoles();
-            toast.success("Admin access granted (bootstrap)");
-          } else {
-            toast.error("Not an admin account");
-            navigate({ to: "/login" });
-          }
-        })
-        .catch(() => navigate({ to: "/login" }));
+      toast.error("Admin access required");
+      navigate({ to: "/dashboard" });
     }
-  }, [loading, session, isAdmin, navigate, claim, refreshRoles]);
+  }, [loading, session, isAdmin, navigate]);
 
   if (loading || !session || !isAdmin) {
     return (
