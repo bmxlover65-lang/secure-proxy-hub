@@ -90,3 +90,28 @@ export const listMyOrders = createServerFn({ method: "GET" })
       .limit(50);
     return { orders: data ?? [] };
   });
+
+export const adminListOrders = createServerFn({ method: "GET" })
+  .middleware([sendSupabaseAuth, requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data: roleRow } = await supabaseAdmin
+      .from("user_roles").select("role").eq("user_id", context.userId).eq("role", "admin").maybeSingle();
+    if (!roleRow) throw new Error("Forbidden: admin only");
+
+    const { data: orders } = await supabaseAdmin
+      .from("payment_orders")
+      .select("id,user_id,merchant_order_no,gateway_order_no,amount_inr,coins,currency,status,payment_url,signature_status,callback_error,callback_received_at,credited_at,raw_callback,created_at,updated_at")
+      .order("created_at", { ascending: false })
+      .limit(200);
+
+    const userIds = Array.from(new Set((orders ?? []).map((o) => o.user_id)));
+    const { data: profiles } = userIds.length
+      ? await supabaseAdmin.from("profiles").select("id,email,full_name").in("id", userIds)
+      : { data: [] as Array<{ id: string; email: string | null; full_name: string | null }> };
+    const map: Record<string, { email: string | null; full_name: string | null }> = {};
+    (profiles ?? []).forEach((p) => { map[p.id] = { email: p.email, full_name: p.full_name }; });
+
+    return {
+      orders: (orders ?? []).map((o) => ({ ...o, user: map[o.user_id] ?? null })),
+    };
+  });
