@@ -24,6 +24,7 @@ import { Route as DashboardLogsRouteImport } from './routes/dashboard.logs'
 import { Route as DashboardKeysRouteImport } from './routes/dashboard.keys'
 import { Route as DashboardDocsRouteImport } from './routes/dashboard.docs'
 import { Route as AdminUsersRouteImport } from './routes/admin.users'
+import { Route as AdminTransactionsRouteImport } from './routes/admin.transactions'
 import { Route as AdminStatsRouteImport } from './routes/admin.stats'
 import { Route as AdminSettingsRouteImport } from './routes/admin.settings'
 import { Route as AdminLogsRouteImport } from './routes/admin.logs'
@@ -109,6 +110,11 @@ const AdminUsersRoute = AdminUsersRouteImport.update({
   path: '/users',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminTransactionsRoute = AdminTransactionsRouteImport.update({
+  id: '/transactions',
+  path: '/transactions',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminStatsRoute = AdminStatsRouteImport.update({
   id: '/stats',
   path: '/stats',
@@ -171,6 +177,7 @@ export interface FileRoutesByFullPath {
   '/admin/logs': typeof AdminLogsRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/stats': typeof AdminStatsRoute
+  '/admin/transactions': typeof AdminTransactionsRoute
   '/admin/users': typeof AdminUsersRoute
   '/dashboard/docs': typeof DashboardDocsRoute
   '/dashboard/keys': typeof DashboardKeysRoute
@@ -195,6 +202,7 @@ export interface FileRoutesByTo {
   '/admin/logs': typeof AdminLogsRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/stats': typeof AdminStatsRoute
+  '/admin/transactions': typeof AdminTransactionsRoute
   '/admin/users': typeof AdminUsersRoute
   '/dashboard/docs': typeof DashboardDocsRoute
   '/dashboard/keys': typeof DashboardKeysRoute
@@ -222,6 +230,7 @@ export interface FileRoutesById {
   '/admin/logs': typeof AdminLogsRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/stats': typeof AdminStatsRoute
+  '/admin/transactions': typeof AdminTransactionsRoute
   '/admin/users': typeof AdminUsersRoute
   '/dashboard/docs': typeof DashboardDocsRoute
   '/dashboard/keys': typeof DashboardKeysRoute
@@ -250,6 +259,7 @@ export interface FileRouteTypes {
     | '/admin/logs'
     | '/admin/settings'
     | '/admin/stats'
+    | '/admin/transactions'
     | '/admin/users'
     | '/dashboard/docs'
     | '/dashboard/keys'
@@ -274,6 +284,7 @@ export interface FileRouteTypes {
     | '/admin/logs'
     | '/admin/settings'
     | '/admin/stats'
+    | '/admin/transactions'
     | '/admin/users'
     | '/dashboard/docs'
     | '/dashboard/keys'
@@ -300,6 +311,7 @@ export interface FileRouteTypes {
     | '/admin/logs'
     | '/admin/settings'
     | '/admin/stats'
+    | '/admin/transactions'
     | '/admin/users'
     | '/dashboard/docs'
     | '/dashboard/keys'
@@ -431,6 +443,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminUsersRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/transactions': {
+      id: '/admin/transactions'
+      path: '/transactions'
+      fullPath: '/admin/transactions'
+      preLoaderRoute: typeof AdminTransactionsRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/stats': {
       id: '/admin/stats'
       path: '/stats'
@@ -505,6 +524,7 @@ interface AdminRouteChildren {
   AdminLogsRoute: typeof AdminLogsRoute
   AdminSettingsRoute: typeof AdminSettingsRoute
   AdminStatsRoute: typeof AdminStatsRoute
+  AdminTransactionsRoute: typeof AdminTransactionsRoute
   AdminUsersRoute: typeof AdminUsersRoute
   AdminIndexRoute: typeof AdminIndexRoute
 }
@@ -517,6 +537,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminLogsRoute: AdminLogsRoute,
   AdminSettingsRoute: AdminSettingsRoute,
   AdminStatsRoute: AdminStatsRoute,
+  AdminTransactionsRoute: AdminTransactionsRoute,
   AdminUsersRoute: AdminUsersRoute,
   AdminIndexRoute: AdminIndexRoute,
 }
