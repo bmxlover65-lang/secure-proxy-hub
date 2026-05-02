@@ -373,12 +373,32 @@ export type Database = {
         }
         Returns: number
       }
+      client_usage_in_range: {
+        Args: { _client_ids: string[]; _from: string; _to: string }
+        Returns: {
+          client_id: string
+          error_count: number
+          last_request_at: string
+          success_count: number
+          total_requests: number
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
           _user_id: string
         }
         Returns: boolean
+      }
+      user_usage_in_range: {
+        Args: { _from: string; _to: string }
+        Returns: {
+          error_count: number
+          last_request_at: string
+          success_count: number
+          total_requests: number
+          user_id: string
+        }[]
       }
     }
     Enums: {
