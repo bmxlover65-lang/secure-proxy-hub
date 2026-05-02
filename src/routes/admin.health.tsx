@@ -4,12 +4,11 @@ import { useServerFn } from "@tanstack/react-start";
 import { adminTestUpstream } from "@/server/admin.functions";
 import { SUPPORTED_GAMES } from "@/server/upstream";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-} from "@/components/ui/select";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { PageHeader } from "@/components/PageHeader";
 import { toast } from "sonner";
-import { Activity } from "lucide-react";
+import { Activity, Play, Loader2, Clock, Globe, CheckCircle2, XCircle } from "lucide-react";
 
 export const Route = createFileRoute("/admin/health")({
   component: HealthPage,
@@ -31,6 +30,7 @@ function HealthPage() {
       const r = await test({ data: { category, game } });
       setResult(r);
       if (!r.ok) toast.error(`Status ${r.status}`);
+      else toast.success(`OK in ${r.ms}ms`);
     } catch (e) {
       toast.error((e as Error).message);
     } finally {
@@ -43,45 +43,87 @@ function HealthPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-semibold tracking-tight">API Health</h1>
-        <p className="text-sm text-muted-foreground">Test the live upstream feed for any game.</p>
-      </div>
-      <Card style={{ background: "var(--gradient-card)" }} className="border-border">
-        <CardHeader><CardTitle className="flex items-center gap-2"><Activity className="h-4 w-4" />Test endpoint</CardTitle></CardHeader>
+      <PageHeader
+        icon={Activity}
+        title="API Health"
+        description="Test the live upstream feed for any supported game."
+      />
+
+      <Card style={{ background: "var(--gradient-card)" }} className="border-border/60">
+        <CardHeader>
+          <CardTitle>Test endpoint</CardTitle>
+          <CardDescription>Pick a category and game, then run a live request to the upstream API.</CardDescription>
+        </CardHeader>
         <CardContent>
-          <div className="flex flex-wrap items-end gap-3">
-            <div className="space-y-1">
-              <div className="text-xs text-muted-foreground">Category</div>
+          <div className="grid gap-3 sm:grid-cols-[1fr_1fr_auto]">
+            <div className="space-y-1.5">
+              <div className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Category</div>
               <Select value={category} onValueChange={(v) => { setCategory(v); const gs = SUPPORTED_GAMES.find((c) => c.category === v)?.games ?? []; setGame(gs[0] ?? ""); }}>
-                <SelectTrigger className="w-40"><SelectValue /></SelectTrigger>
+                <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
                   {SUPPORTED_GAMES.map((c) => <SelectItem key={c.category} value={c.category}>{c.category}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
-            <div className="space-y-1">
-              <div className="text-xs text-muted-foreground">Game</div>
+            <div className="space-y-1.5">
+              <div className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Game</div>
               <Select value={game} onValueChange={setGame}>
-                <SelectTrigger className="w-32"><SelectValue /></SelectTrigger>
+                <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
                   {games.map((g) => <SelectItem key={g} value={g}>{g}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
-            <Button onClick={run} disabled={loading}>{loading ? "Fetching…" : "Run test"}</Button>
+            <div className="flex items-end">
+              <Button
+                onClick={run}
+                disabled={loading}
+                className="w-full sm:w-auto"
+                style={{ background: "var(--gradient-primary)" }}
+              >
+                {loading
+                  ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Testing…</>
+                  : <><Play className="mr-2 h-4 w-4" /> Run test</>
+                }
+              </Button>
+            </div>
           </div>
 
           {result && (
-            <div className="mt-6 space-y-3">
-              <div className="flex flex-wrap gap-3 text-sm">
-                <span className={`rounded px-2 py-0.5 ${result.ok ? "bg-success/20 text-success" : "bg-destructive/20 text-destructive"}`}>HTTP {result.status}</span>
-                <span className="text-muted-foreground">{result.ms} ms</span>
-                <span className="truncate font-mono text-xs text-muted-foreground">{result.url}</span>
+            <div className="mt-6 space-y-4">
+              <div className="grid gap-3 sm:grid-cols-3">
+                <div className={`flex items-center gap-3 rounded-xl border p-3 ${
+                  result.ok ? "border-success/30 bg-success/10" : "border-destructive/30 bg-destructive/10"
+                }`}>
+                  {result.ok
+                    ? <CheckCircle2 className="h-5 w-5 text-success" />
+                    : <XCircle className="h-5 w-5 text-destructive" />}
+                  <div>
+                    <div className="text-xs uppercase tracking-wider text-muted-foreground">Status</div>
+                    <div className={`text-lg font-bold ${result.ok ? "text-success" : "text-destructive"}`}>HTTP {result.status}</div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 rounded-xl border border-border/60 bg-secondary/30 p-3">
+                  <Clock className="h-5 w-5 text-primary" />
+                  <div>
+                    <div className="text-xs uppercase tracking-wider text-muted-foreground">Latency</div>
+                    <div className="text-lg font-bold">{result.ms} <span className="text-sm font-normal text-muted-foreground">ms</span></div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 rounded-xl border border-border/60 bg-secondary/30 p-3">
+                  <Globe className="h-5 w-5 text-primary" />
+                  <div className="min-w-0">
+                    <div className="text-xs uppercase tracking-wider text-muted-foreground">Endpoint</div>
+                    <div className="truncate font-mono text-xs">{result.url}</div>
+                  </div>
+                </div>
               </div>
-              <pre className="max-h-[500px] overflow-auto rounded-md border border-border bg-background p-4 font-mono text-xs">
-                {pretty}
-              </pre>
+              <div>
+                <div className="mb-2 text-xs font-medium uppercase tracking-wider text-muted-foreground">Response</div>
+                <pre className="max-h-[500px] overflow-auto rounded-xl border border-border/60 bg-background/60 p-4 font-mono text-xs leading-relaxed">
+                  {pretty}
+                </pre>
+              </div>
             </div>
           )}
         </CardContent>
