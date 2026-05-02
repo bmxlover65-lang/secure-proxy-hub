@@ -197,6 +197,81 @@ export const resellerListLogs = createServerFn({ method: "GET" })
     return { logs: logs ?? [] };
   });
 
+// Per-API-key usage metrics for the signed-in reseller, with optional date range
+export const getMyKeyMetrics = createServerFn({ method: "POST" })
+  .middleware([sendSupabaseAuth, requireSupabaseAuth])
+  .inputValidator((d) =>
+    z.object({
+      from: z.string().datetime().optional(),
+      to: z.string().datetime().optional(),
+    }).parse(d ?? {}),
+  )
+  .handler(async ({ data, context }) => {
+    const { data: clients } = await supabaseAdmin
+      .from("api_clients").select("id,name,api_key,category,status").eq("user_id", context.userId);
+    const list = clients ?? [];
+    if (list.length === 0) return { metrics: [], total_requests: 0, success_count: 0, error_count: 0 };
+    const ids = list.map((c) => c.id);
+    let q = supabaseAdmin
+      .from("request_logs")
+      .select("client_id,success,created_at")
+      .in("client_id", ids);
+    if (data.from) q = q.gte("created_at", data.from);
+    if (data.to) q = q.lte("created_at", data.to);
+    const { data: logs } = await q.order("created_at", { ascending: false }).limit(10000);
+    const counts: Record<string, { total: number; success: number; error: number; last: string | null }> = {};
+    (logs ?? []).forEach((l) => {
+      const k = l.client_id ?? "";
+      if (!counts[k]) counts[k] = { total: 0, success: 0, error: 0, last: null };
+      counts[k].total += 1;
+      if (l.success) counts[k].success += 1; else counts[k].error += 1;
+      if (!counts[k].last || l.created_at > counts[k].last!) counts[k].last = l.created_at;
+    });
+    const metrics = list.map((c) => ({
+      id: c.id, name: c.name, api_key: c.api_key, category: c.category, status: c.status,
+      total_requests: counts[c.id]?.total ?? 0,
+      success_count: counts[c.id]?.success ?? 0,
+      error_count: counts[c.id]?.error ?? 0,
+      last_request_at: counts[c.id]?.last ?? null,
+    })).sort((a, b) => b.total_requests - a.total_requests);
+    return {
+      metrics,
+      total_requests: metrics.reduce((s, m) => s + m.total_requests, 0),
+      success_count: metrics.reduce((s, m) => s + m.success_count, 0),
+      error_count: metrics.reduce((s, m) => s + m.error_count, 0),
+    };
+  });
+
+// Admin: per-user usage metrics with optional date range
+export const adminUserMetrics = createServerFn({ method: "POST" })
+  .middleware([sendSupabaseAuth, requireSupabaseAuth])
+  .inputValidator((d) =>
+    z.object({
+      from: z.string().datetime().optional(),
+      to: z.string().datetime().optional(),
+    }).parse(d ?? {}),
+  )
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context.userId);
+    const { data: clients } = await supabaseAdmin.from("api_clients").select("id,user_id");
+    const clientToUser: Record<string, string> = {};
+    (clients ?? []).forEach((c) => { if (c.user_id) clientToUser[c.id] = c.user_id; });
+    let q = supabaseAdmin.from("request_logs").select("client_id,success,created_at");
+    if (data.from) q = q.gte("created_at", data.from);
+    if (data.to) q = q.lte("created_at", data.to);
+    const { data: logs } = await q.order("created_at", { ascending: false }).limit(20000);
+    const per: Record<string, { total: number; success: number; error: number; last: string | null }> = {};
+    (logs ?? []).forEach((l) => {
+      const uid = clientToUser[l.client_id ?? ""];
+      if (!uid) return;
+      if (!per[uid]) per[uid] = { total: 0, success: 0, error: 0, last: null };
+      per[uid].total += 1;
+      if (l.success) per[uid].success += 1; else per[uid].error += 1;
+      if (!per[uid].last || l.created_at > per[uid].last!) per[uid].last = l.created_at;
+    });
+    return { metrics: per };
+  });
+
 // --- Admin: list users + balances + activity ---
 async function assertAdmin(userId: string) {
   const { data, error } = await supabaseAdmin
