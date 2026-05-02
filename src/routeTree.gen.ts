@@ -16,6 +16,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as AdminLogsRouteImport } from './routes/admin.logs'
 import { Route as AdminHealthRouteImport } from './routes/admin.health'
+import { Route as AdminDocsRouteImport } from './routes/admin.docs'
 import { Route as AdminClientsRouteImport } from './routes/admin.clients'
 import { Route as ApiPublicProxyRouteImport } from './routes/api/public/proxy'
 
@@ -54,6 +55,11 @@ const AdminHealthRoute = AdminHealthRouteImport.update({
   path: '/health',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminDocsRoute = AdminDocsRouteImport.update({
+  id: '/docs',
+  path: '/docs',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminClientsRoute = AdminClientsRouteImport.update({
   id: '/clients',
   path: '/clients',
@@ -71,6 +77,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/signup': typeof SignupRoute
   '/admin/clients': typeof AdminClientsRoute
+  '/admin/docs': typeof AdminDocsRoute
   '/admin/health': typeof AdminHealthRoute
   '/admin/logs': typeof AdminLogsRoute
   '/admin/': typeof AdminIndexRoute
@@ -81,6 +88,7 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/signup': typeof SignupRoute
   '/admin/clients': typeof AdminClientsRoute
+  '/admin/docs': typeof AdminDocsRoute
   '/admin/health': typeof AdminHealthRoute
   '/admin/logs': typeof AdminLogsRoute
   '/admin': typeof AdminIndexRoute
@@ -93,6 +101,7 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/signup': typeof SignupRoute
   '/admin/clients': typeof AdminClientsRoute
+  '/admin/docs': typeof AdminDocsRoute
   '/admin/health': typeof AdminHealthRoute
   '/admin/logs': typeof AdminLogsRoute
   '/admin/': typeof AdminIndexRoute
@@ -106,6 +115,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/signup'
     | '/admin/clients'
+    | '/admin/docs'
     | '/admin/health'
     | '/admin/logs'
     | '/admin/'
@@ -116,6 +126,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/signup'
     | '/admin/clients'
+    | '/admin/docs'
     | '/admin/health'
     | '/admin/logs'
     | '/admin'
@@ -127,6 +138,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/signup'
     | '/admin/clients'
+    | '/admin/docs'
     | '/admin/health'
     | '/admin/logs'
     | '/admin/'
@@ -192,6 +204,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminHealthRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/docs': {
+      id: '/admin/docs'
+      path: '/docs'
+      fullPath: '/admin/docs'
+      preLoaderRoute: typeof AdminDocsRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/clients': {
       id: '/admin/clients'
       path: '/clients'
@@ -211,6 +230,7 @@ declare module '@tanstack/react-router' {
 
 interface AdminRouteChildren {
   AdminClientsRoute: typeof AdminClientsRoute
+  AdminDocsRoute: typeof AdminDocsRoute
   AdminHealthRoute: typeof AdminHealthRoute
   AdminLogsRoute: typeof AdminLogsRoute
   AdminIndexRoute: typeof AdminIndexRoute
@@ -218,6 +238,7 @@ interface AdminRouteChildren {
 
 const AdminRouteChildren: AdminRouteChildren = {
   AdminClientsRoute: AdminClientsRoute,
+  AdminDocsRoute: AdminDocsRoute,
   AdminHealthRoute: AdminHealthRoute,
   AdminLogsRoute: AdminLogsRoute,
   AdminIndexRoute: AdminIndexRoute,
