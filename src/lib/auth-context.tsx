@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
 import type { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -19,40 +19,56 @@ const Ctx = createContext<AuthCtx | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [roles, setRoles] = useState<Role[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [authReady, setAuthReady] = useState(false);
+  const [rolesLoading, setRolesLoading] = useState(true);
 
-  const loadRoles = async (userId: string | undefined) => {
+  const loadRoles = useCallback(async (userId: string | undefined) => {
     if (!userId) {
       setRoles([]);
       return;
     }
-    const { data } = await supabase.from("user_roles").select("role").eq("user_id", userId);
+    const { data, error } = await supabase.from("user_roles").select("role").eq("user_id", userId);
+    if (error) {
+      console.error("Failed to load user roles", error.message);
+      setRoles([]);
+      return;
+    }
     setRoles((data ?? []).map((r) => r.role as Role));
-  };
+  }, []);
 
   useEffect(() => {
     const { data: sub } = supabase.auth.onAuthStateChange((_evt, s) => {
       setSession(s);
-      // defer to avoid deadlocks
-      setTimeout(() => loadRoles(s?.user?.id), 0);
+      setRolesLoading(true);
+      setTimeout(() => {
+        loadRoles(s?.user?.id).finally(() => {
+          setAuthReady(true);
+          setRolesLoading(false);
+        });
+      }, 0);
     });
     supabase.auth.getSession().then(({ data: { session: s } }) => {
       setSession(s);
-      loadRoles(s?.user?.id).finally(() => setLoading(false));
+      setAuthReady(true);
+      setRolesLoading(true);
+      loadRoles(s?.user?.id).finally(() => setRolesLoading(false));
     });
     return () => sub.subscription.unsubscribe();
-  }, []);
+  }, [loadRoles]);
 
   const value: AuthCtx = {
     session,
     user: session?.user ?? null,
     roles,
-    loading,
+    loading: !authReady || rolesLoading,
     isAdmin: roles.includes("admin"),
     signOut: async () => {
       await supabase.auth.signOut();
     },
-    refreshRoles: async () => loadRoles(session?.user?.id),
+    refreshRoles: async () => {
+      setRolesLoading(true);
+      await loadRoles(session?.user?.id).finally(() => setRolesLoading(false));
+    },
   };
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
