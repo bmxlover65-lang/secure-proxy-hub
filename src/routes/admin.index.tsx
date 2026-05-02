@@ -20,8 +20,8 @@ function AdminDashboard() {
   useEffect(() => {
     (async () => {
       const [{ count: total }, { count: active }, { count: requests }, { count: today }, logs] = await Promise.all([
-        supabase.from("resellers").select("id", { count: "exact", head: true }),
-        supabase.from("resellers").select("id", { count: "exact", head: true }).eq("status", "active"),
+        supabase.from("api_clients").select("id", { count: "exact", head: true }),
+        supabase.from("api_clients").select("id", { count: "exact", head: true }).eq("status", "active"),
         supabase.from("request_logs").select("id", { count: "exact", head: true }),
         supabase.from("request_logs").select("id", { count: "exact", head: true }).gte("created_at", new Date(Date.now() - 86400000).toISOString()),
         supabase.from("request_logs").select("id, created_at, ip_address, category, game, status_code, success, error_message").order("created_at", { ascending: false }).limit(8),
@@ -40,15 +40,15 @@ function AdminDashboard() {
         description="Real-time overview of your reseller proxy system."
         actions={
           <Button asChild variant="outline" size="sm">
-            <Link to="/admin/resellers">
-              Manage resellers <ArrowUpRight className="ml-1.5 h-3.5 w-3.5" />
+            <Link to="/admin/clients">
+              Manage clients <ArrowUpRight className="ml-1.5 h-3.5 w-3.5" />
             </Link>
           </Button>
         }
       />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard label="Total resellers" value={loading ? "—" : stats.total} icon={Users} hint="across all accounts" />
+        <StatCard label="Total clients" value={loading ? "—" : stats.total} icon={Users} hint="across all accounts" />
         <StatCard label="Active keys" value={loading ? "—" : stats.active} icon={KeyRound} hint="ready to use" />
         <StatCard label="Requests (24h)" value={loading ? "—" : stats.today} icon={CheckCircle2} hint="in the last day" />
         <StatCard label="Total requests" value={loading ? "—" : stats.requests} icon={ScrollText} hint="all-time" />
@@ -71,7 +71,7 @@ function AdminDashboard() {
                 <ScrollText className="h-5 w-5 text-muted-foreground" />
               </div>
               <p className="text-sm font-medium">No requests yet</p>
-              <p className="mt-1 text-xs text-muted-foreground">Activity will appear here once resellers make API calls.</p>
+              <p className="mt-1 text-xs text-muted-foreground">Activity will appear here once clients make API calls.</p>
             </div>
           ) : (
             <div className="overflow-x-auto">
