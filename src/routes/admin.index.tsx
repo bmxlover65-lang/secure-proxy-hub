@@ -2,8 +2,11 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { StatCard } from "@/components/StatCard";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, KeyRound, ScrollText, CheckCircle2 } from "lucide-react";
+import { PageHeader } from "@/components/PageHeader";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Users, KeyRound, ScrollText, CheckCircle2, LayoutDashboard, ArrowUpRight } from "lucide-react";
+import { Link } from "@tanstack/react-router";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/admin/")({
   component: AdminDashboard,
@@ -12,6 +15,7 @@ export const Route = createFileRoute("/admin/")({
 function AdminDashboard() {
   const [stats, setStats] = useState({ total: 0, active: 0, requests: 0, today: 0 });
   const [recent, setRecent] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     (async () => {
@@ -24,40 +28,73 @@ function AdminDashboard() {
       ]);
       setStats({ total: total ?? 0, active: active ?? 0, requests: requests ?? 0, today: today ?? 0 });
       setRecent(logs.data ?? []);
+      setLoading(false);
     })();
   }, []);
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-semibold tracking-tight">Dashboard</h1>
-        <p className="text-sm text-muted-foreground">Overview of your reseller proxy system.</p>
+      <PageHeader
+        icon={LayoutDashboard}
+        title="Dashboard"
+        description="Real-time overview of your reseller proxy system."
+        actions={
+          <Button asChild variant="outline" size="sm">
+            <Link to="/admin/resellers">
+              Manage resellers <ArrowUpRight className="ml-1.5 h-3.5 w-3.5" />
+            </Link>
+          </Button>
+        }
+      />
+
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <StatCard label="Total resellers" value={loading ? "—" : stats.total} icon={Users} hint="across all accounts" />
+        <StatCard label="Active keys" value={loading ? "—" : stats.active} icon={KeyRound} hint="ready to use" />
+        <StatCard label="Requests (24h)" value={loading ? "—" : stats.today} icon={CheckCircle2} hint="in the last day" />
+        <StatCard label="Total requests" value={loading ? "—" : stats.requests} icon={ScrollText} hint="all-time" />
       </div>
-      <div className="grid gap-4 md:grid-cols-4">
-        <StatCard label="Total resellers" value={stats.total} icon={Users} />
-        <StatCard label="Active keys" value={stats.active} icon={KeyRound} />
-        <StatCard label="Requests today" value={stats.today} icon={CheckCircle2} hint="last 24h" />
-        <StatCard label="Total requests" value={stats.requests} icon={ScrollText} />
-      </div>
-      <Card style={{ background: "var(--gradient-card)" }} className="border-border">
-        <CardHeader><CardTitle>Recent activity</CardTitle></CardHeader>
+
+      <Card style={{ background: "var(--gradient-card)" }} className="border-border/60">
+        <CardHeader className="flex flex-row items-center justify-between">
+          <div>
+            <CardTitle>Recent activity</CardTitle>
+            <CardDescription>Last 8 proxy requests</CardDescription>
+          </div>
+          <Button asChild variant="ghost" size="sm">
+            <Link to="/admin/logs">View all <ArrowUpRight className="ml-1 h-3.5 w-3.5" /></Link>
+          </Button>
+        </CardHeader>
         <CardContent>
           {recent.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No requests yet.</p>
+            <div className="flex flex-col items-center justify-center py-12 text-center">
+              <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-secondary/40">
+                <ScrollText className="h-5 w-5 text-muted-foreground" />
+              </div>
+              <p className="text-sm font-medium">No requests yet</p>
+              <p className="mt-1 text-xs text-muted-foreground">Activity will appear here once resellers make API calls.</p>
+            </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
-                <thead className="text-left text-xs uppercase text-muted-foreground">
-                  <tr><th className="py-2">Time</th><th>IP</th><th>Endpoint</th><th>Status</th></tr>
+                <thead className="text-left text-[11px] uppercase tracking-wider text-muted-foreground">
+                  <tr className="border-b border-border/60">
+                    <th className="pb-3 font-medium">Time</th>
+                    <th className="pb-3 font-medium">IP Address</th>
+                    <th className="pb-3 font-medium">Endpoint</th>
+                    <th className="pb-3 font-medium">Status</th>
+                  </tr>
                 </thead>
                 <tbody>
                   {recent.map((r) => (
-                    <tr key={r.id} className="border-t border-border">
-                      <td className="py-2">{new Date(r.created_at).toLocaleTimeString()}</td>
+                    <tr key={r.id} className="border-b border-border/30 transition-colors hover:bg-secondary/30">
+                      <td className="py-3 text-xs text-muted-foreground">{new Date(r.created_at).toLocaleTimeString()}</td>
                       <td className="font-mono text-xs">{r.ip_address}</td>
-                      <td>{r.category}/{r.game}</td>
+                      <td><span className="rounded-md bg-secondary/40 px-2 py-1 font-mono text-xs">{r.category}/{r.game}</span></td>
                       <td>
-                        <span className={`rounded px-2 py-0.5 text-xs ${r.success ? "bg-success/20 text-success" : "bg-destructive/20 text-destructive"}`}>
+                        <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ${
+                          r.success ? "bg-success/15 text-success" : "bg-destructive/15 text-destructive"
+                        }`}>
+                          <span className={`h-1.5 w-1.5 rounded-full ${r.success ? "bg-success" : "bg-destructive"}`} />
                           {r.status_code}
                         </span>
                       </td>
