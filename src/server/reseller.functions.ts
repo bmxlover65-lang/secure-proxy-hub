@@ -56,7 +56,7 @@ export const resellerCreateClient = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const userId = context.userId;
     const cost = await getSetting("coins_per_api_key", 1000);
-    const FIXED_DURATION_DAYS = 13;
+    const FIXED_DURATION_DAYS = 30;
 
     // Atomic-ish: rely on adjust_wallet to throw on insufficient_balance
     const { data: balRow, error: bErr } = await supabaseAdmin.rpc("adjust_wallet", {
