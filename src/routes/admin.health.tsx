@@ -60,7 +60,7 @@ function HealthPage() {
   const runAll = async () => {
     setAllLoading(true);
     try {
-      const r = await testAll({ data: undefined as any });
+      const r = await testAll({ data: {} as any });
       if (r && Array.isArray((r as any).results)) {
         setAllRows((r as any).results as AllRow[]);
         setCheckedAt((r as any).checkedAt ?? new Date().toISOString());
@@ -80,8 +80,12 @@ function HealthPage() {
     }
   };
 
-  // Auto-run all on first mount
-  useEffect(() => { runAll(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, []);
+  // Auto-run once auth session is hydrated (delay avoids 401 race on mount)
+  useEffect(() => {
+    const t = setTimeout(() => { runAll().catch(() => {}); }, 600);
+    return () => clearTimeout(t);
+    /* eslint-disable-next-line react-hooks/exhaustive-deps */
+  }, []);
 
   const rawBody = typeof result?.body === "string" ? result.body : "";
   let pretty = rawBody;
