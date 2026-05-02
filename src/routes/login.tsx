@@ -29,7 +29,7 @@ function LoginPage() {
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    if (!loading && session) navigate({ to: isAdmin ? "/admin" : "/reseller" });
+    if (!loading && session) navigate({ to: "/admin" });
   }, [loading, session, isAdmin, navigate]);
 
   const onSubmit = async (e: React.FormEvent) => {
@@ -50,7 +50,7 @@ function LoginPage() {
   };
 
   return (
-    <AuthLayout title="Welcome back" subtitle="Sign in to manage your reseller dashboard">
+    <AuthLayout title="Welcome back" subtitle="Sign in to manage your admin dashboard">
       <form
         onSubmit={onSubmit}
         className="relative space-y-5 overflow-hidden rounded-2xl border border-border/40 bg-card/50 p-7 backdrop-blur-2xl"

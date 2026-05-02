@@ -14,7 +14,7 @@ function Index() {
 
   useEffect(() => {
     if (loading) return;
-    if (session) navigate({ to: isAdmin ? "/admin" : "/reseller" });
+    if (session) navigate({ to: "/admin" });
   }, [loading, session, isAdmin, navigate]);
 
   return (
@@ -43,12 +43,12 @@ function Index() {
             className="bg-clip-text text-transparent"
             style={{ backgroundImage: "var(--gradient-primary)" }}
           >
-            reseller keys
+            API keys
           </span>{" "}
           & IP whitelisting
         </h1>
         <p className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground">
-          Issue per-reseller API keys, lock requests to specific IPs, monitor every call,
+          Issue per-client API keys, lock requests to specific IPs, monitor every call,
           and forward to your upstream — all from one panel.
         </p>
         <div className="mt-8 flex justify-center gap-3">
