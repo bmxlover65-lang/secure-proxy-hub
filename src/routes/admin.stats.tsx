@@ -25,6 +25,60 @@ type Client = { id: string; name: string };
 
 const COLORS = ["#6366f1", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6", "#06b6d4", "#ec4899", "#84cc16"];
 
+function BarsSkeleton({ count = 8, vertical = true }: { count?: number; vertical?: boolean }) {
+  const heights = [60, 80, 45, 90, 70, 55, 85, 40, 75, 65];
+  return (
+    <div className={`flex h-full w-full gap-2 ${vertical ? "items-end" : "flex-col justify-around"}`}>
+      {Array.from({ length: count }).map((_, i) => (
+        <div
+          key={i}
+          className="animate-pulse rounded-md bg-primary/10"
+          style={
+            vertical
+              ? { width: `${100 / count}%`, height: `${heights[i % heights.length]}%`, animationDelay: `${i * 60}ms` }
+              : { height: 14, width: `${heights[i % heights.length]}%`, animationDelay: `${i * 60}ms` }
+          }
+        />
+      ))}
+    </div>
+  );
+}
+
+function LineSkeleton() {
+  return (
+    <div className="relative h-full w-full overflow-hidden">
+      <div className="absolute inset-0 grid grid-rows-4">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <div key={i} className="border-t border-dashed border-border/40" />
+        ))}
+      </div>
+      <svg viewBox="0 0 100 40" preserveAspectRatio="none" className="absolute inset-0 h-full w-full">
+        <path d="M0,30 L15,22 L30,28 L45,12 L60,18 L75,8 L100,14" fill="none" stroke="currentColor" strokeWidth="0.6" className="animate-pulse text-success/50" />
+        <path d="M0,34 L15,32 L30,30 L45,33 L60,28 L75,30 L100,25" fill="none" stroke="currentColor" strokeWidth="0.6" className="animate-pulse text-destructive/40" style={{ animationDelay: "150ms" }} />
+      </svg>
+    </div>
+  );
+}
+
+function PieSkeleton() {
+  return (
+    <div className="flex h-full w-full items-center justify-center">
+      <div className="relative h-44 w-44 animate-pulse rounded-full bg-primary/10">
+        <div className="absolute inset-6 rounded-full bg-card" />
+      </div>
+    </div>
+  );
+}
+
+function RefreshOverlay() {
+  return (
+    <div className="pointer-events-none absolute right-3 top-3 z-10 flex items-center gap-1.5 rounded-full border border-border/60 bg-background/80 px-2 py-1 text-[10px] text-muted-foreground backdrop-blur animate-fade-in">
+      <Loader2 className="h-3 w-3 animate-spin" />
+      Updating
+    </div>
+  );
+}
+
 // Module-level client cache so navigating away and back is instant.
 const clientCache = new Map<string, { data: Aggregated; expires: number }>();
 const CLIENT_TTL_MS = 60_000;
@@ -156,31 +210,36 @@ function StatsPage() {
           { label: "Total requests", value: total, cls: "" },
           { label: "Success rate", value: `${successRate}%`, cls: "text-success" },
           { label: "Failed", value: total - successCount, cls: "text-destructive" },
-        ].map((s) => (
-          <Card key={s.label} className="border-border/60" style={{ background: "var(--gradient-card)" }}>
+        ].map((s, i) => (
+          <Card
+            key={s.label}
+            className="border-border/60 animate-fade-in"
+            style={{ background: "var(--gradient-card)", animationDelay: `${i * 60}ms` }}
+          >
             <CardContent className="p-4">
               <div className="text-xs uppercase tracking-wider text-muted-foreground">{s.label}</div>
               {showSkeleton
                 ? <Skeleton className="mt-1 h-8 w-20" />
-                : <div className={`mt-1 text-2xl font-bold ${s.cls}`}>{s.value}</div>}
+                : <div key={String(s.value)} className={`mt-1 text-2xl font-bold animate-fade-in ${s.cls}`}>{s.value}</div>}
             </CardContent>
           </Card>
         ))}
       </div>
 
-      <Card className="border-border/60" style={{ background: "var(--gradient-card)" }}>
+      <Card className="border-border/60 animate-fade-in" style={{ background: "var(--gradient-card)" }}>
         <CardHeader><CardTitle className="text-base">Requests by day</CardTitle></CardHeader>
-        <CardContent style={{ height: 300 }}>
-          {showSkeleton ? <Skeleton className="h-full w-full" /> : (
-          <ResponsiveContainer width="100%" height="100%">
+        <CardContent className="relative" style={{ height: 300 }}>
+          {loading && !showSkeleton && <RefreshOverlay />}
+          {showSkeleton ? <LineSkeleton /> : (
+          <ResponsiveContainer width="100%" height="100%" key={`day-${days}-${clientId}`} className="animate-fade-in">
             <LineChart data={byDay}>
               <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
               <XAxis dataKey="date" stroke="hsl(var(--muted-foreground))" fontSize={12} />
               <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} />
               <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }} />
               <Legend />
-              <Line type="monotone" dataKey="success" stroke="#10b981" strokeWidth={2} />
-              <Line type="monotone" dataKey="failed" stroke="#ef4444" strokeWidth={2} />
+              <Line type="monotone" dataKey="success" stroke="#10b981" strokeWidth={2} dot={false} isAnimationActive animationDuration={400} />
+              <Line type="monotone" dataKey="failed" stroke="#ef4444" strokeWidth={2} dot={false} isAnimationActive animationDuration={400} />
             </LineChart>
           </ResponsiveContainer>
           )}
@@ -188,30 +247,32 @@ function StatsPage() {
       </Card>
 
       <div className="grid gap-4 lg:grid-cols-2">
-        <Card className="border-border/60" style={{ background: "var(--gradient-card)" }}>
+        <Card className="border-border/60 animate-fade-in" style={{ background: "var(--gradient-card)" }}>
           <CardHeader><CardTitle className="text-base">Top endpoints</CardTitle></CardHeader>
-          <CardContent style={{ height: 320 }}>
-            {showSkeleton ? <Skeleton className="h-full w-full" /> : (
-            <ResponsiveContainer width="100%" height="100%">
+          <CardContent className="relative" style={{ height: 320 }}>
+            {loading && !showSkeleton && <RefreshOverlay />}
+            {showSkeleton ? <BarsSkeleton count={6} vertical={false} /> : (
+            <ResponsiveContainer width="100%" height="100%" key={`ep-${days}-${clientId}`} className="animate-fade-in">
               <BarChart data={byEndpoint} layout="vertical" margin={{ left: 60 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                 <XAxis type="number" stroke="hsl(var(--muted-foreground))" fontSize={12} />
                 <YAxis type="category" dataKey="name" stroke="hsl(var(--muted-foreground))" fontSize={11} width={100} />
                 <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }} />
-                <Bar dataKey="count" fill="#6366f1" radius={[0, 4, 4, 0]} />
+                <Bar dataKey="count" fill="#6366f1" radius={[0, 4, 4, 0]} animationDuration={400} />
               </BarChart>
             </ResponsiveContainer>
             )}
           </CardContent>
         </Card>
 
-        <Card className="border-border/60" style={{ background: "var(--gradient-card)" }}>
+        <Card className="border-border/60 animate-fade-in" style={{ background: "var(--gradient-card)" }}>
           <CardHeader><CardTitle className="text-base">By category</CardTitle></CardHeader>
-          <CardContent style={{ height: 320 }}>
-            {showSkeleton ? <Skeleton className="h-full w-full" /> : (
-            <ResponsiveContainer width="100%" height="100%">
+          <CardContent className="relative" style={{ height: 320 }}>
+            {loading && !showSkeleton && <RefreshOverlay />}
+            {showSkeleton ? <PieSkeleton /> : (
+            <ResponsiveContainer width="100%" height="100%" key={`cat-${days}-${clientId}`} className="animate-fade-in">
               <PieChart>
-                <Pie data={byCategory} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={100} label>
+                <Pie data={byCategory} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={100} label animationDuration={400}>
                   {byCategory.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
                 </Pie>
                 <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }} />
@@ -223,17 +284,18 @@ function StatsPage() {
         </Card>
       </div>
 
-      <Card className="border-border/60" style={{ background: "var(--gradient-card)" }}>
+      <Card className="border-border/60 animate-fade-in" style={{ background: "var(--gradient-card)" }}>
         <CardHeader><CardTitle className="text-base">By status code</CardTitle></CardHeader>
-        <CardContent style={{ height: 280 }}>
-          {showSkeleton ? <Skeleton className="h-full w-full" /> : (
-          <ResponsiveContainer width="100%" height="100%">
+        <CardContent className="relative" style={{ height: 280 }}>
+          {loading && !showSkeleton && <RefreshOverlay />}
+          {showSkeleton ? <BarsSkeleton count={5} /> : (
+          <ResponsiveContainer width="100%" height="100%" key={`st-${days}-${clientId}`} className="animate-fade-in">
             <BarChart data={byStatus}>
               <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
               <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" fontSize={12} />
               <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} />
               <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }} />
-              <Bar dataKey="count" fill="#8b5cf6" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="count" fill="#8b5cf6" radius={[4, 4, 0, 0]} animationDuration={400} />
             </BarChart>
           </ResponsiveContainer>
           )}
