@@ -22,9 +22,10 @@ function HealthPage() {
   const { loading: authLoading } = useAuth();
   const [category, setCategory] = useState("wingo");
   const [game, setGame] = useState("30s");
+  const [type, setType] = useState<"period" | "history">("period");
   const [result, setResult] = useState<{ ok: boolean; status: number; ms: number; url: string; body: string } | null>(null);
   const [loading, setLoading] = useState(false);
-  type AllRow = { category: string; game: string; url: string; ok: boolean; status: number; ms: number; error?: string };
+  type AllRow = { category: string; game: string; type: "period" | "history"; url: string; ok: boolean; status: number; ms: number; error?: string };
   const [allRows, setAllRows] = useState<AllRow[] | null>(null);
   const [allLoading, setAllLoading] = useState(false);
   const [checkedAt, setCheckedAt] = useState<string | null>(null);
@@ -35,7 +36,7 @@ function HealthPage() {
     setLoading(true);
     setResult(null);
     try {
-      const r = await test({ data: { category, game } });
+      const r = await test({ data: { category, game, type } });
       // Defensive: ensure r matches the expected shape (string body)
       if (r && typeof r === "object" && "body" in r && typeof (r as any).body === "string") {
         setResult(r);
@@ -139,6 +140,7 @@ function HealthPage() {
                   <tr>
                     <th className="px-3 py-2 text-left font-medium">Category</th>
                     <th className="px-3 py-2 text-left font-medium">Game</th>
+                  <th className="px-3 py-2 text-left font-medium">Type</th>
                     <th className="px-3 py-2 text-left font-medium">Status</th>
                     <th className="px-3 py-2 text-right font-medium">Latency</th>
                     <th className="px-3 py-2 text-left font-medium">URL</th>
@@ -146,9 +148,12 @@ function HealthPage() {
                 </thead>
                 <tbody>
                   {allRows.map((r) => (
-                    <tr key={`${r.category}-${r.game}`} className="border-t border-border/60 hover:bg-secondary/20">
+                  <tr key={`${r.category}-${r.game}-${r.type}`} className="border-t border-border/60 hover:bg-secondary/20">
                       <td className="px-3 py-2 font-medium uppercase">{r.category}</td>
                       <td className="px-3 py-2 font-mono text-xs">{r.game}</td>
+                    <td className="px-3 py-2">
+                      <Badge variant="outline" className="font-mono text-[10px] uppercase">{r.type}</Badge>
+                    </td>
                       <td className="px-3 py-2">
                         {r.ok ? (
                           <Badge className="border-success/30 bg-success/10 text-success hover:bg-success/15">
@@ -181,7 +186,7 @@ function HealthPage() {
           <CardDescription>Pick a category and game, then run a live request to view the full JSON payload.</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid gap-3 sm:grid-cols-[1fr_1fr_auto]">
+          <div className="grid gap-3 sm:grid-cols-[1fr_1fr_1fr_auto]">
             <div className="space-y-1.5">
               <div className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Category</div>
               <Select value={category} onValueChange={(v) => { setCategory(v); const gs = SUPPORTED_GAMES.find((c) => c.category === v)?.games ?? []; setGame(gs[0] ?? ""); }}>
@@ -197,6 +202,16 @@ function HealthPage() {
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
                   {games.map((g) => <SelectItem key={g} value={g}>{g}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1.5">
+              <div className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Type</div>
+              <Select value={type} onValueChange={(v) => setType(v as "period" | "history")}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="period">period (current)</SelectItem>
+                  <SelectItem value="history">history</SelectItem>
                 </SelectContent>
               </Select>
             </div>

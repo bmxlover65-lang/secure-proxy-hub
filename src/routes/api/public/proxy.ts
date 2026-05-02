@@ -41,6 +41,8 @@ export const Route = createFileRoute("/api/public/proxy")({
         const apiKey = url.searchParams.get("api_key") || "";
         const category = url.searchParams.get("category") || "";
         const game = url.searchParams.get("game") || "";
+        const typeParam = (url.searchParams.get("type") || "period").toLowerCase();
+        const type: "period" | "history" = typeParam === "history" ? "history" : "period";
         const ip = getClientIp(request);
 
         const log = async (
@@ -120,7 +122,7 @@ export const Route = createFileRoute("/api/public/proxy")({
         }
 
         // Build upstream URL
-        const upstream = buildUpstreamUrl(category, game);
+        const upstream = buildUpstreamUrl(category, game, type);
         if (!upstream) {
           await log(reseller.id, 404, false, "Unknown category/game", 0);
           return jsonResponse(
