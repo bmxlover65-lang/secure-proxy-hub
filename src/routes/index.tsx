@@ -12,14 +12,36 @@ import {
 export const Route = createFileRoute("/")({
   component: Index,
   head: () => ({ meta: [
-    { title: "Hyper Softs SaaS — Premium API Proxy & Reseller Platform" },
-    { name: "description", content: "Issue per-client API keys, top up your wallet, monitor every request — built for resellers." },
-    { property: "og:title", content: "Hyper Softs SaaS — Premium API Proxy" },
-    { property: "og:description", content: "API keys, wallet billing, IP whitelisting and live logs in one platform." },
+    { title: "Hyper Softs SaaS — API Reseller Platform with IP Whitelist & Rate Limiting" },
+    { name: "description", content: "Premium API proxy for SASS lottery game resellers. IP whitelisting, domain locking, rate limiting, wallet billing & live request logs in one secure dashboard." },
+    { name: "keywords", content: "API reseller platform, lottery API, SASS lottery, API proxy, IP whitelist, rate limiting, secure API access, wallet billing, API key management, reseller dashboard" },
+    { name: "author", content: "Hyper Softs" },
+    { name: "robots", content: "index, follow" },
+    { property: "og:title", content: "Hyper Softs SaaS — Secure API Reseller Platform" },
+    { property: "og:description", content: "Mint API keys, top up your wallet & monitor every call. IP whitelist, domain locking and rate limiting built in." },
     { property: "og:image", content: "/og-image.jpg" },
     { property: "og:type", content: "website" },
+    { property: "og:site_name", content: "Hyper Softs SaaS" },
     { name: "twitter:card", content: "summary_large_image" },
+    { name: "twitter:title", content: "Hyper Softs SaaS — Secure API Reseller Platform" },
+    { name: "twitter:description", content: "API keys, wallet billing, IP whitelist & live logs — built for resellers." },
     { name: "twitter:image", content: "/og-image.jpg" },
+  ], links: [
+    { rel: "canonical", href: "https://sass.hyperapi.in/" },
+  ], scripts: [
+    {
+      type: "application/ld+json",
+      children: JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        name: "Hyper Softs SaaS",
+        applicationCategory: "BusinessApplication",
+        operatingSystem: "Web",
+        description: "Secure API reseller platform with IP whitelist, rate limiting, wallet billing and live request logs.",
+        offers: { "@type": "Offer", price: "0", priceCurrency: "INR" },
+        url: "https://sass.hyperapi.in/",
+      }),
+    },
   ] }),
 });
 
@@ -153,6 +175,114 @@ function Index() {
               </div>
               <h3 className="font-semibold">{t}</h3>
               <p className="mt-1.5 text-sm text-muted-foreground">{d}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* API Reseller Value Proposition */}
+      <section className="relative z-10 mx-auto max-w-6xl px-5 pb-20">
+        <div className="mb-10 text-center">
+          <div className="mb-3 text-xs font-medium uppercase tracking-[0.2em] text-primary">Why resellers choose us</div>
+          <h2 className="text-3xl font-bold tracking-tight md:text-4xl">
+            Secure API access, built for{" "}
+            <span className="bg-clip-text text-transparent" style={{ backgroundImage: "var(--gradient-hero)" }}>scale</span>
+          </h2>
+          <p className="mx-auto mt-3 max-w-2xl text-muted-foreground">
+            Every API key is locked down with enterprise-grade controls — IP whitelist, domain locking, and per-key rate limiting — so your business stays safe and predictable.
+          </p>
+        </div>
+
+        <div className="grid gap-5 md:grid-cols-3">
+          {/* IP Whitelist */}
+          <div
+            className="group relative overflow-hidden rounded-2xl border border-border/40 bg-card/50 p-7 backdrop-blur-md transition-all hover:-translate-y-1 hover:border-primary/40"
+            style={{ boxShadow: "var(--shadow-elegant)" }}
+          >
+            <div
+              className="pointer-events-none absolute -right-12 -top-12 h-32 w-32 rounded-full opacity-20 blur-2xl transition-opacity group-hover:opacity-40"
+              style={{ background: "var(--gradient-primary)" }}
+            />
+            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl ring-1 ring-primary/30" style={{ background: "var(--gradient-primary)", boxShadow: "var(--shadow-glow)" }}>
+              <ShieldCheck className="h-6 w-6 text-primary-foreground" />
+            </div>
+            <h3 className="text-lg font-semibold">IP Whitelist</h3>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Restrict every API key to specific server IPs. Requests from unknown sources are rejected at the edge — before they ever hit your billing.
+            </p>
+            <ul className="mt-4 space-y-2 text-sm">
+              {["Multiple IPs per key", "CIDR range support", "Edge-level enforcement"].map((t) => (
+                <li key={t} className="flex items-center gap-2 text-muted-foreground">
+                  <CheckCircle2 className="h-4 w-4 shrink-0 text-success" />
+                  {t}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Rate Limiting */}
+          <div
+            className="group relative overflow-hidden rounded-2xl border border-border/40 bg-card/50 p-7 backdrop-blur-md transition-all hover:-translate-y-1 hover:border-primary/40"
+            style={{ boxShadow: "var(--shadow-elegant)" }}
+          >
+            <div
+              className="pointer-events-none absolute -right-12 -top-12 h-32 w-32 rounded-full opacity-20 blur-2xl transition-opacity group-hover:opacity-40"
+              style={{ background: "var(--gradient-hero)" }}
+            />
+            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl ring-1 ring-primary/30" style={{ background: "var(--gradient-hero)", boxShadow: "var(--shadow-glow)" }}>
+              <Zap className="h-6 w-6 text-primary-foreground" />
+            </div>
+            <h3 className="text-lg font-semibold">Smart Rate Limiting</h3>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Per-key throttling protects your wallet from runaway scripts and abusive clients. Set sensible quotas and sleep easy at night.
+            </p>
+            <ul className="mt-4 space-y-2 text-sm">
+              {["Per-second & per-minute limits", "Burst protection", "Auto block on abuse"].map((t) => (
+                <li key={t} className="flex items-center gap-2 text-muted-foreground">
+                  <CheckCircle2 className="h-4 w-4 shrink-0 text-success" />
+                  {t}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Secure Access */}
+          <div
+            className="group relative overflow-hidden rounded-2xl border border-border/40 bg-card/50 p-7 backdrop-blur-md transition-all hover:-translate-y-1 hover:border-primary/40"
+            style={{ boxShadow: "var(--shadow-elegant)" }}
+          >
+            <div
+              className="pointer-events-none absolute -right-12 -top-12 h-32 w-32 rounded-full opacity-20 blur-2xl transition-opacity group-hover:opacity-40"
+              style={{ background: "var(--gradient-primary)" }}
+            />
+            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl ring-1 ring-primary/30" style={{ background: "var(--gradient-primary)", boxShadow: "var(--shadow-glow)" }}>
+              <Lock className="h-6 w-6 text-primary-foreground" />
+            </div>
+            <h3 className="text-lg font-semibold">Secure Access</h3>
+            <p className="mt-2 text-sm text-muted-foreground">
+              HTTPS-only proxy with token-based authentication, domain locking, and rotating keys. Your upstream credentials never leak to the client.
+            </p>
+            <ul className="mt-4 space-y-2 text-sm">
+              {["End-to-end TLS encryption", "Domain referer locking", "Instant key revocation"].map((t) => (
+                <li key={t} className="flex items-center gap-2 text-muted-foreground">
+                  <CheckCircle2 className="h-4 w-4 shrink-0 text-success" />
+                  {t}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+
+        {/* Bottom strip */}
+        <div className="mt-8 flex flex-wrap items-center justify-center gap-3 text-xs text-muted-foreground">
+          {[
+            { icon: BarChart3, t: "Real-time analytics" },
+            { icon: Globe2, t: "Global edge network" },
+            { icon: Shield, t: "DDoS protection" },
+            { icon: Activity, t: "99.99% uptime SLA" },
+          ].map(({ icon: I, t }) => (
+            <div key={t} className="inline-flex items-center gap-1.5 rounded-full border border-border/40 bg-card/40 px-3 py-1.5 backdrop-blur-md">
+              <I className="h-3.5 w-3.5 text-primary" /> {t}
             </div>
           ))}
         </div>
