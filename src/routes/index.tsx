@@ -194,11 +194,11 @@ function Index() {
         </div>
         <h1 id="hero-heading" className="font-display text-balance text-5xl font-bold leading-[1.05] tracking-tight md:text-7xl">
           Premium API proxy for{" "}
-          <span className="font-cursive bg-clip-text text-transparent" style={{ backgroundImage: "var(--gradient-primary)" }}>
+          <span className="font-cursive bg-clip-text text-transparent text-6xl md:text-8xl" style={{ backgroundImage: "var(--gradient-primary)" }}>
             SaaS
           </span>
           <br />
-          <span className="font-cursive bg-clip-text text-transparent" style={{ backgroundImage: "var(--gradient-hero)" }}>
+          <span className="font-cursive bg-clip-text text-transparent text-6xl md:text-8xl" style={{ backgroundImage: "var(--gradient-hero)" }}>
             Lottery Game
           </span>{" "}
           resellers
