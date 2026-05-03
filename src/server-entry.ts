@@ -67,8 +67,8 @@ export default {
     }
 
     try {
-      const handler = defaultServerEntry.fetch as unknown as (...args: unknown[]) => Promise<Response>;
-      const response = await handler(request, env, ctx);
+      const handler = defaultServerEntry.fetch as unknown as (this: typeof defaultServerEntry, ...args: unknown[]) => Promise<Response>;
+      const response = await handler.call(defaultServerEntry, request, env, ctx);
       if (response.status >= 500 && isHtmlRoute(request, url.pathname)) {
         return appFallback(url.pathname);
       }
