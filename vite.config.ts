@@ -7,21 +7,6 @@
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 
 export default defineConfig({
-  tanstackStart: {
-    spa: {
-      enabled: true,
-      maskPath: "/",
-      prerender: {
-        outputPath: "/index",
-        crawlLinks: false,
-        failOnError: false,
-      },
-    },
-    prerender: {
-      enabled: true,
-      failOnError: false,
-    },
-  },
   vite: {
     define: {
       __BUILD_VERSION__: JSON.stringify(
