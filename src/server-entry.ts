@@ -59,7 +59,7 @@ export default {
     }
 
     try {
-      const response = await defaultServerEntry.fetch(request, env, ctx);
+      const response = await (defaultServerEntry.fetch as unknown as (request: Request, env: unknown, ctx: unknown) => Promise<Response>)(request, env, ctx);
       if (url.pathname === "/" && response.status >= 500) {
         return rootFallback();
       }
