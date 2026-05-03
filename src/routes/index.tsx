@@ -126,23 +126,50 @@ function Index() {
 
   return (
     <div className="min-h-screen bg-background text-foreground" style={{ backgroundImage: "var(--gradient-mesh)" }}>
-      <header className="sticky top-0 z-30 border-b border-border/60 bg-background/70 backdrop-blur">
+      <a
+        href="#main"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-primary focus:px-4 focus:py-2 focus:text-primary-foreground focus:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+      >
+        Skip to main content
+      </a>
+      <header className="sticky top-0 z-30 border-b border-border/60 bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/70">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3.5">
-          <Link to="/" className="flex items-center gap-2.5">
+          <Link
+            to="/"
+            aria-label="Hyper Softs SaaS — Home"
+            className="flex items-center gap-2.5 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+          >
             <div className="flex h-9 w-9 items-center justify-center rounded-lg" style={{ background: "var(--gradient-primary)", boxShadow: "var(--shadow-glow)" }}>
-              <Shield className="h-5 w-5 text-primary-foreground" />
+              <Shield className="h-5 w-5 text-primary-foreground" aria-hidden="true" />
             </div>
             <div className="flex flex-col leading-none">
               <span className="font-display text-base font-bold tracking-tight">Hyper Softs</span>
               <span className="text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground">SaaS Platform</span>
             </div>
           </Link>
-          <nav className="hidden items-center gap-6 text-sm text-muted-foreground md:flex">
-            <a href="#security" className="transition-colors hover:text-foreground">Security</a>
-            <a href="#features" className="transition-colors hover:text-foreground">Features</a>
-            <a href="#pricing" className="transition-colors hover:text-foreground">Pricing</a>
-            <a href={`https://t.me/${TELEGRAM}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 rounded-full border border-border/60 px-2.5 py-1 text-xs hover:text-foreground hover:border-primary/40">
-              <Send className="h-3 w-3" /> @{TELEGRAM}
+          <nav aria-label="Primary" className="hidden items-center gap-6 text-sm text-muted-foreground md:flex">
+            {[
+              { href: "#security", label: "Security" },
+              { href: "#features", label: "Features" },
+              { href: "#pricing", label: "Pricing" },
+              { href: "#faq", label: "FAQ" },
+            ].map((l) => (
+              <a
+                key={l.href}
+                href={l.href}
+                className="rounded-md px-1 py-0.5 transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+              >
+                {l.label}
+              </a>
+            ))}
+            <a
+              href={`https://t.me/${TELEGRAM}`}
+              target="_blank"
+              rel="noreferrer"
+              aria-label={`Contact Hyper Softs on Telegram, @${TELEGRAM}`}
+              className="inline-flex items-center gap-1 rounded-full border border-border/60 px-2.5 py-1 text-xs hover:text-foreground hover:border-primary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+            >
+              <Send className="h-3 w-3" aria-hidden="true" /> @{TELEGRAM}
             </a>
           </nav>
           <div className="flex gap-2">
@@ -152,12 +179,13 @@ function Index() {
         </div>
       </header>
 
+      <main id="main">
       {/* HERO */}
-      <section className="relative mx-auto max-w-5xl px-4 py-20 text-center md:py-28">
+      <section aria-labelledby="hero-heading" className="relative mx-auto max-w-5xl px-4 py-20 text-center md:py-28">
         <div className="mx-auto mb-6 inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary">
-          <Sparkles className="h-3.5 w-3.5" /> Trusted by 200+ resellers worldwide
+          <Sparkles className="h-3.5 w-3.5" aria-hidden="true" /> Trusted by 200+ resellers worldwide
         </div>
-        <h1 className="font-display text-balance text-5xl font-bold leading-[1.05] tracking-tight md:text-7xl">
+        <h1 id="hero-heading" className="font-display text-balance text-5xl font-bold leading-[1.05] tracking-tight md:text-7xl">
           The secure API proxy{" "}
           <span className="bg-clip-text text-transparent" style={{ backgroundImage: "var(--gradient-primary)" }}>
             built for resellers
