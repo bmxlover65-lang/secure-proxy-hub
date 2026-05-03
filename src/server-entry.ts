@@ -39,27 +39,8 @@ function withRuntimeHeaders(response: Response) {
   });
 }
 
-function isHtmlRoute(request: Request, pathname: string) {
-  if (!['GET', 'HEAD'].includes(request.method)) return false;
-  if (pathname.startsWith('/api/') || pathname.startsWith('/~') || pathname.includes('.')) return false;
-  const accept = request.headers.get('accept') || '*/*';
-  return accept.includes('text/html') || accept.includes('*/*');
-}
-
-function appFallback(pathname = "/") {
-  const title = pathname === "/login" ? "Sign in" : "Hyper Softs";
-  const html = `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${title} — Hyper Softs</title></head><body style="margin:0;min-height:100vh;display:grid;place-items:center;background:#020617;color:#e5e7eb;font-family:Inter,system-ui,sans-serif"><main style="text-align:center;padding:24px"><h1 style="margin:0 0 8px;font-size:28px">Hyper Softs</h1><p style="margin:0;color:#94a3b8">The app is loading a fresh version. Please refresh once.</p><p style="margin:14px 0 0;display:flex;gap:14px;justify-content:center"><a href="/" style="color:#93c5fd;text-decoration:none">Home</a><a href="/login" style="color:#93c5fd;text-decoration:none">Login</a></p></main></body></html>`;
-  return new Response(html, {
-    status: 200,
-    headers: {
-      "Content-Type": "text/html; charset=utf-8",
-      ...noStoreHeaders,
-    },
-  });
-}
-
 export default {
-  async fetch(request: Request, env: unknown, ctx: unknown) {
+  async fetch(request: Request) {
     const url = new URL(request.url);
 
     if (url.pathname === "/api/public/version") {
@@ -67,17 +48,10 @@ export default {
     }
 
     try {
-      const handler = defaultServerEntry.fetch as unknown as (this: typeof defaultServerEntry, ...args: unknown[]) => Promise<Response>;
-      const response = await handler.call(defaultServerEntry, request, env, ctx);
-      if (response.status >= 500 && isHtmlRoute(request, url.pathname)) {
-        return appFallback(url.pathname);
-      }
+      const response = await defaultServerEntry.fetch(request);
       return withRuntimeHeaders(response);
     } catch (error) {
       console.error("[server-entry] request failed", error);
-      if (isHtmlRoute(request, url.pathname)) {
-        return appFallback(url.pathname);
-      }
       return json({ status: 500, message: "Internal Server Error", version: BUILD_VERSION }, 500);
     }
   },
