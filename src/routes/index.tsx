@@ -12,6 +12,7 @@ import {
 import {
   Shield, KeyRound, Activity, ShieldCheck, Coins, Wallet, Globe2,
   ArrowRight, CheckCircle2, Send, Lock, Gauge, Network, Server, Clock, Sparkles, Zap, HelpCircle,
+  LayoutDashboard, BookOpen,
 } from "lucide-react";
 
 const TELEGRAM = "Hyperdeveloperr";
