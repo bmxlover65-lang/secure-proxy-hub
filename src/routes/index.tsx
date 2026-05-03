@@ -76,18 +76,14 @@ function Index() {
           <Sparkles className="h-3.5 w-3.5" /> Trusted by 200+ resellers worldwide
         </div>
         <h1 className="font-display text-balance text-5xl font-bold leading-[1.05] tracking-tight md:text-7xl">
-          Premium API proxy for{" "}
+          The secure API proxy{" "}
           <span className="bg-clip-text text-transparent" style={{ backgroundImage: "var(--gradient-primary)" }}>
-            SaaS
+            built for resellers
           </span>
-          <br />
-          <span className="bg-clip-text text-transparent" style={{ backgroundImage: "var(--gradient-hero)" }}>
-            Lottery Game
-          </span>{" "}
-          resellers
         </h1>
         <p className="mx-auto mt-6 max-w-2xl text-balance text-lg leading-relaxed text-muted-foreground md:text-xl">
-          Sign up, top up your wallet, mint API keys on demand, and monitor every call — all from one beautifully crafted dashboard.
+          Mint 30-day API keys, lock them to your IPs and domains, and bill your wallet in coins —
+          all from one beautifully crafted dashboard for SaaS &amp; lottery-game resellers.
         </p>
         <div className="mt-8 flex flex-wrap justify-center gap-3">
           <Button asChild size="lg" className="shadow-lg" style={{ boxShadow: "var(--shadow-glow)" }}>
@@ -180,46 +176,116 @@ function Index() {
       </section>
 
       {/* PRICING */}
-      <section id="pricing" className="mx-auto max-w-4xl px-4 py-16">
-        <div className="mb-8 text-center">
-          <h2 className="text-3xl font-semibold tracking-tight md:text-4xl">Simple, coin-based pricing</h2>
-          <p className="mt-3 text-muted-foreground">Pay only for keys you mint. No subscriptions.</p>
-        </div>
-        <div className="grid gap-4 md:grid-cols-2">
-          <div className="rounded-2xl border border-border p-8 text-center" style={{ background: "var(--gradient-card)" }}>
-            <div className="text-xs uppercase tracking-wider text-muted-foreground">Coin rate</div>
-            <div className="mt-3 text-4xl font-bold">₹2000</div>
-            <div className="mt-1 text-sm text-muted-foreground">per 1000 coins</div>
-            <ul className="mt-6 space-y-2 text-sm text-left">
-              <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-success" /> Top up via BondPay</li>
-              <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-success" /> Auto wallet credit on success</li>
-              <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-success" /> View pending / success / failed orders</li>
-            </ul>
+      <section id="pricing" className="mx-auto max-w-6xl px-4 py-16">
+        <div className="mb-10 text-center">
+          <div className="mx-auto mb-4 inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
+            <Coins className="h-3.5 w-3.5" /> Pay-as-you-go • No subscription
           </div>
-          <div className="rounded-2xl border border-primary/40 p-8 text-center shadow-lg" style={{ background: "var(--gradient-card)", boxShadow: "var(--shadow-glow)" }}>
-            <div className="text-xs uppercase tracking-wider text-primary">Per API key</div>
-            <div className="mt-3 text-4xl font-bold">1000 coins</div>
-            <div className="mt-1 text-sm text-muted-foreground">≈ ₹2000 per key • valid 30 days</div>
-            <ul className="mt-6 space-y-2 text-sm text-left">
-              <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-success" /> IP & domain whitelist</li>
-              <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-success" /> Suspend / enable / delete anytime</li>
-              <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-success" /> Live request logs & metrics</li>
+          <h2 className="font-display text-3xl font-bold tracking-tight md:text-5xl">Simple, transparent pricing</h2>
+          <p className="mx-auto mt-3 max-w-2xl text-muted-foreground">
+            One flat rate: <span className="font-semibold text-foreground">1000 coins = ₹2000</span>.
+            Every API key costs <span className="font-semibold text-foreground">1000 coins</span> and is valid for a fixed
+            <span className="font-semibold text-foreground"> 30 days</span> — no auto-renewals, no surprises.
+          </p>
+        </div>
+
+        <div className="grid gap-5 md:grid-cols-3">
+          {/* Starter */}
+          <div className="flex flex-col rounded-2xl border border-border p-7" style={{ background: "var(--gradient-card)" }}>
+            <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Starter</div>
+            <div className="mt-3 flex items-baseline gap-1">
+              <span className="font-display text-4xl font-bold">₹2,000</span>
+              <span className="text-sm text-muted-foreground">/ 1,000 coins</span>
+            </div>
+            <p className="mt-1 text-sm text-muted-foreground">1 API key • 30-day fixed validity</p>
+            <ul className="mt-6 space-y-2.5 text-sm">
+              {["1 reseller API key", "30-day fixed validity", "IP & domain whitelist", "Live request logs", "Telegram support"].map((f) => (
+                <li key={f} className="flex items-start gap-2"><CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-success" /> {f}</li>
+              ))}
             </ul>
-            <Button asChild className="mt-6 w-full" size="lg"><Link to="/signup">Get started</Link></Button>
+            <Button asChild variant="outline" className="mt-7 w-full"><Link to="/signup">Start with Starter</Link></Button>
+          </div>
+
+          {/* Growth (popular) */}
+          <div className="relative flex flex-col rounded-2xl border-2 border-primary/60 p-7" style={{ background: "var(--gradient-card)", boxShadow: "var(--shadow-glow)" }}>
+            <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-primary px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-primary-foreground">
+              Most popular
+            </div>
+            <div className="text-xs font-semibold uppercase tracking-wider text-primary">Growth</div>
+            <div className="mt-3 flex items-baseline gap-1">
+              <span className="font-display text-4xl font-bold">₹10,000</span>
+              <span className="text-sm text-muted-foreground">/ 5,000 coins</span>
+            </div>
+            <p className="mt-1 text-sm text-muted-foreground">5 API keys • each valid 30 days</p>
+            <ul className="mt-6 space-y-2.5 text-sm">
+              {["5 reseller API keys", "30-day fixed validity per key", "IP & domain whitelist", "Per-key rate limiting", "Usage metrics & analytics", "Priority Telegram support"].map((f) => (
+                <li key={f} className="flex items-start gap-2"><CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-success" /> {f}</li>
+              ))}
+            </ul>
+            <Button asChild className="mt-7 w-full" size="lg"><Link to="/signup">Get Growth</Link></Button>
+          </div>
+
+          {/* Scale */}
+          <div className="flex flex-col rounded-2xl border border-border p-7" style={{ background: "var(--gradient-card)" }}>
+            <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Scale</div>
+            <div className="mt-3 flex items-baseline gap-1">
+              <span className="font-display text-4xl font-bold">₹20,000</span>
+              <span className="text-sm text-muted-foreground">/ 10,000 coins</span>
+            </div>
+            <p className="mt-1 text-sm text-muted-foreground">10 API keys • each valid 30 days</p>
+            <ul className="mt-6 space-y-2.5 text-sm">
+              {["10 reseller API keys", "30-day fixed validity per key", "IP & domain whitelist", "Higher rate limits", "Full audit logs & exports", "Dedicated Telegram channel"].map((f) => (
+                <li key={f} className="flex items-start gap-2"><CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-success" /> {f}</li>
+              ))}
+            </ul>
+            <Button asChild variant="outline" className="mt-7 w-full"><Link to="/signup">Choose Scale</Link></Button>
           </div>
         </div>
+
+        <p className="mt-6 text-center text-xs text-muted-foreground">
+          All plans share the same rate (1000 coins = ₹2000) — buy any amount of coins from your wallet anytime.
+        </p>
       </section>
 
-      {/* CONTACT */}
-      <section id="contact" className="mx-auto max-w-4xl px-4 pb-16">
-        <div className="rounded-2xl border border-border p-8 text-center" style={{ background: "var(--gradient-card)" }}>
-          <h2 className="text-2xl font-semibold tracking-tight">Need help or a custom plan?</h2>
-          <p className="mt-2 text-muted-foreground">Talk to us on Telegram — we usually reply within minutes.</p>
-          <Button asChild size="lg" className="mt-5">
-            <a href={`https://t.me/${TELEGRAM}`} target="_blank" rel="noreferrer">
-              <Send className="mr-1.5 h-4 w-4" /> Message @{TELEGRAM} on Telegram
-            </a>
-          </Button>
+      {/* CONTACT / TELEGRAM CTA */}
+      <section id="contact" className="mx-auto max-w-5xl px-4 pb-20">
+        <div
+          className="relative overflow-hidden rounded-3xl border border-primary/30 p-10 text-center md:p-14"
+          style={{ background: "var(--gradient-card)", boxShadow: "var(--shadow-glow)" }}
+        >
+          <div className="mx-auto mb-5 inline-flex h-14 w-14 items-center justify-center rounded-2xl" style={{ background: "var(--gradient-primary)" }}>
+            <Send className="h-7 w-7 text-primary-foreground" />
+          </div>
+          <h2 className="font-display text-3xl font-bold tracking-tight md:text-4xl">Talk to us on Telegram</h2>
+          <p className="mx-auto mt-3 max-w-xl text-muted-foreground">
+            Custom plans, bulk coins, integration help or anything else — message us directly.
+            We typically reply within <span className="font-semibold text-foreground">a few minutes</span>.
+          </p>
+          <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
+            <Button asChild size="lg" className="shadow-lg" style={{ boxShadow: "var(--shadow-glow)" }}>
+              <a href={`https://t.me/${TELEGRAM}`} target="_blank" rel="noreferrer">
+                <Send className="mr-1.5 h-4 w-4" /> Message @{TELEGRAM}
+              </a>
+            </Button>
+            <Button asChild size="lg" variant="outline">
+              <Link to="/signup">Create free account <ArrowRight className="ml-1.5 h-4 w-4" /></Link>
+            </Button>
+          </div>
+
+          {/* Trust badges */}
+          <div className="mx-auto mt-10 grid max-w-3xl grid-cols-2 gap-3 text-sm md:grid-cols-4">
+            {[
+              { icon: Zap, l: "Replies in minutes" },
+              { icon: ShieldCheck, l: "Verified account" },
+              { icon: Lock, l: "Secure & private" },
+              { icon: Clock, l: "Available 24/7" },
+            ].map(({ icon: Icon, l }) => (
+              <div key={l} className="flex items-center justify-center gap-2 rounded-xl border border-border/60 bg-background/40 px-3 py-2.5 text-muted-foreground">
+                <Icon className="h-4 w-4 text-primary" />
+                <span className="text-xs font-medium">{l}</span>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
