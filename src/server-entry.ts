@@ -51,7 +51,7 @@ function rootFallback() {
 }
 
 export default {
-  async fetch(request: Request, env: unknown, ctx: unknown) {
+  async fetch(request: Request) {
     const url = new URL(request.url);
 
     if (url.pathname === "/api/public/version") {
