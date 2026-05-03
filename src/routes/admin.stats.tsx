@@ -11,10 +11,10 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { BarChart3, Loader2, RefreshCw, Radio } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
-import {
-  ResponsiveContainer, BarChart, Bar, LineChart, Line,
-  PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
-} from "recharts";
+import { ClientOnly } from "@tanstack/react-router";
+import { lazy, Suspense } from "react";
+
+const UsageCharts = lazy(() => import("@/components/UsageCharts"));
 
 export const Route = createFileRoute("/admin/stats")({
   component: StatsPage,
@@ -22,8 +22,6 @@ export const Route = createFileRoute("/admin/stats")({
 
 type Aggregated = Awaited<ReturnType<typeof getStats>>;
 type Client = { id: string; name: string };
-
-const COLORS = ["#6366f1", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6", "#06b6d4", "#ec4899", "#84cc16"];
 
 function BarsSkeleton({ count = 8, vertical = true }: { count?: number; vertical?: boolean }) {
   const heights = [60, 80, 45, 90, 70, 55, 85, 40, 75, 65];
@@ -157,6 +155,37 @@ function StatsPage() {
   const byStatus = stats?.byStatus ?? [];
   const showSkeleton = loading && !stats;
 
+  const chartsFallback = (
+    <div className="space-y-4">
+      <Card className="border-border/60 animate-fade-in" style={{ background: "var(--gradient-card)" }}>
+        <CardHeader><CardTitle className="text-base">Requests by day</CardTitle></CardHeader>
+        <CardContent className="relative" style={{ height: 300 }}>
+          <LineSkeleton />
+        </CardContent>
+      </Card>
+      <div className="grid gap-4 lg:grid-cols-2">
+        <Card className="border-border/60 animate-fade-in" style={{ background: "var(--gradient-card)" }}>
+          <CardHeader><CardTitle className="text-base">Top endpoints</CardTitle></CardHeader>
+          <CardContent className="relative" style={{ height: 320 }}>
+            <BarsSkeleton count={6} vertical={false} />
+          </CardContent>
+        </Card>
+        <Card className="border-border/60 animate-fade-in" style={{ background: "var(--gradient-card)" }}>
+          <CardHeader><CardTitle className="text-base">By category</CardTitle></CardHeader>
+          <CardContent className="relative" style={{ height: 320 }}>
+            <PieSkeleton />
+          </CardContent>
+        </Card>
+      </div>
+      <Card className="border-border/60 animate-fade-in" style={{ background: "var(--gradient-card)" }}>
+        <CardHeader><CardTitle className="text-base">By status code</CardTitle></CardHeader>
+        <CardContent className="relative" style={{ height: 280 }}>
+          <BarsSkeleton count={5} />
+        </CardContent>
+      </Card>
+    </div>
+  );
+
   return (
     <div className="space-y-6">
       <PageHeader
@@ -226,81 +255,24 @@ function StatsPage() {
         ))}
       </div>
 
-      <Card className="border-border/60 animate-fade-in" style={{ background: "var(--gradient-card)" }}>
-        <CardHeader><CardTitle className="text-base">Requests by day</CardTitle></CardHeader>
-        <CardContent className="relative" style={{ height: 300 }}>
-          {loading && !showSkeleton && <RefreshOverlay />}
-          {showSkeleton ? <LineSkeleton /> : (
-          <ResponsiveContainer width="100%" height="100%" key={`day-${days}-${clientId}`} className="animate-fade-in">
-            <LineChart data={byDay}>
-              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-              <XAxis dataKey="date" stroke="hsl(var(--muted-foreground))" fontSize={12} />
-              <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} />
-              <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }} />
-              <Legend />
-              <Line type="monotone" dataKey="success" stroke="#10b981" strokeWidth={2} dot={false} isAnimationActive animationDuration={400} />
-              <Line type="monotone" dataKey="failed" stroke="#ef4444" strokeWidth={2} dot={false} isAnimationActive animationDuration={400} />
-            </LineChart>
-          </ResponsiveContainer>
-          )}
-        </CardContent>
-      </Card>
-
-      <div className="grid gap-4 lg:grid-cols-2">
-        <Card className="border-border/60 animate-fade-in" style={{ background: "var(--gradient-card)" }}>
-          <CardHeader><CardTitle className="text-base">Top endpoints</CardTitle></CardHeader>
-          <CardContent className="relative" style={{ height: 320 }}>
-            {loading && !showSkeleton && <RefreshOverlay />}
-            {showSkeleton ? <BarsSkeleton count={6} vertical={false} /> : (
-            <ResponsiveContainer width="100%" height="100%" key={`ep-${days}-${clientId}`} className="animate-fade-in">
-              <BarChart data={byEndpoint} layout="vertical" margin={{ left: 60 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                <XAxis type="number" stroke="hsl(var(--muted-foreground))" fontSize={12} />
-                <YAxis type="category" dataKey="name" stroke="hsl(var(--muted-foreground))" fontSize={11} width={100} />
-                <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }} />
-                <Bar dataKey="count" fill="#6366f1" radius={[0, 4, 4, 0]} animationDuration={400} />
-              </BarChart>
-            </ResponsiveContainer>
-            )}
-          </CardContent>
-        </Card>
-
-        <Card className="border-border/60 animate-fade-in" style={{ background: "var(--gradient-card)" }}>
-          <CardHeader><CardTitle className="text-base">By category</CardTitle></CardHeader>
-          <CardContent className="relative" style={{ height: 320 }}>
-            {loading && !showSkeleton && <RefreshOverlay />}
-            {showSkeleton ? <PieSkeleton /> : (
-            <ResponsiveContainer width="100%" height="100%" key={`cat-${days}-${clientId}`} className="animate-fade-in">
-              <PieChart>
-                <Pie data={byCategory} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={100} label animationDuration={400}>
-                  {byCategory.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
-                </Pie>
-                <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }} />
-                <Legend />
-              </PieChart>
-            </ResponsiveContainer>
-            )}
-          </CardContent>
-        </Card>
-      </div>
-
-      <Card className="border-border/60 animate-fade-in" style={{ background: "var(--gradient-card)" }}>
-        <CardHeader><CardTitle className="text-base">By status code</CardTitle></CardHeader>
-        <CardContent className="relative" style={{ height: 280 }}>
-          {loading && !showSkeleton && <RefreshOverlay />}
-          {showSkeleton ? <BarsSkeleton count={5} /> : (
-          <ResponsiveContainer width="100%" height="100%" key={`st-${days}-${clientId}`} className="animate-fade-in">
-            <BarChart data={byStatus}>
-              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-              <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" fontSize={12} />
-              <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} />
-              <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }} />
-              <Bar dataKey="count" fill="#8b5cf6" radius={[4, 4, 0, 0]} animationDuration={400} />
-            </BarChart>
-          </ResponsiveContainer>
-          )}
-        </CardContent>
-      </Card>
+      <ClientOnly fallback={chartsFallback}>
+        <Suspense fallback={chartsFallback}>
+          <UsageCharts
+            byDay={byDay}
+            byEndpoint={byEndpoint}
+            byCategory={byCategory}
+            byStatus={byStatus}
+            loading={loading}
+            showSkeleton={showSkeleton}
+            cacheKey={`${days}-${clientId}`}
+            refreshOverlay={<RefreshOverlay />}
+            lineSkeleton={<LineSkeleton />}
+            barsSkeleton={<BarsSkeleton count={6} vertical={false} />}
+            pieSkeleton={<PieSkeleton />}
+            statusSkeleton={<BarsSkeleton count={5} />}
+          />
+        </Suspense>
+      </ClientOnly>
     </div>
   );
 }
