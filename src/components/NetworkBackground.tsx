@@ -55,8 +55,8 @@ export function NetworkBackground({ className }: { className?: string }) {
 
       // soft gradient wash
       const grad = ctx.createRadialGradient(width * 0.2, height * 0.2, 0, width * 0.2, height * 0.2, Math.max(width, height));
-      grad.addColorStop(0, "rgba(56, 189, 248, 0.12)");
-      grad.addColorStop(0.5, "rgba(99, 102, 241, 0.06)");
+      grad.addColorStop(0, "rgba(56, 189, 248, 0.22)");
+      grad.addColorStop(0.5, "rgba(99, 102, 241, 0.10)");
       grad.addColorStop(1, "rgba(0,0,0,0)");
       ctx.fillStyle = grad;
       ctx.fillRect(0, 0, width, height);
@@ -91,9 +91,9 @@ export function NetworkBackground({ className }: { className?: string }) {
           const dy = a.y - b.y;
           const d = Math.sqrt(dx * dx + dy * dy);
           if (d < maxDist) {
-            const alpha = (1 - d / maxDist) * 0.35;
+            const alpha = (1 - d / maxDist) * 0.7;
             ctx.strokeStyle = `rgba(125, 211, 252, ${alpha})`;
-            ctx.lineWidth = 0.6;
+            ctx.lineWidth = 0.9;
             ctx.beginPath();
             ctx.moveTo(a.x, a.y);
             ctx.lineTo(b.x, b.y);
@@ -105,8 +105,8 @@ export function NetworkBackground({ className }: { className?: string }) {
       // nodes
       for (const n of nodes) {
         ctx.beginPath();
-        ctx.fillStyle = "rgba(186, 230, 253, 0.85)";
-        ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
+        ctx.fillStyle = "rgba(186, 230, 253, 0.95)";
+        ctx.arc(n.x, n.y, n.r * 1.4, 0, Math.PI * 2);
         ctx.fill();
       }
 
