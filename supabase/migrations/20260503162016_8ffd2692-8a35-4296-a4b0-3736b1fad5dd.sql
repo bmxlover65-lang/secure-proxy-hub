@@ -1,0 +1,1 @@
+REVOKE EXECUTE ON FUNCTION public.admin_list_payment_orders(int) FROM PUBLIC, anon, authenticated;
