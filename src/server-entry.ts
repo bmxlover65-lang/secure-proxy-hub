@@ -69,14 +69,14 @@ export default {
     try {
       const handler = defaultServerEntry.fetch as unknown as (...args: unknown[]) => Promise<Response>;
       const response = await handler(request, env, ctx);
-      if (url.pathname === "/" && response.status >= 500) {
-        return rootFallback();
+      if (response.status >= 500 && isHtmlRoute(request, url.pathname)) {
+        return appFallback(url.pathname);
       }
       return withRuntimeHeaders(response);
     } catch (error) {
       console.error("[server-entry] request failed", error);
-      if (url.pathname === "/") {
-        return rootFallback();
+      if (isHtmlRoute(request, url.pathname)) {
+        return appFallback(url.pathname);
       }
       return json({ status: 500, message: "Internal Server Error", version: BUILD_VERSION }, 500);
     }
