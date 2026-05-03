@@ -1,7 +1,7 @@
 @import "tailwindcss" source(none);
 @source "../src";
 @import "tw-animate-css";
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Sora:wght@600;700;800&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Sora:wght@600;700;800&family=Dancing+Script:wght@600;700&display=swap");
 
 @custom-variant dark (&:is(.dark *));
 
@@ -163,5 +163,11 @@
   h1, h2, h3, .font-display {
     font-family: "Sora", "Inter", ui-sans-serif, system-ui, sans-serif;
     letter-spacing: -0.02em;
+  }
+
+  .font-cursive {
+    font-family: "Dancing Script", "Brush Script MT", cursive;
+    font-weight: 700;
+    letter-spacing: 0;
   }
 }
