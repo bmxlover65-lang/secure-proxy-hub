@@ -66,31 +66,53 @@ function Index() {
       </header>
 
       {/* HERO */}
-      <section className="mx-auto max-w-5xl px-4 py-20 text-center md:py-28">
+      <section className="relative mx-auto max-w-5xl px-4 py-20 text-center md:py-28">
         <div className="mx-auto mb-6 inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary">
           <Globe2 className="h-3.5 w-3.5" /> Reseller-ready API platform
         </div>
-        <h1 className="text-balance text-5xl font-semibold tracking-tight md:text-6xl">
-          Secure reseller API proxy with{" "}
-          <span className="bg-clip-text text-transparent" style={{ backgroundImage: "var(--gradient-primary)" }}>IP whitelist</span>{" "}
-          & wallet billing
+        <h1 className="font-display text-balance text-5xl font-bold leading-[1.05] tracking-tight md:text-7xl">
+          Premium API proxy for{" "}
+          <span className="bg-clip-text text-transparent" style={{ backgroundImage: "var(--gradient-primary)" }}>
+            SaaS
+          </span>
+          <br />
+          <span className="bg-clip-text text-transparent" style={{ backgroundImage: "var(--gradient-hero)" }}>
+            Lottery Game
+          </span>{" "}
+          resellers
         </h1>
-        <p className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground">
-          Mint 30-day API keys, lock each key to your IPs and domains, monitor every request, and pay only for what you use — coins from your wallet.
+        <p className="mx-auto mt-6 max-w-2xl text-balance text-lg leading-relaxed text-muted-foreground md:text-xl">
+          Sign up, top up your wallet, mint API keys on demand, and monitor every call — all from one beautifully crafted dashboard.
         </p>
         <div className="mt-8 flex flex-wrap justify-center gap-3">
-          <Button asChild size="lg"><Link to="/signup">Start free <ArrowRight className="ml-1.5 h-4 w-4" /></Link></Button>
-          <Button asChild size="lg" variant="outline"><Link to="/login">Sign in</Link></Button>
-          <Button asChild size="lg" variant="ghost">
+          <Button asChild size="lg" className="shadow-lg" style={{ boxShadow: "var(--shadow-glow)" }}>
+            <Link to="/signup">Get started free <ArrowRight className="ml-1.5 h-4 w-4" /></Link>
+          </Button>
+          <Button asChild size="lg" variant="outline">
             <a href={`https://t.me/${TELEGRAM}`} target="_blank" rel="noreferrer">
-              <Send className="mr-1.5 h-4 w-4" /> @{TELEGRAM}
+              <Send className="mr-1.5 h-4 w-4" /> Talk on Telegram
             </a>
           </Button>
         </div>
-        <div className="mt-6 flex flex-wrap justify-center gap-4 text-xs text-muted-foreground">
+        <div className="mt-6 flex flex-wrap justify-center gap-x-5 gap-y-2 text-xs text-muted-foreground">
           <span className="inline-flex items-center gap-1.5"><CheckCircle2 className="h-3.5 w-3.5 text-success" /> 30-day API keys</span>
           <span className="inline-flex items-center gap-1.5"><CheckCircle2 className="h-3.5 w-3.5 text-success" /> 1000 coins = ₹2000</span>
           <span className="inline-flex items-center gap-1.5"><CheckCircle2 className="h-3.5 w-3.5 text-success" /> Auto wallet credit on payment</span>
+        </div>
+
+        {/* Stats strip */}
+        <div className="mx-auto mt-14 grid max-w-3xl grid-cols-2 gap-3 md:grid-cols-4">
+          {[
+            { v: "200+", l: "Resellers" },
+            { v: "<200ms", l: "Avg latency" },
+            { v: "99.99%", l: "Uptime" },
+            { v: "24/7", l: "Monitoring" },
+          ].map((s) => (
+            <div key={s.l} className="rounded-xl border border-border/60 px-4 py-4 text-center" style={{ background: "var(--gradient-card)" }}>
+              <div className="font-display text-2xl font-bold tracking-tight">{s.v}</div>
+              <div className="mt-0.5 text-xs text-muted-foreground">{s.l}</div>
+            </div>
+          ))}
         </div>
       </section>
 
