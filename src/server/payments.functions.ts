@@ -89,3 +89,26 @@ export const listMyOrders = createServerFn({ method: "GET" })
       .limit(50);
     return { orders: data ?? [] };
   });
+
+async function assertAdmin(userId: string) {
+  const { data, error } = await supabaseAdmin
+    .from("user_roles").select("role").eq("user_id", userId).eq("role", "admin").maybeSingle();
+  if (error || !data) throw new Error("Forbidden: admin only");
+}
+
+export const adminListPaymentOrders = createServerFn({ method: "GET" })
+  .middleware([sendSupabaseAuth, requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertAdmin(context.userId);
+    const { data, error } = await supabaseAdmin.rpc("admin_list_payment_orders", { _limit: 200 });
+    if (error) throw new Error(error.message);
+    return { orders: (data ?? []) as Array<{
+      id: string; user_id: string; email: string | null; full_name: string | null;
+      merchant_order_no: string; gateway_order_no: string | null;
+      amount_inr: number; coins: number; currency: string;
+      status: string; signature_status: string | null; callback_error: string | null;
+      payment_url: string | null; raw_callback: unknown;
+      callback_received_at: string | null; credited_at: string | null;
+      created_at: string; updated_at: string;
+    }> };
+  });
