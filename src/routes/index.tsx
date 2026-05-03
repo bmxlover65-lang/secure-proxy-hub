@@ -291,7 +291,7 @@ function Index() {
         <div className="mb-8 text-center">
           <h2 id="security-heading" className="font-display text-3xl font-bold tracking-tight md:text-5xl">
             Enterprise-grade{" "}
-            <span className="font-cursive bg-clip-text text-transparent text-5xl md:text-7xl" style={{ backgroundImage: "var(--gradient-primary)" }}>
+            <span className="font-cursive bg-clip-text text-transparent" style={{ backgroundImage: "var(--gradient-primary)" }}>
               security
             </span>{" "}
             &amp; control
@@ -361,7 +361,7 @@ function Index() {
           </div>
           <h2 id="pricing-heading" className="font-display text-3xl font-bold tracking-tight md:text-5xl">
             Simple,{" "}
-            <span className="font-cursive bg-clip-text text-transparent text-5xl md:text-7xl" style={{ backgroundImage: "var(--gradient-hero)" }}>
+            <span className="font-cursive bg-clip-text text-transparent" style={{ backgroundImage: "var(--gradient-hero)" }}>
               transparent
             </span>{" "}
             pricing
@@ -439,7 +439,7 @@ function Index() {
           </div>
           <h2 id="faq-heading" className="font-display text-3xl font-bold tracking-tight md:text-5xl">
             Questions{" "}
-            <span className="font-cursive bg-clip-text text-transparent text-5xl md:text-7xl" style={{ backgroundImage: "var(--gradient-primary)" }}>
+            <span className="font-cursive bg-clip-text text-transparent" style={{ backgroundImage: "var(--gradient-primary)" }}>
               answered
             </span>
           </h2>
@@ -472,7 +472,7 @@ function Index() {
           </div>
           <h2 id="contact-heading" className="font-display text-3xl font-bold tracking-tight md:text-5xl">
             Talk to us{" "}
-            <span className="font-cursive bg-clip-text text-transparent text-5xl md:text-7xl" style={{ backgroundImage: "var(--gradient-hero)" }}>
+            <span className="font-cursive bg-clip-text text-transparent" style={{ backgroundImage: "var(--gradient-hero)" }}>
               on Telegram
             </span>
           </h2>
