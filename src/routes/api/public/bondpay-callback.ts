@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import type { Json } from "@/integrations/supabase/types";
-import { createHash } from "crypto";
+import { createHash } from "node:crypto";
 
 function md5(s: string) { return createHash("md5").update(s).digest("hex"); }
 
