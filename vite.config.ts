@@ -6,4 +6,15 @@
 // You can pass additional config via defineConfig({ vite: { ... } }) if needed.
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 
-export default defineConfig();
+export default defineConfig({
+  vite: {
+    define: {
+      __BUILD_VERSION__: JSON.stringify(
+        process.env.CF_PAGES_COMMIT_SHA ||
+          process.env.COMMIT_SHA ||
+          process.env.GITHUB_SHA ||
+          String(Date.now())
+      ),
+    },
+  },
+});
