@@ -48,16 +48,28 @@ function serializeError(error: unknown) {
   return { type: typeof error, value: String(error) };
 }
 
+function classifyRoute(pathname: string): string {
+  if (pathname.startsWith("/_serverFn/")) return `serverFn:${pathname.replace("/_serverFn/", "")}`;
+  if (pathname.startsWith("/api/public/")) return `public-api:${pathname}`;
+  if (pathname.startsWith("/api/")) return `api:${pathname}`;
+  if (pathname.startsWith("/_build/") || pathname.startsWith("/assets/")) return `asset:${pathname}`;
+  return `page:${pathname}`;
+}
+
 const requestLogger = createMiddleware().server(async ({ next, request }) => {
   const requestId = makeRequestId();
   const startedAt = Date.now();
   const url = redactUrl(request.url);
   const host = request.headers.get("host") ?? null;
   const method = request.method;
+  let pathname = "[unknown]";
+  try { pathname = new URL(request.url).pathname; } catch { /* ignore */ }
+  const routeName = classifyRoute(pathname);
 
   console.info("[server-request:start]", {
     requestId,
     method,
+    route: routeName,
     url,
     host,
     origin: request.headers.get("origin"),
@@ -71,19 +83,39 @@ const requestLogger = createMiddleware().server(async ({ next, request }) => {
     console.info("[server-request:end]", {
       requestId,
       method,
+      route: routeName,
       url,
       host,
       durationMs: Date.now() - startedAt,
     });
     return result;
   } catch (error) {
-    console.error("[server-request:error]", {
+    console.error("[server-request:error] ❌ FAILED", {
       requestId,
       method,
+      route: routeName,
       url,
       host,
+      middlewareStack: ["requestLogger"],
       durationMs: Date.now() - startedAt,
       error: serializeError(error),
+      hint: pathname.startsWith("/_serverFn/")
+        ? "Failure inside a createServerFn handler — check the named function's .handler()."
+        : pathname.startsWith("/api/")
+          ? "Failure inside a server route handler at this path."
+          : "Failure during SSR render of this page route.",
+    });
+    throw error;
+  }
+});
+
+const functionErrorLogger = createMiddleware({ type: "function" }).server(async ({ next }) => {
+  try {
+    return await next();
+  } catch (error) {
+    console.error("[server-fn:error] ❌ FAILED", {
+      error: serializeError(error),
+      hint: "Error originated inside a createServerFn handler. Combine with the [server-request:error] requestId logged for the same request to pinpoint the route.",
     });
     throw error;
   }
@@ -91,4 +123,5 @@ const requestLogger = createMiddleware().server(async ({ next, request }) => {
 
 export const startInstance = createStart(() => ({
   requestMiddleware: [requestLogger],
+  functionMiddleware: [functionErrorLogger],
 }));
