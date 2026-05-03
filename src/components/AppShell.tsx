@@ -79,7 +79,7 @@ export function AppShell({
         </div>
       </div>
 
-      <nav className="flex-1 space-y-1.5 overflow-y-auto p-3">
+      <nav className="scrollbar-slim flex-1 space-y-1.5 overflow-y-auto p-3">
         <div className="px-3 pb-2 pt-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground/70">
           Navigation
         </div>
