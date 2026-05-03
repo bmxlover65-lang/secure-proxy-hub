@@ -52,16 +52,30 @@ export function AppShell({
 
   const SidebarContent = () => (
     <>
-      <div className="flex h-16 items-center gap-3 border-b border-border/60 px-5">
+      <div className="relative flex h-20 items-center gap-3 border-b border-border/60 px-5">
         <div
-          className="flex h-10 w-10 items-center justify-center rounded-xl"
+          className="flex h-11 w-11 items-center justify-center rounded-xl ring-1 ring-primary/30"
           style={{ background: "var(--gradient-primary)", boxShadow: "var(--shadow-glow)" }}
         >
           <Shield className="h-5 w-5 text-primary-foreground" />
         </div>
         <div className="min-w-0">
-          <div className="text-sm font-semibold leading-tight">Hyper Softs SaaS</div>
-          <div className="text-[11px] uppercase tracking-wider text-muted-foreground">{mode}</div>
+          <div className="flex items-baseline gap-1.5 leading-tight">
+            <span className="text-base font-semibold tracking-tight">Hyper</span>
+            <span
+              className="font-cursive bg-clip-text text-transparent text-2xl leading-none"
+              style={{ backgroundImage: "var(--gradient-primary)" }}
+            >
+              Softs
+            </span>
+            <span className="text-[10px] font-mono uppercase tracking-[0.2em] text-muted-foreground">SaaS</span>
+          </div>
+          <div
+            className="mt-1 inline-flex items-center gap-1 rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.2em] text-primary"
+          >
+            <span className="h-1 w-1 rounded-full bg-primary" />
+            {mode}
+          </div>
         </div>
       </div>
 
