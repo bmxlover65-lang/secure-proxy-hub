@@ -79,8 +79,8 @@ export function AppShell({
         </div>
       </div>
 
-      <nav className="flex-1 space-y-1 overflow-y-auto p-3">
-        <div className="px-2 pb-2 pt-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/70">
+      <nav className="flex-1 space-y-1.5 overflow-y-auto p-3">
+        <div className="px-3 pb-2 pt-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground/70">
           Navigation
         </div>
         {items.map((it) => {
@@ -93,29 +93,47 @@ export function AppShell({
               key={it.to}
               to={it.to}
               onClick={() => setMobileOpen(false)}
-              className={`group relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-all ${
+              className={`group relative flex items-center gap-3 overflow-hidden rounded-xl px-3 py-2.5 text-sm transition-all duration-200 ${
                 active
-                  ? "bg-primary/10 text-foreground shadow-sm"
-                  : "text-muted-foreground hover:bg-secondary/60 hover:text-foreground"
+                  ? "bg-primary/10 text-foreground shadow-[0_0_0_1px_hsl(var(--primary)/0.2)] ring-1 ring-primary/20"
+                  : "text-muted-foreground hover:translate-x-0.5 hover:bg-secondary/60 hover:text-foreground"
               }`}
             >
               {active && (
-                <span
-                  className="absolute left-0 top-1/2 h-6 w-1 -translate-y-1/2 rounded-r-full"
-                  style={{ background: "var(--gradient-primary)" }}
-                />
+                <>
+                  <span
+                    className="absolute left-0 top-1/2 h-8 w-[3px] -translate-y-1/2 rounded-r-full"
+                    style={{ background: "var(--gradient-primary)", boxShadow: "var(--shadow-glow)" }}
+                  />
+                  <span
+                    className="pointer-events-none absolute inset-0 opacity-60"
+                    style={{ background: "linear-gradient(90deg, hsl(var(--primary)/0.12), transparent 70%)" }}
+                  />
+                </>
               )}
-              <div className={`flex h-8 w-8 items-center justify-center rounded-md transition-colors ${
-                active ? "bg-primary/15 text-primary" : "bg-secondary/40 text-muted-foreground group-hover:text-foreground"
-              }`}>
-                <Icon className="h-4 w-4" />
+              <div
+                className={`relative flex h-9 w-9 shrink-0 items-center justify-center rounded-lg transition-all duration-200 ${
+                  active
+                    ? "text-primary-foreground shadow-[0_4px_14px_hsl(var(--primary)/0.4)]"
+                    : "bg-secondary/40 text-muted-foreground group-hover:bg-secondary/80 group-hover:text-foreground"
+                }`}
+                style={active ? { background: "var(--gradient-primary)" } : undefined}
+              >
+                <Icon className="h-4 w-4" strokeWidth={active ? 2.4 : 2} />
               </div>
-              <div className="flex-1">
-                <div className="font-medium">{it.label}</div>
+              <div className="relative min-w-0 flex-1">
+                <div className={`truncate text-sm leading-tight ${active ? "font-semibold" : "font-medium"}`}>
+                  {it.label}
+                </div>
                 {it.description && (
-                  <div className="text-[11px] text-muted-foreground/80">{it.description}</div>
+                  <div className="mt-0.5 truncate text-[11px] leading-tight text-muted-foreground/80">
+                    {it.description}
+                  </div>
                 )}
               </div>
+              {active && (
+                <ChevronRight className="relative h-4 w-4 shrink-0 text-primary" />
+              )}
             </Link>
           );
         })}
