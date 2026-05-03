@@ -4,10 +4,6 @@ import appCss from "../styles.css?url";
 import { AuthProvider } from "@/lib/auth-context";
 import { Toaster } from "@/components/ui/sonner";
 
-// Build version stamp — changes on every deploy, forces fresh HTML fetches
-const BUILD_VERSION = (typeof __BUILD_VERSION__ !== "undefined" ? __BUILD_VERSION__ : String(Date.now()));
-declare const __BUILD_VERSION__: string;
-
 function NotFoundComponent() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
@@ -35,30 +31,23 @@ export const Route = createRootRoute({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      // Cache-busting: prevent browsers from serving a stale HTML document that
-      // references old (deleted) hashed JS/CSS bundles after a new deployment.
-      { httpEquiv: "Cache-Control", content: "no-cache, no-store, must-revalidate" },
-      { httpEquiv: "Pragma", content: "no-cache" },
-      { httpEquiv: "Expires", content: "0" },
-      { name: "build-version", content: BUILD_VERSION },
-      { title: "Hyper Softs SaaS — Lottery API Reseller Platform" },
-      { name: "description", content: "Premium API proxy for SASS lottery game resellers. IP whitelist, rate limiting, wallet billing & live request logs — all in one secure dashboard." },
+      { title: "Hyper Softs SaaS — API Proxy" },
+      { name: "description", content: "Manage clients, API keys, IP whitelists and request logs for your API proxy." },
       { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Hyper Softs SaaS — Lottery API Reseller Platform" },
-      { property: "og:description", content: "Premium API proxy for SASS lottery game resellers. IP whitelist, rate limiting, wallet billing & live request logs — all in one secure dashboard." },
+      { property: "og:title", content: "Hyper Softs SaaS — API Proxy" },
+      { property: "og:description", content: "Manage clients, API keys, IP whitelists and request logs." },
       { property: "og:type", content: "website" },
+      { property: "og:image", content: "/og-image.jpg" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:site", content: "@Lovable" },
-      { name: "twitter:title", content: "Hyper Softs SaaS — Lottery API Reseller Platform" },
-      { name: "twitter:description", content: "Premium API proxy for SASS lottery game resellers. IP whitelist, rate limiting, wallet billing & live request logs — all in one secure dashboard." },
-      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/b5210cfe-fffe-40d9-96da-eb1d59aef991" },
-      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/b5210cfe-fffe-40d9-96da-eb1d59aef991" },
+      { name: "twitter:image", content: "/og-image.jpg" },
     ],
     links: [
       {
         rel: "stylesheet",
         href: appCss,
       },
+      { rel: "icon", href: "/favicon.png", type: "image/png" },
     ],
   }),
   shellComponent: RootShell,

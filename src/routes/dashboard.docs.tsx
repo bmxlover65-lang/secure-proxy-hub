@@ -23,7 +23,7 @@ const ERRORS = [
 ];
 
 function DocsPage() {
-  const base = "https://secure-proxy-hub.lovable.app";
+  const base = "https://sass.hyperapi.in";
   return (
     <div className="space-y-6">
       <PageHeader icon={BookOpen} title="API Documentation" description="Use your API key to call Hyper Softs SaaS proxy endpoints." />

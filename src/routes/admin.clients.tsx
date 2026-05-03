@@ -49,7 +49,7 @@ function ClientsPage() {
   const [ipText, setIpText] = useState("");
   const [domainDialog, setDomainDialog] = useState<Client | null>(null);
   const [domainText, setDomainText] = useState("");
-  const [domainTest, setDomainTest] = useState("secure-proxy-hub.lovable.app");
+  const [domainTest, setDomainTest] = useState("sass.hyperapi.in");
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [busyId, setBusyId] = useState<string | null>(null);
@@ -241,7 +241,7 @@ function ClientsPage() {
                               <Network className="h-4 w-4" />
                             </Button>
                             <Button size="sm" variant="ghost" className="h-8 w-8 p-0" title="Manage Domains"
-                              onClick={() => { setDomainDialog(r); setDomainText((domainMap[r.id] ?? []).join("\n")); setDomainTest("secure-proxy-hub.lovable.app"); }}>
+                              onClick={() => { setDomainDialog(r); setDomainText((domainMap[r.id] ?? []).join("\n")); setDomainTest("sass.hyperapi.in"); }}>
                               <Globe className="h-4 w-4" />
                             </Button>
                             <Button size="sm" variant="ghost" className="h-8 w-8 p-0"
@@ -317,11 +317,11 @@ function ClientsPage() {
             <DialogDescription>One hostname per line. Use <span className="font-mono">*.example.com</span> for wildcard subdomains.</DialogDescription>
           </DialogHeader>
           <Textarea rows={6} value={domainText} onChange={(e) => setDomainText(e.target.value)}
-            placeholder="example.com&#10;*.example.com&#10;secure-proxy-hub.lovable.app" className="font-mono text-sm" />
+            placeholder="example.com&#10;*.example.com&#10;sass.hyperapi.in" className="font-mono text-sm" />
           <div className="space-y-2 rounded-md border border-border/60 bg-secondary/20 p-3">
             <Label className="text-xs uppercase tracking-wider text-muted-foreground">Test a hostname</Label>
             <div className="flex gap-2">
-              <Input value={domainTest} onChange={(e) => setDomainTest(e.target.value)} placeholder="secure-proxy-hub.lovable.app" className="font-mono text-xs" />
+              <Input value={domainTest} onChange={(e) => setDomainTest(e.target.value)} placeholder="sass.hyperapi.in" className="font-mono text-xs" />
               {(() => {
                 const patterns = domainText.split(/\s|,/).map((s) => s.trim()).filter(Boolean);
                 const match = patterns.find((p) => domainMatches(domainTest, p));
@@ -373,7 +373,7 @@ function CreateClientDialog({ onCreate }: { onCreate: (p: { name: string; catego
   const [name, setName] = useState("");
   const [category, setCategory] = useState<Category>("wingo");
   const [ips, setIps] = useState("");
-  const [domains, setDomains] = useState("secure-proxy-hub.lovable.app");
+  const [domains, setDomains] = useState("sass.hyperapi.in");
   const [notes, setNotes] = useState("");
   const [submitting, setSubmitting] = useState(false);
   return (

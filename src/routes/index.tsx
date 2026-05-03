@@ -27,7 +27,7 @@ export const Route = createFileRoute("/")({
     { name: "twitter:description", content: "API keys, wallet billing, IP whitelist & live logs — built for resellers." },
     { name: "twitter:image", content: "/og-image.jpg" },
   ], links: [
-    { rel: "canonical", href: "https://secure-proxy-hub.lovable.app/" },
+    { rel: "canonical", href: "https://sass.hyperapi.in/" },
   ], scripts: [
     {
       type: "application/ld+json",
@@ -39,7 +39,7 @@ export const Route = createFileRoute("/")({
         operatingSystem: "Web",
         description: "Secure API reseller platform with IP whitelist, rate limiting, wallet billing and live request logs.",
         offers: { "@type": "Offer", price: "0", priceCurrency: "INR" },
-        url: "https://secure-proxy-hub.lovable.app/",
+        url: "https://sass.hyperapi.in/",
       }),
     },
   ] }),
@@ -86,9 +86,6 @@ function Index() {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <Link to="/apis" className="hidden text-sm font-medium text-muted-foreground transition-colors hover:text-primary md:inline-flex">
-              Game APIs
-            </Link>
             <a
               href={`https://t.me/${TELEGRAM}`}
               target="_blank"

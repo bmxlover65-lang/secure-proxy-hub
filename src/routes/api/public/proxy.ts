@@ -115,6 +115,7 @@ export const Route = createFileRoute("/api/public/proxy")({
 
         if (rErr || !client) {
           console.error("[proxy] api_key lookup failed", {
+            apiKeyPrefix: apiKey.slice(0, 8),
             apiKeyLen: apiKey.length,
             hasError: !!rErr,
             errorMsg: rErr?.message,
