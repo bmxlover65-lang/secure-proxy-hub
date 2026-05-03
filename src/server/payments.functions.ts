@@ -107,7 +107,7 @@ export const adminListPaymentOrders = createServerFn({ method: "GET" })
       merchant_order_no: string; gateway_order_no: string | null;
       amount_inr: number; coins: number; currency: string;
       status: string; signature_status: string | null; callback_error: string | null;
-      payment_url: string | null; raw_callback: unknown;
+      payment_url: string | null; raw_callback: Record<string, unknown> | null;
       callback_received_at: string | null; credited_at: string | null;
       created_at: string; updated_at: string;
     }> };
