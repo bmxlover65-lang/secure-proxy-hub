@@ -253,9 +253,12 @@ function Index() {
           />
           <div className="relative">
             <h2 id="quick-access-heading" className="font-display text-3xl font-bold tracking-tight md:text-5xl">
-              Jump straight into your{" "}
-              <span className="font-cursive bg-clip-text text-transparent" style={{ backgroundImage: "var(--gradient-primary)" }}>
-                workspace
+              Jump into your{" "}
+              <span className="font-cursive bg-clip-text text-transparent text-5xl md:text-7xl" style={{ backgroundImage: "var(--gradient-primary)" }}>
+                Reseller
+              </span>{" "}
+              <span className="font-cursive bg-clip-text text-transparent text-5xl md:text-7xl" style={{ backgroundImage: "var(--gradient-hero)" }}>
+                Workspace
               </span>
             </h2>
             <p className="mx-auto mt-3 max-w-xl text-muted-foreground">
