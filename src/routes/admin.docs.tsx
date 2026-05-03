@@ -11,7 +11,7 @@ export const Route = createFileRoute("/admin/docs")({
   component: DocsPage,
 });
 
-const PUBLIC_BASE = "https://sass.hyperapi.in/api/public/proxy";
+const PUBLIC_BASE = "https://secure-proxy-hub.lovable.app/api/public/proxy";
 
 function CodeBlock({ children }: { children: string }) {
   return (

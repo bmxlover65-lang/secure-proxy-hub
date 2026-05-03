@@ -4,7 +4,6 @@ import { createHash } from "crypto";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { sendSupabaseAuth } from "@/lib/server-function-auth";
-import { getRequestHost } from "@tanstack/react-start/server";
 
 const BONDPAY_CREATE_URL = "https://api.bond-pays.com/v1/create";
 
@@ -37,10 +36,7 @@ export const createTopupOrder = createServerFn({ method: "POST" })
 
     const merchantOrderNo = `HSO_${Date.now()}_${Math.floor(Math.random() * 10000)}`;
 
-    // Build callback URL from request host
-    let host = "";
-    try { host = getRequestHost(); } catch { /* ignore */ }
-    const baseUrl = host ? `https://${host}` : "https://sass.hyperapi.in";
+    const baseUrl = "https://secure-proxy-hub.lovable.app";
     const callbackUrl = `${baseUrl}/api/public/bondpay-callback`;
 
     const signature = md5(`${merchantId}${amountStr}${merchantOrderNo}${apiKey}${callbackUrl}`);
