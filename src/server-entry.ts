@@ -40,7 +40,7 @@ function withRuntimeHeaders(response: Response) {
 }
 
 function rootFallback() {
-  const html = `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="refresh" content="2"><title>Hyper Softs</title></head><body style="margin:0;min-height:100vh;display:grid;place-items:center;background:#020617;color:#e5e7eb;font-family:Inter,system-ui,sans-serif"><main style="text-align:center;padding:24px"><h1 style="margin:0 0 8px;font-size:28px">Hyper Softs</h1><p style="margin:0;color:#94a3b8">Loading the latest deployment…</p></main></body></html>`;
+  const html = `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Hyper Softs</title></head><body style="margin:0;min-height:100vh;display:grid;place-items:center;background:#020617;color:#e5e7eb;font-family:Inter,system-ui,sans-serif"><main style="text-align:center;padding:24px"><h1 style="margin:0 0 8px;font-size:28px">Hyper Softs</h1><p style="margin:0;color:#94a3b8">Please refresh once. The app is recovering from a temporary render issue.</p><p style="margin:14px 0 0"><a href="/login" style="color:#93c5fd;text-decoration:none">Open login</a></p></main></body></html>`;
   return new Response(html, {
     status: 200,
     headers: {
@@ -51,7 +51,7 @@ function rootFallback() {
 }
 
 export default {
-  async fetch(request: Request) {
+  async fetch(request: Request, env: unknown, ctx: unknown) {
     const url = new URL(request.url);
 
     if (url.pathname === "/api/public/version") {
@@ -59,7 +59,7 @@ export default {
     }
 
     try {
-      const response = await defaultServerEntry.fetch(request);
+      const response = await defaultServerEntry.fetch(request, env, ctx);
       if (url.pathname === "/" && response.status >= 500) {
         return rootFallback();
       }
