@@ -34,6 +34,7 @@ import { Route as AdminHealthRouteImport } from './routes/admin.health'
 import { Route as AdminDocsRouteImport } from './routes/admin.docs'
 import { Route as AdminClientsRouteImport } from './routes/admin.clients'
 import { Route as AdminCacheRouteImport } from './routes/admin.cache'
+import { Route as ApiPublicVersionRouteImport } from './routes/api/public/version'
 import { Route as ApiPublicProxyRouteImport } from './routes/api/public/proxy'
 import { Route as ApiPublicBondpayCallbackRouteImport } from './routes/api/public/bondpay-callback'
 
@@ -162,6 +163,11 @@ const AdminCacheRoute = AdminCacheRouteImport.update({
   path: '/cache',
   getParentRoute: () => AdminRoute,
 } as any)
+const ApiPublicVersionRoute = ApiPublicVersionRouteImport.update({
+  id: '/api/public/version',
+  path: '/api/public/version',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicProxyRoute = ApiPublicProxyRouteImport.update({
   id: '/api/public/proxy',
   path: '/api/public/proxy',
@@ -202,6 +208,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/': typeof DashboardIndexRoute
   '/api/public/bondpay-callback': typeof ApiPublicBondpayCallbackRoute
   '/api/public/proxy': typeof ApiPublicProxyRoute
+  '/api/public/version': typeof ApiPublicVersionRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -229,6 +236,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof DashboardIndexRoute
   '/api/public/bondpay-callback': typeof ApiPublicBondpayCallbackRoute
   '/api/public/proxy': typeof ApiPublicProxyRoute
+  '/api/public/version': typeof ApiPublicVersionRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -259,6 +267,7 @@ export interface FileRoutesById {
   '/dashboard/': typeof DashboardIndexRoute
   '/api/public/bondpay-callback': typeof ApiPublicBondpayCallbackRoute
   '/api/public/proxy': typeof ApiPublicProxyRoute
+  '/api/public/version': typeof ApiPublicVersionRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -290,6 +299,7 @@ export interface FileRouteTypes {
     | '/dashboard/'
     | '/api/public/bondpay-callback'
     | '/api/public/proxy'
+    | '/api/public/version'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -317,6 +327,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/api/public/bondpay-callback'
     | '/api/public/proxy'
+    | '/api/public/version'
   id:
     | '__root__'
     | '/'
@@ -346,6 +357,7 @@ export interface FileRouteTypes {
     | '/dashboard/'
     | '/api/public/bondpay-callback'
     | '/api/public/proxy'
+    | '/api/public/version'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -359,6 +371,7 @@ export interface RootRouteChildren {
   TermsRoute: typeof TermsRoute
   ApiPublicBondpayCallbackRoute: typeof ApiPublicBondpayCallbackRoute
   ApiPublicProxyRoute: typeof ApiPublicProxyRoute
+  ApiPublicVersionRoute: typeof ApiPublicVersionRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -538,6 +551,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminCacheRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/api/public/version': {
+      id: '/api/public/version'
+      path: '/api/public/version'
+      fullPath: '/api/public/version'
+      preLoaderRoute: typeof ApiPublicVersionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/proxy': {
       id: '/api/public/proxy'
       path: '/api/public/proxy'
@@ -618,16 +638,18 @@ const rootRouteChildren: RootRouteChildren = {
   TermsRoute: TermsRoute,
   ApiPublicBondpayCallbackRoute: ApiPublicBondpayCallbackRoute,
   ApiPublicProxyRoute: ApiPublicProxyRoute,
+  ApiPublicVersionRoute: ApiPublicVersionRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
 
 import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
+import type { startInstance } from './start.ts'
 declare module '@tanstack/react-start' {
   interface Register {
     ssr: true
     router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
   }
 }

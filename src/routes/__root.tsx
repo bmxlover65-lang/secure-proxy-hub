@@ -4,6 +4,10 @@ import appCss from "../styles.css?url";
 import { AuthProvider } from "@/lib/auth-context";
 import { Toaster } from "@/components/ui/sonner";
 
+// Build version stamp — changes on every deploy, forces fresh HTML fetches
+const BUILD_VERSION = (typeof __BUILD_VERSION__ !== "undefined" ? __BUILD_VERSION__ : String(Date.now()));
+declare const __BUILD_VERSION__: string;
+
 function NotFoundComponent() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
@@ -31,6 +35,12 @@ export const Route = createRootRoute({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
+      // Cache-busting: prevent browsers from serving a stale HTML document that
+      // references old (deleted) hashed JS/CSS bundles after a new deployment.
+      { httpEquiv: "Cache-Control", content: "no-cache, no-store, must-revalidate" },
+      { httpEquiv: "Pragma", content: "no-cache" },
+      { httpEquiv: "Expires", content: "0" },
+      { name: "build-version", content: BUILD_VERSION },
       { title: "Hyper Softs SaaS — Lottery API Reseller Platform" },
       { name: "description", content: "Premium API proxy for SASS lottery game resellers. IP whitelist, rate limiting, wallet billing & live request logs — all in one secure dashboard." },
       { name: "author", content: "Lovable" },
