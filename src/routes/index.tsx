@@ -3,32 +3,114 @@ import { useEffect } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { Button } from "@/components/ui/button";
 import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import {
   Shield, KeyRound, Activity, ShieldCheck, Coins, Wallet, Globe2,
-  ArrowRight, CheckCircle2, Send, Lock, Gauge, Network, Server, Clock, Sparkles, Zap,
+  ArrowRight, CheckCircle2, Send, Lock, Gauge, Network, Server, Clock, Sparkles, Zap, HelpCircle,
 } from "lucide-react";
 
 const TELEGRAM = "Hyperdeveloperr";
+
+const FAQS: { q: string; a: string }[] = [
+  {
+    q: "What does “30-day fixed validity” mean for an API key?",
+    a: "Every reseller API key you mint is valid for exactly 30 days from the moment it is created. After 30 days the key automatically stops working — there is no auto-renewal and no partial refund. To continue using the API, simply mint a new key for 1000 coins (₹2000).",
+  },
+  {
+    q: "How does IP whitelisting work?",
+    a: "Each API key can be locked to one or more source IP addresses. When a request hits our proxy, we check the caller's IP against your whitelist and reject anything that doesn't match with HTTP 403 — even if the API key itself is correct. This protects you if the key is ever leaked.",
+  },
+  {
+    q: "How is domain whitelisting different?",
+    a: "Domain whitelisting restricts browser-based usage by checking the request's Origin and Referer headers. You can list exact domains (api.example.com) or use wildcards like *.example.com to cover all subdomains. Combine IP and domain whitelists for defense in depth.",
+  },
+  {
+    q: "How do reseller keys actually work?",
+    a: "Sign up, top up your wallet using BondPay, then mint API keys on demand. Each key costs 1000 coins (₹2000) and gives you 30 days of access to our proxy. You can suspend, enable, regenerate, or delete any key at any time from your dashboard, and every request is logged with status, latency, IP and host.",
+  },
+  {
+    q: "What is the pricing — 1000 coins = ₹2000?",
+    a: "Yes. The flat rate is 1000 coins for ₹2000. One API key consumes 1000 coins, so the effective cost per 30-day key is ₹2000. There are no monthly subscriptions, no hidden fees and no per-request charges beyond your rate-limit tier.",
+  },
+  {
+    q: "What happens after a successful wallet top-up?",
+    a: "Our payment callback verifies the signature and amount against the original order, then atomically credits your wallet — so duplicate or retried callbacks can never double-credit. Successful, pending and failed orders are visible on your wallet page.",
+  },
+];
 
 export const Route = createFileRoute("/")({
   component: Index,
   head: () => ({
     meta: [
-      { title: "Hyper Softs SaaS — Reseller API Proxy with IP Whitelist & Wallet Billing" },
-      { name: "description", content: "Reseller-ready API proxy: per-key IP whitelist, domain whitelist, rate limiting, wallet billing in coins, 30-day validity, live request logs. 1000 coins = ₹2000." },
-      { name: "keywords", content: "reseller api, api proxy, ip whitelist, rate limiting, wallet billing, secure api access, hyper softs, hyperapi" },
+      { title: "Hyper Softs SaaS — Secure Reseller API Proxy with IP Whitelist, Rate Limiting & Wallet Billing" },
+      { name: "description", content: "Hyper Softs SaaS is a secure reseller API proxy with per-key IP whitelist, domain whitelist, rate limiting, wallet billing in coins, 30-day fixed key validity and live request logs. Flat pricing: 1000 coins = ₹2000." },
+      { name: "keywords", content: "reseller api, api proxy, ip whitelist, domain whitelist, rate limiting, wallet billing, secure api access, 30 day api key, lottery api reseller, saas api gateway, hyper softs, hyperapi" },
       { name: "robots", content: "index,follow" },
+      { name: "author", content: "Hyper Softs" },
+      { name: "theme-color", content: "#0b0b0f" },
+      { httpEquiv: "Content-Language", content: "en" },
       { property: "og:title", content: "Hyper Softs SaaS — Secure Reseller API Proxy" },
-      { property: "og:description", content: "Per-key IP & domain whitelist, rate limiting, wallet billing and 30-day API keys for resellers." },
+      { property: "og:description", content: "Per-key IP & domain whitelist, rate limiting, wallet billing and 30-day fixed-validity API keys for SaaS and lottery-game resellers. 1000 coins = ₹2000." },
       { property: "og:type", content: "website" },
+      { property: "og:site_name", content: "Hyper Softs SaaS" },
+      { property: "og:locale", content: "en_US" },
       { property: "og:url", content: "https://sass.hyperapi.in/" },
       { property: "og:image", content: "/og-image.jpg" },
+      { property: "og:image:alt", content: "Hyper Softs SaaS — secure reseller API proxy dashboard" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: "Hyper Softs SaaS — Reseller API Proxy" },
-      { name: "twitter:description", content: "Secure API proxy built for resellers — IP whitelist, rate limit, wallet billing." },
+      { name: "twitter:description", content: "Secure API proxy built for resellers — IP whitelist, domain whitelist, rate limiting, wallet billing and 30-day API keys." },
       { name: "twitter:image", content: "/og-image.jpg" },
     ],
     links: [
       { rel: "canonical", href: "https://sass.hyperapi.in/" },
+    ],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "Organization",
+              name: "Hyper Softs",
+              url: "https://sass.hyperapi.in/",
+              logo: "https://sass.hyperapi.in/og-image.jpg",
+              sameAs: ["https://t.me/Hyperdeveloperr"],
+            },
+            {
+              "@type": "WebSite",
+              url: "https://sass.hyperapi.in/",
+              name: "Hyper Softs SaaS",
+            },
+            {
+              "@type": "Product",
+              name: "Hyper Softs Reseller API Key",
+              description: "30-day reseller API key with IP whitelist, domain whitelist, rate limiting and wallet billing.",
+              brand: { "@type": "Brand", name: "Hyper Softs" },
+              offers: {
+                "@type": "Offer",
+                price: "2000",
+                priceCurrency: "INR",
+                availability: "https://schema.org/InStock",
+                url: "https://sass.hyperapi.in/#pricing",
+              },
+            },
+            {
+              "@type": "FAQPage",
+              mainEntity: FAQS.map((f) => ({
+                "@type": "Question",
+                name: f.q,
+                acceptedAnswer: { "@type": "Answer", text: f.a },
+              })),
+            },
+          ],
+        }),
+      },
     ],
   }),
 });
