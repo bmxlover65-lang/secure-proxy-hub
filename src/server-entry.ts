@@ -1,58 +1,67 @@
 import defaultServerEntry from "@tanstack/react-start/server-entry";
 
 declare const __BUILD_VERSION__: string;
-
 const BUILD_VERSION = typeof __BUILD_VERSION__ !== "undefined" ? __BUILD_VERSION__ : "dev";
 
-const noStoreHeaders = {
-  "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
-  "Pragma": "no-cache",
-  "Expires": "0",
-  "X-Build-Version": BUILD_VERSION,
-};
-
-function json(body: unknown, status = 200) {
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: {
-      "Content-Type": "application/json; charset=utf-8",
-      ...noStoreHeaders,
-    },
-  });
+function reqId() {
+  return Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
 }
 
-function withRuntimeHeaders(response: Response) {
-  const headers = new Headers(response.headers);
-  headers.set("X-Build-Version", BUILD_VERSION);
-
-  const contentType = headers.get("Content-Type") || "";
-  if (contentType.includes("text/html")) {
-    for (const [key, value] of Object.entries(noStoreHeaders)) {
-      headers.set(key, value);
-    }
+function serializeError(err: unknown) {
+  if (err instanceof Error) {
+    return {
+      name: err.name,
+      message: err.message,
+      stack: err.stack,
+      cause: err.cause ? String(err.cause) : undefined,
+    };
   }
-
-  return new Response(response.body, {
-    status: response.status,
-    statusText: response.statusText,
-    headers,
-  });
+  try {
+    return { value: JSON.parse(JSON.stringify(err)) };
+  } catch {
+    return { value: String(err) };
+  }
 }
 
 export default {
-  async fetch(request: Request) {
+  async fetch(request: Request, env?: unknown, ctx?: unknown) {
+    const id = reqId();
     const url = new URL(request.url);
 
     if (url.pathname === "/api/public/version") {
-      return json({ version: BUILD_VERSION, ok: true });
+      return new Response(
+        JSON.stringify({ version: BUILD_VERSION, ok: true, requestId: id }),
+        { status: 200, headers: { "Content-Type": "application/json", "X-Request-Id": id, "X-Build-Version": BUILD_VERSION, "Cache-Control": "no-store" } },
+      );
     }
 
+    console.log(`[req ${id}] ${request.method} ${url.pathname}${url.search}`);
     try {
-      const response = await defaultServerEntry.fetch(request);
-      return withRuntimeHeaders(response);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const response: Response = await (defaultServerEntry as any).fetch(request, env, ctx);
+      const headers = new Headers(response.headers);
+      headers.set("X-Request-Id", id);
+      headers.set("X-Build-Version", BUILD_VERSION);
+      if (response.status >= 500) {
+        const cloned = response.clone();
+        let body = "";
+        try { body = await cloned.text(); } catch { /* ignore */ }
+        console.error(`[req ${id}] upstream ${response.status}`, body.slice(0, 2000));
+      }
+      return new Response(response.body, { status: response.status, statusText: response.statusText, headers });
     } catch (error) {
-      console.error("[server-entry] request failed", error);
-      return json({ status: 500, message: "Internal Server Error", version: BUILD_VERSION }, 500);
+      const info = serializeError(error);
+      console.error(`[req ${id}] UNCAUGHT`, JSON.stringify(info));
+      return new Response(
+        JSON.stringify({
+          status: 500,
+          requestId: id,
+          version: BUILD_VERSION,
+          path: url.pathname,
+          error: info,
+        }, null, 2),
+        { status: 500, headers: { "Content-Type": "application/json", "X-Request-Id": id, "X-Build-Version": BUILD_VERSION } },
+      );
     }
   },
 };
