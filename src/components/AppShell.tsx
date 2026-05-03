@@ -3,7 +3,7 @@ import { useAuth } from "@/lib/auth-context";
 import { Button } from "@/components/ui/button";
 import {
   LayoutDashboard, Users, ScrollText, Activity, BookOpen, LogOut, BarChart3,
-  Shield, Menu, X, ChevronRight, Database, KeyRound, Wallet, Receipt, Settings, Coins,
+  Shield, Menu, X, ChevronRight, Database, KeyRound, Wallet, Receipt, Settings, Coins, CreditCard,
 } from "lucide-react";
 import { useState, type ReactNode } from "react";
 
@@ -12,6 +12,7 @@ interface NavItem { to: string; label: string; icon: typeof LayoutDashboard; des
 const adminNav: NavItem[] = [
   { to: "/admin", label: "Dashboard", icon: LayoutDashboard, description: "Overview & stats" },
   { to: "/admin/users", label: "Users", icon: Users, description: "Resellers & wallets" },
+  { to: "/admin/payments", label: "Top-up Payments", icon: CreditCard, description: "Wallet payment orders" },
   { to: "/admin/transactions", label: "Transactions", icon: Receipt, description: "Coin activity" },
   { to: "/admin/clients", label: "API Clients", icon: KeyRound, description: "All keys" },
   { to: "/admin/logs", label: "Request Logs", icon: ScrollText, description: "Activity history" },
