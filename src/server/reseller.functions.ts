@@ -57,6 +57,8 @@ export const resellerCreateClient = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const userId = context.userId;
     const cost = await getSetting("coins_per_api_key", 1000);
+    // Resellers always get a fixed 30-day validity
+    const durationDays = 30;
 
     // Atomic-ish: rely on adjust_wallet to throw on insufficient_balance
     const { data: balRow, error: bErr } = await supabaseAdmin.rpc("adjust_wallet", {
@@ -72,14 +74,14 @@ export const resellerCreateClient = createServerFn({ method: "POST" })
     }
 
     const api_key = genKey();
-    const expires_at = new Date(Date.now() + data.duration_days * 86400_000).toISOString();
+    const expires_at = new Date(Date.now() + durationDays * 86400_000).toISOString();
     const { data: client, error } = await supabaseAdmin
       .from("api_clients")
       .insert({
         name: data.name,
         api_key,
         category: data.category,
-        duration_days: data.duration_days,
+        duration_days: durationDays,
         expires_at,
         notes: data.notes ?? null,
         user_id: userId,
