@@ -4,7 +4,7 @@ import { useAuth } from "@/lib/auth-context";
 import { Button } from "@/components/ui/button";
 import {
   Shield, KeyRound, Activity, ShieldCheck, Coins, Wallet, Globe2,
-  ArrowRight, CheckCircle2, Send, Lock, Gauge, Network, Server, Clock,
+  ArrowRight, CheckCircle2, Send, Lock, Gauge, Network, Server, Clock, Sparkles, Zap,
 } from "lucide-react";
 
 const TELEGRAM = "Hyperdeveloperr";
@@ -46,21 +46,26 @@ function Index() {
     <div className="min-h-screen bg-background text-foreground" style={{ backgroundImage: "var(--gradient-mesh)" }}>
       <header className="sticky top-0 z-30 border-b border-border/60 bg-background/70 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3.5">
-          <div className="flex items-center gap-2">
+          <Link to="/" className="flex items-center gap-2.5">
             <div className="flex h-9 w-9 items-center justify-center rounded-lg" style={{ background: "var(--gradient-primary)", boxShadow: "var(--shadow-glow)" }}>
               <Shield className="h-5 w-5 text-primary-foreground" />
             </div>
-            <span className="font-semibold">Hyper Softs SaaS</span>
-          </div>
+            <div className="flex flex-col leading-none">
+              <span className="font-display text-base font-bold tracking-tight">Hyper Softs</span>
+              <span className="text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground">SaaS Platform</span>
+            </div>
+          </Link>
           <nav className="hidden items-center gap-6 text-sm text-muted-foreground md:flex">
-            <a href="#features" className="hover:text-foreground">Features</a>
-            <a href="#security" className="hover:text-foreground">Security</a>
-            <a href="#pricing" className="hover:text-foreground">Pricing</a>
-            <a href="#contact" className="hover:text-foreground">Contact</a>
+            <a href="#security" className="transition-colors hover:text-foreground">Security</a>
+            <a href="#features" className="transition-colors hover:text-foreground">Features</a>
+            <a href="#pricing" className="transition-colors hover:text-foreground">Pricing</a>
+            <a href={`https://t.me/${TELEGRAM}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 rounded-full border border-border/60 px-2.5 py-1 text-xs hover:text-foreground hover:border-primary/40">
+              <Send className="h-3 w-3" /> @{TELEGRAM}
+            </a>
           </nav>
           <div className="flex gap-2">
-            <Button asChild variant="ghost"><Link to="/login">Login</Link></Button>
-            <Button asChild><Link to="/signup">Sign up</Link></Button>
+            <Button asChild variant="ghost" size="sm"><Link to="/login">Login</Link></Button>
+            <Button asChild size="sm"><Link to="/signup">Sign up</Link></Button>
           </div>
         </div>
       </header>
@@ -68,7 +73,7 @@ function Index() {
       {/* HERO */}
       <section className="relative mx-auto max-w-5xl px-4 py-20 text-center md:py-28">
         <div className="mx-auto mb-6 inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary">
-          <Globe2 className="h-3.5 w-3.5" /> Reseller-ready API platform
+          <Sparkles className="h-3.5 w-3.5" /> Trusted by 200+ resellers worldwide
         </div>
         <h1 className="font-display text-balance text-5xl font-bold leading-[1.05] tracking-tight md:text-7xl">
           Premium API proxy for{" "}
