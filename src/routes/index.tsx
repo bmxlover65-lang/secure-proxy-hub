@@ -191,9 +191,13 @@ function Index() {
           <Sparkles className="h-3.5 w-3.5" aria-hidden="true" /> Trusted by 200+ resellers worldwide
         </div>
         <h1 id="hero-heading" className="font-display text-balance text-5xl font-bold leading-[1.05] tracking-tight md:text-7xl">
-          The secure API proxy{" "}
-          <span className="bg-clip-text text-transparent" style={{ backgroundImage: "var(--gradient-primary)" }}>
-            built for resellers
+          The secure API{" "}
+          <span className="font-cursive bg-clip-text text-transparent text-6xl md:text-8xl" style={{ backgroundImage: "var(--gradient-primary)" }}>
+            proxy
+          </span>{" "}
+          built for{" "}
+          <span className="font-cursive bg-clip-text text-transparent text-6xl md:text-8xl" style={{ backgroundImage: "var(--gradient-hero)" }}>
+            resellers
           </span>
         </h1>
         <p className="mx-auto mt-6 max-w-2xl text-balance text-lg leading-relaxed text-muted-foreground md:text-xl">
@@ -235,8 +239,8 @@ function Index() {
       {/* VALUE PROP — security & control */}
       <section id="security" aria-labelledby="security-heading" className="mx-auto max-w-6xl px-4 pb-12">
         <div className="mb-8 text-center">
-          <h2 id="security-heading" className="font-display text-3xl font-bold tracking-tight md:text-4xl">
-            Enterprise-grade security &amp; control for resellers
+          <h2 id="security-heading" className="font-display text-3xl font-bold tracking-tight md:text-5xl">
+            Enterprise-grade <span className="font-cursive text-primary">security</span> &amp; control
           </h2>
           <p className="mx-auto mt-3 max-w-2xl text-muted-foreground">Every API key you mint is protected by enterprise-grade controls — out of the box.</p>
         </div>
@@ -302,7 +306,7 @@ function Index() {
             <Coins className="h-3.5 w-3.5" aria-hidden="true" /> Pay-as-you-go • No subscription
           </div>
           <h2 id="pricing-heading" className="font-display text-3xl font-bold tracking-tight md:text-5xl">
-            Simple, transparent reseller API pricing
+            Simple, <span className="font-cursive text-primary">transparent</span> pricing
           </h2>
           <p className="mx-auto mt-3 max-w-2xl text-muted-foreground">
             One flat rate: <span className="font-semibold text-foreground">1000 coins = ₹2000</span>.
@@ -375,8 +379,8 @@ function Index() {
           <div className="mx-auto mb-4 inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
             <HelpCircle className="h-3.5 w-3.5" aria-hidden="true" /> Frequently asked questions
           </div>
-          <h2 id="faq-heading" className="font-display text-3xl font-bold tracking-tight md:text-4xl">
-            How reseller API keys, validity &amp; whitelisting work
+          <h2 id="faq-heading" className="font-display text-3xl font-bold tracking-tight md:text-5xl">
+            Questions <span className="font-cursive text-primary">answered</span>
           </h2>
           <p className="mx-auto mt-3 max-w-2xl text-muted-foreground">
             Everything you need to know about 30-day fixed validity, IP &amp; domain whitelisting, and how Hyper Softs reseller keys work.
@@ -405,8 +409,8 @@ function Index() {
           <div className="mx-auto mb-5 inline-flex h-14 w-14 items-center justify-center rounded-2xl" style={{ background: "var(--gradient-primary)" }}>
             <Send className="h-7 w-7 text-primary-foreground" aria-hidden="true" />
           </div>
-          <h2 id="contact-heading" className="font-display text-3xl font-bold tracking-tight md:text-4xl">
-            Talk to Hyper Softs on Telegram
+          <h2 id="contact-heading" className="font-display text-3xl font-bold tracking-tight md:text-5xl">
+            Talk to us <span className="font-cursive text-primary">on Telegram</span>
           </h2>
           <p className="mx-auto mt-3 max-w-xl text-muted-foreground">
             Custom plans, bulk coins, integration help or anything else — message us directly.
