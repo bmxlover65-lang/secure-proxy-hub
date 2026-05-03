@@ -388,6 +388,29 @@ export type Database = {
         }
         Returns: number
       }
+      admin_list_payment_orders: {
+        Args: { _limit?: number }
+        Returns: {
+          amount_inr: number
+          callback_error: string
+          callback_received_at: string
+          coins: number
+          created_at: string
+          credited_at: string
+          currency: string
+          email: string
+          full_name: string
+          gateway_order_no: string
+          id: string
+          merchant_order_no: string
+          payment_url: string
+          raw_callback: Json
+          signature_status: string
+          status: string
+          updated_at: string
+          user_id: string
+        }[]
+      }
       client_usage_in_range: {
         Args: { _client_ids: string[]; _from: string; _to: string }
         Returns: {
