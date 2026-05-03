@@ -188,54 +188,39 @@ export type Database = {
       payment_orders: {
         Row: {
           amount_inr: number
-          callback_error: string | null
-          callback_received_at: string | null
           coins: number
           created_at: string
-          credited_at: string | null
-          currency: string
           gateway_order_no: string | null
           id: string
           merchant_order_no: string
           payment_url: string | null
           raw_callback: Json | null
-          signature_status: string | null
           status: string
           updated_at: string
           user_id: string
         }
         Insert: {
           amount_inr: number
-          callback_error?: string | null
-          callback_received_at?: string | null
           coins: number
           created_at?: string
-          credited_at?: string | null
-          currency?: string
           gateway_order_no?: string | null
           id?: string
           merchant_order_no: string
           payment_url?: string | null
           raw_callback?: Json | null
-          signature_status?: string | null
           status?: string
           updated_at?: string
           user_id: string
         }
         Update: {
           amount_inr?: number
-          callback_error?: string | null
-          callback_received_at?: string | null
           coins?: number
           created_at?: string
-          credited_at?: string | null
-          currency?: string
           gateway_order_no?: string | null
           id?: string
           merchant_order_no?: string
           payment_url?: string | null
           raw_callback?: Json | null
-          signature_status?: string | null
           status?: string
           updated_at?: string
           user_id?: string

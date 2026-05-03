@@ -369,9 +369,10 @@ function ClientsPage() {
   );
 }
 
-function CreateClientDialog({ onCreate }: { onCreate: (p: { name: string; category: Category; allowed_ips: string[]; allowed_domains: string[]; notes?: string }) => Promise<void> }) {
+function CreateClientDialog({ onCreate }: { onCreate: (p: { name: string; category: Category; duration_days: number; allowed_ips: string[]; allowed_domains: string[]; notes?: string }) => Promise<void> }) {
   const [name, setName] = useState("");
   const [category, setCategory] = useState<Category>("wingo");
+  const [days, setDays] = useState(30);
   const [ips, setIps] = useState("");
   const [domains, setDomains] = useState("sass.hyperapi.in");
   const [notes, setNotes] = useState("");
@@ -380,18 +381,21 @@ function CreateClientDialog({ onCreate }: { onCreate: (p: { name: string; catego
     <DialogContent>
       <DialogHeader>
         <DialogTitle>Create a new API client</DialogTitle>
-        <DialogDescription>One key per game category. Validity is fixed at <strong>30 days</strong>.</DialogDescription>
+        <DialogDescription>One key per game category. Pick the category and duration.</DialogDescription>
       </DialogHeader>
       <div className="space-y-4">
         <div className="space-y-2"><Label>Name</Label><Input placeholder="Acme Corp" value={name} onChange={(e) => setName(e.target.value)} /></div>
-        <div className="space-y-2">
-          <Label>Game category</Label>
-          <Select value={category} onValueChange={(v) => setCategory(v as Category)}>
-            <SelectTrigger><SelectValue /></SelectTrigger>
-            <SelectContent>
-              {CATEGORIES.map((c) => <SelectItem key={c} value={c}>{c.toUpperCase()}</SelectItem>)}
-            </SelectContent>
-          </Select>
+        <div className="grid grid-cols-2 gap-3">
+          <div className="space-y-2">
+            <Label>Game category</Label>
+            <Select value={category} onValueChange={(v) => setCategory(v as Category)}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                {CATEGORIES.map((c) => <SelectItem key={c} value={c}>{c.toUpperCase()}</SelectItem>)}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-2"><Label>Duration (days)</Label><Input type="number" min={1} value={days} onChange={(e) => setDays(Number(e.target.value))} /></div>
         </div>
         <div className="space-y-2"><Label>Allowed IPs (one per line)</Label><Textarea rows={3} value={ips} onChange={(e) => setIps(e.target.value)} placeholder="203.0.113.10" className="font-mono text-sm" /></div>
         <div className="space-y-2"><Label>Allowed Domains (one per line)</Label><Textarea rows={3} value={domains} onChange={(e) => setDomains(e.target.value)} placeholder="example.com&#10;*.example.com" className="font-mono text-sm" /></div>
@@ -399,14 +403,14 @@ function CreateClientDialog({ onCreate }: { onCreate: (p: { name: string; catego
       </div>
       <DialogFooter>
         <Button
-          disabled={submitting || !name.trim()}
+          disabled={submitting || !name.trim() || days < 1}
           style={{ background: "var(--gradient-primary)" }}
           className="text-primary-foreground"
           onClick={async () => {
             setSubmitting(true);
             try {
               await onCreate({
-                name, category,
+                name, category, duration_days: days,
                 allowed_ips: ips.split(/\s|,/).map((s) => s.trim()).filter(Boolean),
                 allowed_domains: domains.split(/\s|,/).map((s) => s.trim()).filter(Boolean),
                 notes: notes || undefined,

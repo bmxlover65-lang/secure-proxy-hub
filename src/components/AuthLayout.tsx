@@ -1,4 +1,4 @@
-import { Shield, Zap, Lock, BarChart3, Globe2, CheckCircle2, Sparkles } from "lucide-react";
+import { Shield, Zap, Lock, BarChart3, Globe2 } from "lucide-react";
 import type { ReactNode } from "react";
 import { NetworkBackground } from "./NetworkBackground";
 
@@ -23,15 +23,12 @@ export function AuthLayout({ children, title, subtitle }: { children: ReactNode;
       <header className="relative z-10 flex items-center justify-between px-6 py-5 md:px-10">
         <div className="flex items-center gap-3">
           <div
-            className="flex h-10 w-10 items-center justify-center rounded-xl ring-1 ring-primary/30"
+            className="flex h-10 w-10 items-center justify-center rounded-xl"
             style={{ background: "var(--gradient-primary)", boxShadow: "var(--shadow-glow)" }}
           >
             <Shield className="h-5 w-5 text-primary-foreground" />
           </div>
-          <div className="flex flex-col leading-tight">
-            <div className="text-base font-semibold tracking-tight">Hyper Softs</div>
-            <div className="text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground">SaaS Platform</div>
-          </div>
+          <div className="text-base font-semibold tracking-tight">Hyper Softs SaaS</div>
         </div>
         <div className="hidden items-center gap-2 rounded-full border border-border/40 bg-card/40 px-3 py-1.5 text-xs backdrop-blur-md sm:flex">
           <span className="relative flex h-2 w-2">
@@ -47,16 +44,16 @@ export function AuthLayout({ children, title, subtitle }: { children: ReactNode;
         {/* Left: marketing */}
         <div className="hidden flex-col gap-8 lg:flex">
           <div className="inline-flex w-fit items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary backdrop-blur-md">
-            <Sparkles className="h-3.5 w-3.5" />
-            Trusted by 200+ resellers worldwide
+            <Globe2 className="h-3.5 w-3.5" />
+            Global API Proxy Network
           </div>
           <h1 className="text-4xl font-bold leading-[1.1] tracking-tight md:text-5xl">
             Premium API access for{" "}
             <span
-              className="bg-clip-text text-transparent font-serif"
+              className="bg-clip-text text-transparent"
               style={{ backgroundImage: "var(--gradient-hero)" }}
             >
-              SASS Lottery Game
+              lottery game data
             </span>
           </h1>
           <p className="max-w-md text-base text-muted-foreground">
@@ -83,36 +80,6 @@ export function AuthLayout({ children, title, subtitle }: { children: ReactNode;
                 <div className="text-xs text-muted-foreground">{f.desc}</div>
               </div>
             ))}
-          </div>
-
-          {/* Trust signals */}
-          <div className="max-w-md space-y-2.5 pt-2">
-            {[
-              "30-day API key validity, fully managed",
-              "IP & domain whitelist on every key",
-              "Instant top-ups via secure payment gateway",
-            ].map((t) => (
-              <div key={t} className="flex items-center gap-2.5 text-sm text-muted-foreground">
-                <CheckCircle2 className="h-4 w-4 shrink-0 text-success" />
-                <span>{t}</span>
-              </div>
-            ))}
-          </div>
-
-          <div className="flex max-w-md items-center gap-4 rounded-xl border border-border/40 bg-card/30 p-4 backdrop-blur-md">
-            <div className="flex -space-x-2">
-              {["#6366f1", "#22c55e", "#f59e0b", "#ec4899"].map((c, i) => (
-                <div
-                  key={i}
-                  className="h-8 w-8 rounded-full border-2 border-background"
-                  style={{ background: `linear-gradient(135deg, ${c}, color-mix(in oklab, ${c} 60%, white))` }}
-                />
-              ))}
-            </div>
-            <div className="text-xs text-muted-foreground">
-              <div className="font-semibold text-foreground">Loved by API resellers</div>
-              99.99% uptime · 24/7 monitoring
-            </div>
           </div>
         </div>
 

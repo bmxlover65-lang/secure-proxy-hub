@@ -48,15 +48,15 @@ export const resellerCreateClient = createServerFn({ method: "POST" })
     z.object({
       name: z.string().trim().min(1).max(120),
       category: z.enum(["wingo", "k3", "d5", "motorace"]),
-      allowed_ips: z.array(z.string().trim().min(1).max(64)).min(1, "At least one IP required").max(50),
-      allowed_domains: z.array(z.string().trim().min(1).max(255)).min(1, "At least one domain required").max(50),
+      duration_days: z.number().int().min(1).max(3650).default(30),
+      allowed_ips: z.array(z.string().trim().min(1).max(64)).max(50).default([]),
+      allowed_domains: z.array(z.string().trim().min(1).max(255)).max(50).default([]),
       notes: z.string().max(500).optional(),
     }).parse(d),
   )
   .handler(async ({ data, context }) => {
     const userId = context.userId;
     const cost = await getSetting("coins_per_api_key", 1000);
-    const FIXED_DURATION_DAYS = 30;
 
     // Atomic-ish: rely on adjust_wallet to throw on insufficient_balance
     const { data: balRow, error: bErr } = await supabaseAdmin.rpc("adjust_wallet", {
@@ -72,14 +72,14 @@ export const resellerCreateClient = createServerFn({ method: "POST" })
     }
 
     const api_key = genKey();
-    const expires_at = new Date(Date.now() + FIXED_DURATION_DAYS * 86400_000).toISOString();
+    const expires_at = new Date(Date.now() + data.duration_days * 86400_000).toISOString();
     const { data: client, error } = await supabaseAdmin
       .from("api_clients")
       .insert({
         name: data.name,
         api_key,
         category: data.category,
-        duration_days: FIXED_DURATION_DAYS,
+        duration_days: data.duration_days,
         expires_at,
         notes: data.notes ?? null,
         user_id: userId,
@@ -181,22 +181,6 @@ export const resellerSetDomains = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
-export const resellerListAccess = createServerFn({ method: "POST" })
-  .middleware([sendSupabaseAuth, requireSupabaseAuth])
-  .inputValidator((d) => z.object({ client_id: z.string().uuid() }).parse(d))
-  .handler(async ({ data, context }) => {
-    const { data: existing } = await supabaseAdmin.from("api_clients").select("user_id").eq("id", data.client_id).maybeSingle();
-    if (!existing || existing.user_id !== context.userId) throw new Error("Not allowed");
-    const [{ data: ips }, { data: doms }] = await Promise.all([
-      supabaseAdmin.from("allowed_ips").select("ip_address").eq("client_id", data.client_id),
-      supabaseAdmin.from("allowed_domains").select("domain").eq("client_id", data.client_id),
-    ]);
-    return {
-      ips: (ips ?? []).map((r) => r.ip_address),
-      domains: (doms ?? []).map((r) => r.domain),
-    };
-  });
-
 export const resellerListLogs = createServerFn({ method: "GET" })
   .middleware([sendSupabaseAuth, requireSupabaseAuth])
   .handler(async ({ context }) => {
@@ -249,8 +233,8 @@ export const getMyKeyMetrics = createServerFn({ method: "POST" })
       // Filtered path: aggregate via SQL using the indexed (client_id, created_at) lookup
       const { data: rows } = await supabaseAdmin.rpc("client_usage_in_range", {
         _client_ids: ids,
-        _from: data.from ?? "1970-01-01T00:00:00Z",
-        _to: data.to ?? "9999-12-31T00:00:00Z",
+        _from: (data.from ?? null) as string,
+        _to: (data.to ?? null) as string,
       });
       (rows as Array<{ client_id: string; total_requests: number; success_count: number; error_count: number; last_request_at: string | null }> | null ?? []).forEach((r) => {
         counts[r.client_id] = {
@@ -304,8 +288,8 @@ export const adminUserMetrics = createServerFn({ method: "POST" })
       });
     } else {
       const { data: rows } = await supabaseAdmin.rpc("user_usage_in_range", {
-        _from: data.from ?? "1970-01-01T00:00:00Z",
-        _to: data.to ?? "9999-12-31T00:00:00Z",
+        _from: (data.from ?? null) as string,
+        _to: (data.to ?? null) as string,
       });
       (rows as Array<{ user_id: string; total_requests: number; success_count: number; error_count: number; last_request_at: string | null }> | null ?? []).forEach((r) => {
         per[r.user_id] = {

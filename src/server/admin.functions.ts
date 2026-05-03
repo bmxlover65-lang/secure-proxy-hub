@@ -80,6 +80,7 @@ export const adminCreateClient = createServerFn({ method: "POST" })
     z.object({
       name: z.string().trim().min(1).max(120),
       category: z.enum(["wingo", "k3", "d5", "motorace"]),
+      duration_days: z.number().int().min(1).max(3650),
       allowed_ips: z.array(z.string().trim().min(1).max(64)).max(50).default([]),
       allowed_domains: z.array(z.string().trim().min(1).max(255)).max(50).default([]),
       notes: z.string().max(500).optional(),
@@ -87,16 +88,15 @@ export const adminCreateClient = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     await assertAdmin(context.userId);
-    const FIXED_DURATION_DAYS = 30;
     const api_key = genKey();
-    const expires_at = new Date(Date.now() + FIXED_DURATION_DAYS * 86400_000).toISOString();
+    const expires_at = new Date(Date.now() + data.duration_days * 86400_000).toISOString();
     const { data: client, error } = await supabaseAdmin
       .from("api_clients")
       .insert({
         name: data.name,
         api_key,
         category: data.category,
-        duration_days: FIXED_DURATION_DAYS,
+        duration_days: data.duration_days,
         expires_at,
         notes: data.notes ?? null,
       })

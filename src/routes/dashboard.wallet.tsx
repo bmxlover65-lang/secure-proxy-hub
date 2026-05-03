@@ -30,7 +30,8 @@ function WalletPage() {
   useEffect(() => { reload(); }, [reload]);
 
   const balance = Number(data?.profile?.wallet_balance ?? 0);
-  const inrPer1000 = Number(data?.settings.paise_per_1000_coins ?? 2000);
+  const paise = Number(data?.settings.paise_per_1000_coins ?? 2000);
+  const inrPer1000 = paise / 100;
   const inrAmount = (coins / 1000) * inrPer1000;
   const filteredOrders = statusFilter === "all" ? orders : orders.filter((o) => o.status === statusFilter);
 

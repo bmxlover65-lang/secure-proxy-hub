@@ -13,7 +13,6 @@ const adminNav: NavItem[] = [
   { to: "/admin", label: "Dashboard", icon: LayoutDashboard, description: "Overview & stats" },
   { to: "/admin/users", label: "Users", icon: Users, description: "Resellers & wallets" },
   { to: "/admin/transactions", label: "Transactions", icon: Receipt, description: "Coin activity" },
-  { to: "/admin/orders", label: "Top-up Orders", icon: Wallet, description: "Payment orders & callbacks" },
   { to: "/admin/clients", label: "API Clients", icon: KeyRound, description: "All keys" },
   { to: "/admin/logs", label: "Request Logs", icon: ScrollText, description: "Activity history" },
   { to: "/admin/stats", label: "Statistics", icon: BarChart3, description: "Usage charts" },
