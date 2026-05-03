@@ -228,9 +228,11 @@ function Index() {
       </section>
 
       {/* VALUE PROP — security & control */}
-      <section id="security" className="mx-auto max-w-6xl px-4 pb-12">
+      <section id="security" aria-labelledby="security-heading" className="mx-auto max-w-6xl px-4 pb-12">
         <div className="mb-8 text-center">
-          <h2 className="text-3xl font-semibold tracking-tight md:text-4xl">Built for resellers who need control</h2>
+          <h2 id="security-heading" className="font-display text-3xl font-bold tracking-tight md:text-4xl">
+            Enterprise-grade security &amp; control for resellers
+          </h2>
           <p className="mx-auto mt-3 max-w-2xl text-muted-foreground">Every API key you mint is protected by enterprise-grade controls — out of the box.</p>
         </div>
         <div className="grid gap-4 md:grid-cols-3">
@@ -268,7 +270,9 @@ function Index() {
       </section>
 
       {/* FEATURES grid */}
-      <section id="features" className="mx-auto grid max-w-6xl gap-4 px-4 py-12 md:grid-cols-3">
+      <section id="features" aria-labelledby="features-heading" className="mx-auto max-w-6xl px-4 py-12">
+        <h2 id="features-heading" className="sr-only">Reseller API features</h2>
+        <div className="grid gap-4 md:grid-cols-3">
         {[
           { icon: KeyRound, t: "API Keys on demand", d: "Mint a 30-day key in seconds — coins auto-deducted from your wallet." },
           { icon: Wallet, t: "Wallet billing", d: "Top up via BondPay, see live balance and every coin transaction." },
@@ -278,20 +282,23 @@ function Index() {
           { icon: CheckCircle2, t: "Built for resellers", d: "Every reseller gets their own dashboard, keys, wallet and logs." },
         ].map(({ icon: Icon, t, d }) => (
           <div key={t} className="rounded-xl border border-border p-6" style={{ background: "var(--gradient-card)" }}>
-            <Icon className="h-6 w-6 text-primary" />
+            <Icon className="h-6 w-6 text-primary" aria-hidden="true" />
             <h3 className="mt-4 font-semibold">{t}</h3>
             <p className="mt-1 text-sm text-muted-foreground">{d}</p>
           </div>
         ))}
+        </div>
       </section>
 
       {/* PRICING */}
-      <section id="pricing" className="mx-auto max-w-6xl px-4 py-16">
+      <section id="pricing" aria-labelledby="pricing-heading" className="mx-auto max-w-6xl px-4 py-16">
         <div className="mb-10 text-center">
           <div className="mx-auto mb-4 inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
-            <Coins className="h-3.5 w-3.5" /> Pay-as-you-go • No subscription
+            <Coins className="h-3.5 w-3.5" aria-hidden="true" /> Pay-as-you-go • No subscription
           </div>
-          <h2 className="font-display text-3xl font-bold tracking-tight md:text-5xl">Simple, transparent pricing</h2>
+          <h2 id="pricing-heading" className="font-display text-3xl font-bold tracking-tight md:text-5xl">
+            Simple, transparent reseller API pricing
+          </h2>
           <p className="mx-auto mt-3 max-w-2xl text-muted-foreground">
             One flat rate: <span className="font-semibold text-foreground">1000 coins = ₹2000</span>.
             Every API key costs <span className="font-semibold text-foreground">1000 coins</span> and is valid for a fixed
@@ -357,55 +364,85 @@ function Index() {
         </p>
       </section>
 
+      {/* FAQ */}
+      <section id="faq" aria-labelledby="faq-heading" className="mx-auto max-w-3xl px-4 py-16">
+        <div className="mb-8 text-center">
+          <div className="mx-auto mb-4 inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
+            <HelpCircle className="h-3.5 w-3.5" aria-hidden="true" /> Frequently asked questions
+          </div>
+          <h2 id="faq-heading" className="font-display text-3xl font-bold tracking-tight md:text-4xl">
+            How reseller API keys, validity &amp; whitelisting work
+          </h2>
+          <p className="mx-auto mt-3 max-w-2xl text-muted-foreground">
+            Everything you need to know about 30-day fixed validity, IP &amp; domain whitelisting, and how Hyper Softs reseller keys work.
+          </p>
+        </div>
+        <Accordion type="single" collapsible className="rounded-2xl border border-border" style={{ background: "var(--gradient-card)" }}>
+          {FAQS.map((f, i) => (
+            <AccordionItem key={f.q} value={`item-${i}`} className="border-b border-border/60 last:border-b-0">
+              <AccordionTrigger className="px-5 text-left text-base font-semibold hover:no-underline focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background">
+                {f.q}
+              </AccordionTrigger>
+              <AccordionContent className="px-5 text-sm leading-relaxed text-muted-foreground">
+                {f.a}
+              </AccordionContent>
+            </AccordionItem>
+          ))}
+        </Accordion>
+      </section>
+
       {/* CONTACT / TELEGRAM CTA */}
-      <section id="contact" className="mx-auto max-w-5xl px-4 pb-20">
+      <section id="contact" aria-labelledby="contact-heading" className="mx-auto max-w-5xl px-4 pb-20">
         <div
           className="relative overflow-hidden rounded-3xl border border-primary/30 p-10 text-center md:p-14"
           style={{ background: "var(--gradient-card)", boxShadow: "var(--shadow-glow)" }}
         >
           <div className="mx-auto mb-5 inline-flex h-14 w-14 items-center justify-center rounded-2xl" style={{ background: "var(--gradient-primary)" }}>
-            <Send className="h-7 w-7 text-primary-foreground" />
+            <Send className="h-7 w-7 text-primary-foreground" aria-hidden="true" />
           </div>
-          <h2 className="font-display text-3xl font-bold tracking-tight md:text-4xl">Talk to us on Telegram</h2>
+          <h2 id="contact-heading" className="font-display text-3xl font-bold tracking-tight md:text-4xl">
+            Talk to Hyper Softs on Telegram
+          </h2>
           <p className="mx-auto mt-3 max-w-xl text-muted-foreground">
             Custom plans, bulk coins, integration help or anything else — message us directly.
             We typically reply within <span className="font-semibold text-foreground">a few minutes</span>.
           </p>
           <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
             <Button asChild size="lg" className="shadow-lg" style={{ boxShadow: "var(--shadow-glow)" }}>
-              <a href={`https://t.me/${TELEGRAM}`} target="_blank" rel="noreferrer">
-                <Send className="mr-1.5 h-4 w-4" /> Message @{TELEGRAM}
+              <a href={`https://t.me/${TELEGRAM}`} target="_blank" rel="noreferrer" aria-label={`Message Hyper Softs on Telegram, @${TELEGRAM}`}>
+                <Send className="mr-1.5 h-4 w-4" aria-hidden="true" /> Message @{TELEGRAM}
               </a>
             </Button>
             <Button asChild size="lg" variant="outline">
-              <Link to="/signup">Create free account <ArrowRight className="ml-1.5 h-4 w-4" /></Link>
+              <Link to="/signup">Create free account <ArrowRight className="ml-1.5 h-4 w-4" aria-hidden="true" /></Link>
             </Button>
           </div>
 
           {/* Trust badges */}
-          <div className="mx-auto mt-10 grid max-w-3xl grid-cols-2 gap-3 text-sm md:grid-cols-4">
+          <ul aria-label="Trust signals" className="mx-auto mt-10 grid max-w-3xl grid-cols-2 list-none gap-3 text-sm md:grid-cols-4">
             {[
               { icon: Zap, l: "Replies in minutes" },
               { icon: ShieldCheck, l: "Verified account" },
               { icon: Lock, l: "Secure & private" },
               { icon: Clock, l: "Available 24/7" },
             ].map(({ icon: Icon, l }) => (
-              <div key={l} className="flex items-center justify-center gap-2 rounded-xl border border-border/60 bg-background/40 px-3 py-2.5 text-muted-foreground">
-                <Icon className="h-4 w-4 text-primary" />
+              <li key={l} className="flex items-center justify-center gap-2 rounded-xl border border-border/60 bg-background/40 px-3 py-2.5 text-muted-foreground">
+                <Icon className="h-4 w-4 text-primary" aria-hidden="true" />
                 <span className="text-xs font-medium">{l}</span>
-              </div>
+              </li>
             ))}
-          </div>
+          </ul>
         </div>
       </section>
+      </main>
 
       <footer className="border-t border-border/60 mt-4">
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-3 px-4 py-6 text-sm text-muted-foreground sm:flex-row">
           <div>© {new Date().getFullYear()} Hyper Softs SaaS. All rights reserved.</div>
           <div className="flex flex-wrap items-center gap-4">
-            <a href={`https://t.me/${TELEGRAM}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 hover:text-foreground"><Send className="h-3.5 w-3.5" /> @{TELEGRAM}</a>
-            <Link to="/privacy" className="hover:text-foreground">Privacy</Link>
-            <Link to="/terms" className="hover:text-foreground">Terms</Link>
+            <a href={`https://t.me/${TELEGRAM}`} target="_blank" rel="noreferrer" aria-label={`Telegram @${TELEGRAM}`} className="inline-flex items-center gap-1 rounded hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"><Send className="h-3.5 w-3.5" aria-hidden="true" /> @{TELEGRAM}</a>
+            <Link to="/privacy" className="rounded hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background">Privacy</Link>
+            <Link to="/terms" className="rounded hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background">Terms</Link>
           </div>
         </div>
       </footer>
