@@ -193,14 +193,15 @@ function Index() {
           <Sparkles className="h-3.5 w-3.5" aria-hidden="true" /> Trusted by 200+ resellers worldwide
         </div>
         <h1 id="hero-heading" className="font-display text-balance text-5xl font-bold leading-[1.05] tracking-tight md:text-7xl">
-          The secure API{" "}
-          <span className="font-cursive bg-clip-text text-transparent text-6xl md:text-8xl font-serif" style={{ backgroundImage: "var(--gradient-primary)" }}>
-            proxy
-          </span>{" "}
-          built for{" "}
-          <span className="font-cursive bg-clip-text text-transparent text-6xl md:text-8xl font-serif" style={{ backgroundImage: "var(--gradient-hero)" }}>
-            resellers
+          Premium API proxy for{" "}
+          <span className="font-cursive bg-clip-text text-transparent" style={{ backgroundImage: "var(--gradient-primary)" }}>
+            SaaS
           </span>
+          <br />
+          <span className="font-cursive bg-clip-text text-transparent" style={{ backgroundImage: "var(--gradient-hero)" }}>
+            Lottery Game
+          </span>{" "}
+          resellers
         </h1>
         <p className="mx-auto mt-6 max-w-2xl text-balance text-lg leading-relaxed text-muted-foreground md:text-xl">
           Mint 30-day API keys, lock them to your IPs and domains, and bill your wallet in coins —
