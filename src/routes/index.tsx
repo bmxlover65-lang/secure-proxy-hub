@@ -194,11 +194,11 @@ function Index() {
         </div>
         <h1 id="hero-heading" className="font-display text-balance text-5xl font-bold leading-[1.05] tracking-tight md:text-7xl">
           The secure API{" "}
-          <span className="font-cursive bg-clip-text text-transparent text-6xl md:text-8xl" style={{ backgroundImage: "var(--gradient-primary)" }}>
+          <span className="font-cursive bg-clip-text text-transparent text-6xl md:text-8xl font-mono" style={{ backgroundImage: "var(--gradient-primary)" }}>
             proxy
           </span>{" "}
           built for{" "}
-          <span className="font-cursive bg-clip-text text-transparent text-6xl md:text-8xl" style={{ backgroundImage: "var(--gradient-hero)" }}>
+          <span className="font-cursive bg-clip-text text-transparent text-6xl md:text-8xl font-mono" style={{ backgroundImage: "var(--gradient-hero)" }}>
             resellers
           </span>
         </h1>
