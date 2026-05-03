@@ -132,8 +132,13 @@ function Index() {
   }, [loading, session, isAdmin, navigate]);
 
   return (
-    <div className="relative min-h-screen bg-background text-foreground" style={{ backgroundImage: "var(--gradient-mesh)" }}>
-      <NetworkBackground className="pointer-events-none fixed inset-0 -z-10 h-full w-full opacity-70" />
+    <div className="relative min-h-screen text-foreground">
+      <div
+        aria-hidden="true"
+        className="pointer-events-none fixed inset-0 -z-20 bg-background"
+        style={{ backgroundImage: "var(--gradient-mesh)" }}
+      />
+      <NetworkBackground className="pointer-events-none fixed inset-0 -z-10 h-full w-full opacity-80" />
       <a
         href="#main"
         className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-primary focus:px-4 focus:py-2 focus:text-primary-foreground focus:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
