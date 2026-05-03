@@ -27,7 +27,7 @@ export const Route = createFileRoute("/")({
     { name: "twitter:description", content: "API keys, wallet billing, IP whitelist & live logs — built for resellers." },
     { name: "twitter:image", content: "/og-image.jpg" },
   ], links: [
-    { rel: "canonical", href: "https://sass.hyperapi.in/" },
+    { rel: "canonical", href: "https://secure-proxy-hub.lovable.app/" },
   ], scripts: [
     {
       type: "application/ld+json",
@@ -39,7 +39,7 @@ export const Route = createFileRoute("/")({
         operatingSystem: "Web",
         description: "Secure API reseller platform with IP whitelist, rate limiting, wallet billing and live request logs.",
         offers: { "@type": "Offer", price: "0", priceCurrency: "INR" },
-        url: "https://sass.hyperapi.in/",
+        url: "https://secure-proxy-hub.lovable.app/",
       }),
     },
   ] }),

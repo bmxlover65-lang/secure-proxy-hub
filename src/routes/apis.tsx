@@ -15,12 +15,12 @@ export const Route = createFileRoute("/apis")({
     { property: "og:title", content: "Lottery Game APIs — Wingo, K3, 5D, TRX, Moto Racing" },
     { property: "og:description", content: "Premium reseller API access to all major lottery games. Contact us on Telegram @Hyperdeveloperr." },
     { property: "og:type", content: "website" },
-    { property: "og:url", content: "https://sass.hyperapi.in/apis" },
-  ], links: [{ rel: "canonical", href: "https://sass.hyperapi.in/apis" }] }),
+    { property: "og:url", content: "https://secure-proxy-hub.lovable.app/apis" },
+  ], links: [{ rel: "canonical", href: "https://secure-proxy-hub.lovable.app/apis" }] }),
 });
 
 const TELEGRAM = "Hyperdeveloperr";
-const SITE = "sass.hyperapi.in";
+const SITE = "secure-proxy-hub.lovable.app";
 
 const GAMES = [
   {

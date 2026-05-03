@@ -40,7 +40,7 @@ export const createTopupOrder = createServerFn({ method: "POST" })
     // Build callback URL from request host
     let host = "";
     try { host = getRequestHost(); } catch { /* ignore */ }
-    const baseUrl = host ? `https://${host}` : "https://sass.hyperapi.in";
+    const baseUrl = host ? `https://${host}` : "https://secure-proxy-hub.lovable.app";
     const callbackUrl = `${baseUrl}/api/public/bondpay-callback`;
 
     const signature = md5(`${merchantId}${amountStr}${merchantOrderNo}${apiKey}${callbackUrl}`);
