@@ -240,6 +240,44 @@ function Index() {
         </div>
       </section>
 
+      {/* QUICK ACCESS CTA */}
+      <section aria-labelledby="quick-access-heading" className="mx-auto max-w-5xl px-4 pb-8">
+        <div
+          className="relative overflow-hidden rounded-3xl border border-primary/30 p-8 text-center md:p-12"
+          style={{ background: "var(--gradient-card)", boxShadow: "var(--shadow-glow)" }}
+        >
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0 opacity-30"
+            style={{ backgroundImage: "var(--gradient-mesh)" }}
+          />
+          <div className="relative">
+            <h2 id="quick-access-heading" className="font-display text-3xl font-bold tracking-tight md:text-5xl">
+              Jump straight into your{" "}
+              <span className="font-cursive bg-clip-text text-transparent" style={{ backgroundImage: "var(--gradient-primary)" }}>
+                workspace
+              </span>
+            </h2>
+            <p className="mx-auto mt-3 max-w-xl text-muted-foreground">
+              Manage keys, monitor live usage, and read the integration docs — all in one place.
+            </p>
+            <div className="mt-7 flex flex-wrap justify-center gap-3">
+              <Button asChild size="lg" className="shadow-lg" style={{ boxShadow: "var(--shadow-glow)" }}>
+                <Link to="/dashboard">
+                  <LayoutDashboard className="mr-1.5 h-4 w-4" aria-hidden="true" /> View Reseller Panel
+                  <ArrowRight className="ml-1.5 h-4 w-4" aria-hidden="true" />
+                </Link>
+              </Button>
+              <Button asChild size="lg" variant="outline">
+                <Link to="/dashboard/docs">
+                  <BookOpen className="mr-1.5 h-4 w-4" aria-hidden="true" /> View API Docs
+                </Link>
+              </Button>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* VALUE PROP — security & control */}
       <section id="security" aria-labelledby="security-heading" className="mx-auto max-w-6xl px-4 pb-12">
         <div className="mb-8 text-center">
