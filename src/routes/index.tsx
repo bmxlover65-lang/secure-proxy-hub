@@ -285,7 +285,11 @@ function Index() {
       <section id="security" aria-labelledby="security-heading" className="mx-auto max-w-6xl px-4 pb-12">
         <div className="mb-8 text-center">
           <h2 id="security-heading" className="font-display text-3xl font-bold tracking-tight md:text-5xl">
-            Enterprise-grade <span className="font-cursive text-primary font-mono">security</span> &amp; control
+            Enterprise-grade{" "}
+            <span className="font-cursive bg-clip-text text-transparent text-5xl md:text-7xl" style={{ backgroundImage: "var(--gradient-primary)" }}>
+              security
+            </span>{" "}
+            &amp; control
           </h2>
           <p className="mx-auto mt-3 max-w-2xl text-muted-foreground">Every API key you mint is protected by enterprise-grade controls — out of the box.</p>
         </div>
@@ -351,7 +355,11 @@ function Index() {
             <Coins className="h-3.5 w-3.5" aria-hidden="true" /> Pay-as-you-go • No subscription
           </div>
           <h2 id="pricing-heading" className="font-display text-3xl font-bold tracking-tight md:text-5xl">
-            Simple, <span className="font-cursive text-primary font-mono">transparent</span> pricing
+            Simple,{" "}
+            <span className="font-cursive bg-clip-text text-transparent text-5xl md:text-7xl" style={{ backgroundImage: "var(--gradient-hero)" }}>
+              transparent
+            </span>{" "}
+            pricing
           </h2>
           <p className="mx-auto mt-3 max-w-2xl text-muted-foreground">
             One flat rate: <span className="font-semibold text-foreground">1000 coins = ₹2000</span>.
@@ -425,7 +433,10 @@ function Index() {
             <HelpCircle className="h-3.5 w-3.5" aria-hidden="true" /> Frequently asked questions
           </div>
           <h2 id="faq-heading" className="font-display text-3xl font-bold tracking-tight md:text-5xl">
-            Questions <span className="font-cursive text-primary font-mono">answered</span>
+            Questions{" "}
+            <span className="font-cursive bg-clip-text text-transparent text-5xl md:text-7xl" style={{ backgroundImage: "var(--gradient-primary)" }}>
+              answered
+            </span>
           </h2>
           <p className="mx-auto mt-3 max-w-2xl text-muted-foreground">
             Everything you need to know about 30-day fixed validity, IP &amp; domain whitelisting, and how Hyper Softs reseller keys work.
@@ -455,7 +466,10 @@ function Index() {
             <Send className="h-7 w-7 text-primary-foreground" aria-hidden="true" />
           </div>
           <h2 id="contact-heading" className="font-display text-3xl font-bold tracking-tight md:text-5xl">
-            Talk to us <span className="font-cursive text-primary font-mono">on Telegram</span>
+            Talk to us{" "}
+            <span className="font-cursive bg-clip-text text-transparent text-5xl md:text-7xl" style={{ backgroundImage: "var(--gradient-hero)" }}>
+              on Telegram
+            </span>
           </h2>
           <p className="mx-auto mt-3 max-w-xl text-muted-foreground">
             Custom plans, bulk coins, integration help or anything else — message us directly.
