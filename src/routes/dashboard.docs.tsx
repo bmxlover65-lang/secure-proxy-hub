@@ -12,6 +12,27 @@ const ENDPOINTS = [
   { cat: "motorace", games: ["1m"] },
 ];
 
+const TYPES = [
+  { type: "period", desc: "Current period info (issue number, countdown, current/previous/next)", sample: `{
+  "success": true,
+  "data": {
+    "current": { "issueNumber": "...", "endTime": "..." },
+    "previous": { "issueNumber": "...", "number": 5 },
+    "next": { "issueNumber": "..." }
+  }
+}` },
+  { type: "history", desc: "Recent results list (raw upstream JSON)", sample: `{
+  "success": true,
+  "data": {
+    "list": [
+      { "issueNumber": "...", "number": 4, "colour": "red" },
+      { "issueNumber": "...", "number": 7, "colour": "green" }
+    ]
+  }
+}` },
+  { type: "sametrend", desc: "Latest result number only (plain text response)", sample: `4` },
+];
+
 const ERRORS = [
   { code: 401, msg: "Invalid API key" },
   { code: 403, msg: "Domain / IP not whitelisted" },
@@ -42,6 +63,28 @@ function DocsPage() {
           <h3 className="text-base font-semibold">Authentication</h3>
           <p className="text-sm text-muted-foreground">Pass your API key as the <code className="rounded bg-secondary/40 px-1">api_key</code> query parameter.</p>
 
+          <h3 className="text-base font-semibold">Query parameters</h3>
+          <table className="w-full text-sm">
+            <thead className="text-left text-[11px] uppercase tracking-wider text-muted-foreground">
+              <tr className="border-b border-border/40"><th className="p-2">Param</th><th>Required</th><th>Description</th></tr>
+            </thead>
+            <tbody>
+              <tr className="border-b border-border/30"><td className="p-2 font-mono">api_key</td><td>Yes</td><td>Your HAPI_… key from the Keys page</td></tr>
+              <tr className="border-b border-border/30"><td className="p-2 font-mono">category</td><td>Yes</td><td>wingo, k3, d5, motorace</td></tr>
+              <tr className="border-b border-border/30"><td className="p-2 font-mono">game</td><td>Yes</td><td>1m, 3m, 5m, 10m (motorace: 1m only)</td></tr>
+              <tr className="border-b border-border/30"><td className="p-2 font-mono">type</td><td>No</td><td>period (default), history, sametrend</td></tr>
+            </tbody>
+          </table>
+
+          <h3 className="text-base font-semibold">Response types</h3>
+          {TYPES.map((t) => (
+            <div key={t.type} className="space-y-2">
+              <div className="text-sm"><code className="rounded bg-secondary/40 px-1 font-mono">type={t.type}</code> — <span className="text-muted-foreground">{t.desc}</span></div>
+              <pre className="overflow-x-auto rounded-md bg-secondary/40 p-3 font-mono text-xs">{`${base}/api/public/proxy?category=wingo&game=1m&api_key=HAPI_XXXX&type=${t.type}`}</pre>
+              <pre className="overflow-x-auto rounded-md bg-secondary/40 p-3 font-mono text-xs">{t.sample}</pre>
+            </div>
+          ))}
+
           <h3 className="text-base font-semibold">Example request</h3>
           <pre className="overflow-x-auto rounded-md bg-secondary/40 p-3 font-mono text-xs">
 {`curl "${base}/api/public/proxy?category=wingo&game=1m&api_key=HAPI_XXXX"`}
@@ -52,16 +95,6 @@ function DocsPage() {
 {`const res = await fetch("${base}/api/public/proxy?category=wingo&game=1m&api_key=HAPI_XXXX");
 const json = await res.json();
 console.log(json.data);`}
-          </pre>
-
-          <h3 className="text-base font-semibold">Example response</h3>
-          <pre className="overflow-x-auto rounded-md bg-secondary/40 p-3 font-mono text-xs">
-{`{
-  "success": true,
-  "category": "wingo",
-  "game": "1m",
-  "data": { /* upstream payload */ }
-}`}
           </pre>
 
           <h3 className="text-base font-semibold">Endpoints</h3>
