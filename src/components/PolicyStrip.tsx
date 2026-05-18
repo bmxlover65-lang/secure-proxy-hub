@@ -15,8 +15,7 @@ export function PolicyStrip() {
     if (typeof window === "undefined") return;
     try {
       if (sessionStorage.getItem("policy_notice_accepted") === "1") return;
-      const t = setTimeout(() => setNoticeOpen(true), 400);
-      return () => clearTimeout(t);
+      setNoticeOpen(true);
     } catch {
       /* ignore */
     }
