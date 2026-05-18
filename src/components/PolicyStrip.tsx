@@ -2,24 +2,34 @@ import { useEffect, useState } from "react";
 import { ShieldAlert } from "lucide-react";
 import { useLocation } from "@tanstack/react-router";
 import { PolicyModal } from "./PolicyModal";
+import { ImportantNoticeModal } from "./ImportantNoticeModal";
 
 export function PolicyStrip() {
   const [open, setOpen] = useState(false);
+  const [noticeOpen, setNoticeOpen] = useState(false);
   const location = useLocation();
 
-  // Auto-open on landing page (only once per session)
+  // Auto-open Important Notice on landing page (only once per session)
   useEffect(() => {
     if (location.pathname !== "/") return;
     if (typeof window === "undefined") return;
     try {
-      if (sessionStorage.getItem("policy_seen") === "1") return;
-      sessionStorage.setItem("policy_seen", "1");
-      const t = setTimeout(() => setOpen(true), 600);
+      if (sessionStorage.getItem("policy_notice_accepted") === "1") return;
+      const t = setTimeout(() => setNoticeOpen(true), 400);
       return () => clearTimeout(t);
     } catch {
       /* ignore */
     }
   }, [location.pathname]);
+
+  const handleAccept = () => {
+    try {
+      sessionStorage.setItem("policy_notice_accepted", "1");
+    } catch {
+      /* ignore */
+    }
+    setNoticeOpen(false);
+  };
 
   return (
     <>
@@ -46,6 +56,7 @@ export function PolicyStrip() {
         </div>
       </div>
       <PolicyModal open={open} onClose={() => setOpen(false)} />
+      <ImportantNoticeModal open={noticeOpen} onAccept={handleAccept} />
     </>
   );
 }
