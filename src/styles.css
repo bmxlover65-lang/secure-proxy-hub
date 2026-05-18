@@ -89,7 +89,7 @@
   --warning: oklch(0.78 0.16 75);
   --gold: oklch(0.82 0.16 85);
   --gold-foreground: oklch(0.18 0.04 60);
-  --gradient-policy: linear-gradient(135deg, oklch(0.22 0.08 25) 0%, oklch(0.24 0.08 60) 100%);
+  --gradient-policy: var(--gradient-card);
   --border: oklch(0.3 0.025 260);
   --input: oklch(0.27 0.025 260);
   --ring: oklch(0.72 0.18 200);
