@@ -1,50 +1,13 @@
 import { useEffect } from "react";
-import { FileText, X, ShieldAlert, Globe, Scale, UserX, Mail, CheckCircle2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { FileText, X } from "lucide-react";
 
 interface PolicyModalProps {
   open: boolean;
   onClose: () => void;
 }
 
-const sections = [
-  {
-    icon: Globe,
-    title: "Geographic Restrictions",
-    body:
-      "This service is strictly not available to users located in India, Nepal, or Sri Lanka. Any attempt to access from these regions is a violation of our terms.",
-  },
-  {
-    icon: ShieldAlert,
-    title: "IP Verification",
-    body:
-      "All incoming requests are subject to IP-based geolocation verification. Requests originating from restricted regions are logged and blocked automatically.",
-  },
-  {
-    icon: Scale,
-    title: "Legal Compliance",
-    body:
-      "Users are solely responsible for ensuring that their use of this service complies with all applicable local, national, and international laws and regulations.",
-  },
-  {
-    icon: UserX,
-    title: "Account Termination",
-    body:
-      "Accounts found in violation of geographic restrictions, abusing the API, or attempting to bypass security measures will be terminated without notice or refund.",
-  },
-  {
-    icon: Mail,
-    title: "Authorized Operator Contact",
-    body:
-      "This service is operated by Raj, based in Dhaka, Bangladesh. All official inquiries, support requests, and legal notices must be directed to this authorized contact only.",
-  },
-  {
-    icon: CheckCircle2,
-    title: "Acceptance of Terms",
-    body:
-      "By accessing or using this service, you acknowledge that you have read, understood, and agree to be bound by this policy in full.",
-  },
-];
+const EFFECTIVE_DATE = "2025-10-01";
+const LAST_UPDATED = "2025-10-01";
 
 export function PolicyModal({ open, onClose }: PolicyModalProps) {
   useEffect(() => {
@@ -70,80 +33,177 @@ export function PolicyModal({ open, onClose }: PolicyModalProps) {
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
       <div
-        className="absolute inset-0 bg-background/80 backdrop-blur-md"
+        className="absolute inset-0 bg-background/85 backdrop-blur-md"
         onClick={onClose}
         aria-hidden
       />
+
       <div
         role="dialog"
         aria-modal="true"
-        aria-labelledby="policy-modal-title"
-        className="relative z-10 w-full max-w-2xl max-h-[90vh] flex flex-col rounded-2xl border border-[hsl(var(--gold)/0.4)] bg-card shadow-2xl"
+        aria-labelledby="restriction-policy-title"
+        className="relative z-10 w-full max-w-2xl max-h-[88vh] flex flex-col rounded-2xl border border-[color:var(--gold)]/50 overflow-hidden"
         style={{
           background: "var(--gradient-policy)",
           boxShadow:
-            "0 0 0 1px color-mix(in oklab, var(--gold) 30%, transparent), 0 30px 80px -20px color-mix(in oklab, black 70%, transparent)",
+            "0 0 0 1px color-mix(in oklab, var(--gold) 25%, transparent), 0 30px 80px -20px color-mix(in oklab, black 80%, transparent), 0 0 60px -20px color-mix(in oklab, var(--gold) 30%, transparent)",
         }}
       >
         {/* Corner decorations */}
-        <span className="pointer-events-none absolute top-0 left-0 h-6 w-6 border-t-2 border-l-2 border-[color:var(--gold)] rounded-tl-2xl" />
-        <span className="pointer-events-none absolute top-0 right-0 h-6 w-6 border-t-2 border-r-2 border-[color:var(--gold)] rounded-tr-2xl" />
-        <span className="pointer-events-none absolute bottom-0 left-0 h-6 w-6 border-b-2 border-l-2 border-[color:var(--gold)] rounded-bl-2xl" />
-        <span className="pointer-events-none absolute bottom-0 right-0 h-6 w-6 border-b-2 border-r-2 border-[color:var(--gold)] rounded-br-2xl" />
+        <span className="pointer-events-none absolute top-2 left-2 h-5 w-5 border-t-2 border-l-2 border-[color:var(--gold)] rounded-tl-lg" />
+        <span className="pointer-events-none absolute top-2 right-2 h-5 w-5 border-t-2 border-r-2 border-[color:var(--gold)] rounded-tr-lg" />
+        <span className="pointer-events-none absolute bottom-2 left-2 h-5 w-5 border-b-2 border-l-2 border-[color:var(--gold)] rounded-bl-lg" />
+        <span className="pointer-events-none absolute bottom-2 right-2 h-5 w-5 border-b-2 border-r-2 border-[color:var(--gold)] rounded-br-lg" />
 
-        {/* Header */}
-        <div className="flex items-start justify-between gap-4 p-5 sm:p-6 border-b border-[color:var(--gold)]/20">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[color:var(--gold)]/15 border border-[color:var(--gold)]/40">
-              <FileText className="h-5 w-5 text-[color:var(--gold)]" />
+        {/* Close button */}
+        <button
+          onClick={onClose}
+          aria-label="Close policy"
+          className="absolute top-4 right-4 z-10 flex h-8 w-8 items-center justify-center rounded-full border border-[color:var(--gold)]/40 bg-background/40 text-foreground/70 hover:text-[color:var(--gold)] hover:bg-[color:var(--gold)]/10 transition-colors"
+        >
+          <X className="h-4 w-4" />
+        </button>
+
+        {/* Scrollable body */}
+        <div className="flex-1 overflow-y-auto px-6 sm:px-10 pt-8 pb-6">
+          {/* Header icon + title */}
+          <div className="flex flex-col items-center text-center mb-8">
+            <div
+              className="flex h-16 w-16 items-center justify-center rounded-full border-2 border-[color:var(--gold)]/60 mb-4"
+              style={{
+                background:
+                  "radial-gradient(circle, color-mix(in oklab, var(--gold) 20%, transparent), transparent 70%)",
+              }}
+            >
+              <FileText className="h-7 w-7 text-[color:var(--gold)]" />
             </div>
-            <div>
-              <h2
-                id="policy-modal-title"
-                className="text-lg sm:text-xl font-semibold text-[color:var(--gold)]"
-              >
-                Service Policy & Restrictions
-              </h2>
-              <p className="text-xs text-foreground/60">
-                Please read carefully before continuing
+            <h2
+              id="restriction-policy-title"
+              className="text-3xl sm:text-4xl font-bold text-[color:var(--gold)] tracking-tight"
+              style={{ fontFamily: "'Playfair Display', serif" }}
+            >
+              Restriction Policy
+            </h2>
+            <span className="mt-2 h-0.5 w-24 bg-[color:var(--gold)]/60 rounded-full" />
+          </div>
+
+          <div className="space-y-6 text-sm leading-relaxed text-foreground/85">
+            <section>
+              <h3 className="text-base font-semibold text-[color:var(--gold)] mb-2">
+                1. Geographic Restrictions
+              </h3>
+              <p>
+                This website and all associated services are{" "}
+                <span className="text-destructive font-medium">strictly prohibited</span> for
+                users located in or accessing from the following countries:
               </p>
+              <ul className="mt-2 ml-5 list-disc space-y-1">
+                <li>
+                  <span className="font-semibold text-foreground">India</span>{" "}
+                  <span className="text-foreground/70">(including all states and union territories)</span>
+                </li>
+                <li><span className="font-semibold text-foreground">Nepal</span></li>
+                <li><span className="font-semibold text-foreground">Sri Lanka</span></li>
+              </ul>
+              <p className="mt-3">
+                Any attempt to access this service from these regions using VPNs, proxies, or any
+                other circumvention tools is a violation of this policy.
+              </p>
+            </section>
+
+            <section>
+              <h3 className="text-base font-semibold text-[color:var(--gold)] mb-2">
+                2. IP Verification
+              </h3>
+              <p>
+                We actively monitor and verify user IP addresses. Access from IP ranges geolocated
+                to India, Nepal, or Sri Lanka will be blocked automatically. Users may be required
+                to undergo additional verification if their location cannot be definitively
+                determined.
+              </p>
+            </section>
+
+            <section>
+              <h3 className="text-base font-semibold text-[color:var(--gold)] mb-2">
+                3. Legal Compliance
+              </h3>
+              <p>
+                This restriction is in place to comply with applicable laws and regulations in the
+                respective jurisdictions. Users are solely responsible for ensuring their use of
+                this service complies with all local laws in their country of residence.
+              </p>
+            </section>
+
+            <section>
+              <h3 className="text-base font-semibold text-[color:var(--gold)] mb-2">
+                4. Account Termination
+              </h3>
+              <p>
+                Any account found to be operated from India, Nepal, or Sri Lanka will be{" "}
+                <span className="text-destructive font-medium">immediately terminated</span>{" "}
+                without notice, and any associated balances will be forfeited.
+              </p>
+            </section>
+
+            <section>
+              <h3 className="text-base font-semibold text-[color:var(--gold)] mb-2">
+                5. Authorized Operator Contact
+              </h3>
+              <p>
+                All queries, issues, or disputes must be directed to the authorized operator only.
+                We do not provide direct support to end users.
+              </p>
+              <div className="mt-3 rounded-lg border border-[color:var(--gold)]/40 bg-background/40 p-4">
+                <div className="text-foreground">
+                  <span className="font-semibold">Contact Person:</span> Raj
+                </div>
+                <div className="text-[color:var(--gold)] mt-1">
+                  Location: Dhaka, Bangladesh
+                </div>
+              </div>
+            </section>
+
+            <section>
+              <h3 className="text-base font-semibold text-[color:var(--gold)] mb-2">
+                6. Acceptance of Terms
+              </h3>
+              <p>
+                By accessing this website, you explicitly confirm and warrant that you are{" "}
+                <span className="text-destructive font-medium">NOT located in India, Nepal, or Sri Lanka</span>{" "}
+                and agree to comply with all terms outlined in this policy.
+              </p>
+            </section>
+
+            <div className="pt-4 border-t border-[color:var(--gold)]/20 text-xs text-foreground/65 space-y-1">
+              <div>
+                <span className="font-semibold text-foreground/80">Effective Date:</span>{" "}
+                {EFFECTIVE_DATE}
+              </div>
+              <div>
+                <span className="font-semibold text-foreground/80">Last Updated:</span>{" "}
+                {LAST_UPDATED}
+              </div>
+              <div className="text-foreground/55">
+                This policy is subject to change without prior notice.
+              </div>
             </div>
           </div>
-          <button
-            onClick={onClose}
-            aria-label="Close policy"
-            className="rounded-md p-1.5 text-foreground/60 hover:bg-[color:var(--gold)]/10 hover:text-[color:var(--gold)] transition-colors"
-          >
-            <X className="h-5 w-5" />
-          </button>
-        </div>
-
-        {/* Body */}
-        <div className="flex-1 overflow-y-auto p-5 sm:p-6 space-y-4">
-          {sections.map(({ icon: Icon, title, body }) => (
-            <div
-              key={title}
-              className="rounded-lg border border-[color:var(--gold)]/15 bg-background/30 p-4"
-            >
-              <div className="flex items-center gap-2 mb-1.5">
-                <Icon className="h-4 w-4 text-[color:var(--gold)]" />
-                <h3 className="text-sm font-semibold text-foreground">{title}</h3>
-              </div>
-              <p className="text-xs sm:text-[13px] leading-relaxed text-foreground/75">
-                {body}
-              </p>
-            </div>
-          ))}
         </div>
 
         {/* Footer */}
-        <div className="p-4 sm:p-5 border-t border-[color:var(--gold)]/20 flex justify-end">
-          <Button
+        <div className="px-6 sm:px-10 pb-6">
+          <button
             onClick={onClose}
-            className="bg-[color:var(--gold)] text-[color:var(--gold-foreground)] hover:bg-[color:var(--gold)]/90"
+            className="w-full rounded-xl py-3.5 text-sm font-bold tracking-wide text-[color:var(--gold-foreground)] transition-transform hover:scale-[1.01] active:scale-[0.99]"
+            style={{
+              background:
+                "linear-gradient(90deg, oklch(0.78 0.16 60), oklch(0.86 0.17 85), oklch(0.78 0.16 60))",
+              boxShadow:
+                "0 10px 30px -10px color-mix(in oklab, var(--gold) 60%, transparent)",
+            }}
           >
-            Close Policy
-          </Button>
+            CLOSE POLICY
+          </button>
         </div>
       </div>
     </div>
