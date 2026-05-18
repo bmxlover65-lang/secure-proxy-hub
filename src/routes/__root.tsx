@@ -3,6 +3,7 @@ import { Outlet, Link, createRootRoute, HeadContent, Scripts } from "@tanstack/r
 import appCss from "../styles.css?url";
 import { AuthProvider } from "@/lib/auth-context";
 import { Toaster } from "@/components/ui/sonner";
+import { PolicyStrip } from "@/components/PolicyStrip";
 
 function NotFoundComponent() {
   return (
@@ -74,6 +75,11 @@ function RootComponent() {
     <AuthProvider>
       <Outlet />
       <Toaster />
+      <div className="fixed bottom-0 left-0 right-0 z-[60] pointer-events-none">
+        <div className="pointer-events-auto">
+          <PolicyStrip />
+        </div>
+      </div>
     </AuthProvider>
   );
 }
