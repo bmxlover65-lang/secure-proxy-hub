@@ -95,9 +95,9 @@ function LoginPage() {
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <Label htmlFor="password" className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Password</Label>
-            <button type="button" className="text-xs text-muted-foreground transition-colors hover:text-primary">
+            <Link to="/forgot-password" className="text-xs text-muted-foreground transition-colors hover:text-primary">
               Forgot?
-            </button>
+            </Link>
           </div>
           <div className="group relative">
             <Lock className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground transition-colors group-focus-within:text-primary" />
