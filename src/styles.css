@@ -178,6 +178,15 @@
 }
 
 @layer utilities {
+  /* Reserve space so the fixed PolicyStrip at the bottom never covers content */
+  body {
+    padding-bottom: 3.75rem;
+  }
+  @media (min-width: 640px) {
+    body {
+      padding-bottom: 2.75rem;
+    }
+  }
   .scrollbar-slim {
     scrollbar-width: thin;
     scrollbar-color: color-mix(in oklab, var(--primary) 35%, transparent) transparent;

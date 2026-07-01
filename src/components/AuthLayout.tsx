@@ -40,7 +40,7 @@ export function AuthLayout({ children, title, subtitle }: { children: ReactNode;
       </header>
 
       {/* Main */}
-      <main className="relative z-10 grid min-h-[calc(100vh-80px)] grid-cols-1 gap-12 px-6 pb-12 md:px-10 lg:grid-cols-2 lg:items-center lg:gap-20 lg:px-16">
+      <main className="relative z-10 grid min-h-[calc(100vh-80px)] grid-cols-1 gap-10 px-4 pb-10 sm:px-6 sm:pb-12 md:px-10 lg:grid-cols-2 lg:items-center lg:gap-20 lg:px-16">
         {/* Left: marketing */}
         <div className="hidden flex-col gap-8 lg:flex">
           <div className="inline-flex w-fit items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary backdrop-blur-md">
@@ -86,8 +86,8 @@ export function AuthLayout({ children, title, subtitle }: { children: ReactNode;
         {/* Right: form card */}
         <div className="flex w-full items-center justify-center">
           <div className="w-full max-w-md">
-            <div className="mb-8">
-              <h2 className="text-3xl font-bold tracking-tight md:text-4xl">{title}</h2>
+            <div className="mb-6 sm:mb-8">
+              <h2 className="text-2xl font-bold tracking-tight sm:text-3xl md:text-4xl">{title}</h2>
               <p className="mt-2 text-sm text-muted-foreground">{subtitle}</p>
             </div>
             {children}
