@@ -198,18 +198,18 @@ function Index() {
         <div className="mx-auto mb-6 inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary">
           <Sparkles className="h-3.5 w-3.5" aria-hidden="true" /> Trusted by 200+ resellers worldwide
         </div>
-        <h1 id="hero-heading" className="font-display text-balance text-5xl font-bold leading-[1.05] tracking-tight md:text-7xl">
+        <h1 id="hero-heading" className="font-display text-balance text-4xl font-bold leading-[1.05] tracking-tight sm:text-5xl md:text-7xl">
           Premium API proxy for{" "}
-          <span className="font-cursive bg-clip-text text-transparent text-6xl md:text-8xl" style={{ backgroundImage: "var(--gradient-primary)" }}>
+          <span className="font-cursive bg-clip-text text-transparent text-5xl sm:text-6xl md:text-8xl" style={{ backgroundImage: "var(--gradient-primary)" }}>
             SaaS
           </span>
           <br />
-          <span className="font-cursive bg-clip-text text-transparent text-6xl md:text-8xl" style={{ backgroundImage: "var(--gradient-hero)" }}>
+          <span className="font-cursive bg-clip-text text-transparent text-5xl sm:text-6xl md:text-8xl" style={{ backgroundImage: "var(--gradient-hero)" }}>
             Lottery Game
           </span>{" "}
           resellers
         </h1>
-        <p className="mx-auto mt-6 max-w-2xl text-balance text-lg leading-relaxed text-muted-foreground md:text-xl">
+        <p className="mx-auto mt-6 max-w-2xl text-balance text-base leading-relaxed text-muted-foreground sm:text-lg md:text-xl">
           Mint 30-day API keys, lock them to your IPs and domains, and bill your wallet in coins —
           all from one beautifully crafted dashboard for SaaS &amp; lottery-game resellers.
         </p>

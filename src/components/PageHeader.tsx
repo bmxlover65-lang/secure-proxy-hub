@@ -13,7 +13,7 @@ export function PageHeader({
 }) {
   return (
     <div
-      className="relative overflow-hidden rounded-2xl border border-border/60 p-6 md:p-8"
+      className="relative overflow-hidden rounded-2xl border border-border/60 p-4 sm:p-6 md:p-8"
       style={{ background: "var(--gradient-card)" }}
     >
       <div
@@ -21,21 +21,21 @@ export function PageHeader({
         style={{ background: "var(--gradient-primary)" }}
       />
       <div className="relative flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <div className="flex items-center gap-4">
+        <div className="flex min-w-0 items-center gap-3 sm:gap-4">
           {Icon && (
             <div
-              className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl"
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl sm:h-12 sm:w-12"
               style={{ background: "var(--gradient-primary)", boxShadow: "var(--shadow-glow)" }}
             >
-              <Icon className="h-6 w-6 text-primary-foreground" />
+              <Icon className="h-5 w-5 text-primary-foreground sm:h-6 sm:w-6" />
             </div>
           )}
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight md:text-3xl">{title}</h1>
-            {description && <p className="mt-1 text-sm text-muted-foreground">{description}</p>}
+          <div className="min-w-0">
+            <h1 className="truncate text-xl font-bold tracking-tight sm:text-2xl md:text-3xl">{title}</h1>
+            {description && <p className="mt-1 text-xs text-muted-foreground sm:text-sm">{description}</p>}
           </div>
         </div>
-        {actions && <div className="flex shrink-0 flex-wrap items-center gap-2">{actions}</div>}
+        {actions && <div className="flex flex-wrap items-center gap-2 md:shrink-0">{actions}</div>}
       </div>
     </div>
   );
