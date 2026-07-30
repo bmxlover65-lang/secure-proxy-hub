@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { BookOpen, Copy, Globe, KeyRound, ShieldCheck, AlertTriangle, FolderTree, CalendarClock } from "lucide-react";
-import { SUPPORTED_GAMES } from "@/server/upstream";
+import { SUPPORTED_GAMES } from "@/lib/games";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/admin/docs")({

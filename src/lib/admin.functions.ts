@@ -1,28 +1,18 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { sendSupabaseAuth } from "@/lib/server-function-auth";
-import { buildUpstreamUrl, fetchUpstream, SUPPORTED_GAMES, type UpstreamType } from "./upstream";
 
-async function assertAdmin(userId: string) {
-  const { data, error } = await supabaseAdmin
-    .from("user_roles")
-    .select("role")
-    .eq("user_id", userId)
-    .eq("role", "admin")
-    .maybeSingle();
-  if (error || !data) throw new Error("Forbidden: admin only");
-}
+import {
+  supabaseAdmin,
+  assertAdmin,
+  genKey,
+  buildUpstreamUrl,
+  fetchUpstream,
+  SUPPORTED_GAMES,
+  type UpstreamType,
+} from "./admin.server";
 
-function genKey() {
-  const bytes = new Uint8Array(20);
-  crypto.getRandomValues(bytes);
-  const hex = Array.from(bytes).map((b) => b.toString(16).padStart(2, "0")).join("").toUpperCase();
-  return `HAPI_${hex}`;
-}
-
-// --- Admin: test single upstream live ---
 export const adminTestUpstream = createServerFn({ method: "POST" })
   .middleware([sendSupabaseAuth, requireSupabaseAuth])
   .inputValidator((d) =>
@@ -45,7 +35,7 @@ export const adminTestUpstream = createServerFn({ method: "POST" })
     }
   });
 
-// --- Admin: test all upstream endpoints ---
+
 export const adminTestAllUpstreams = createServerFn({ method: "POST" })
   .middleware([sendSupabaseAuth, requireSupabaseAuth])
   .handler(async ({ context }) => {
@@ -73,7 +63,7 @@ export const adminTestAllUpstreams = createServerFn({ method: "POST" })
     return { results, checkedAt: new Date().toISOString() };
   });
 
-// --- API client CRUD ---
+
 export const adminCreateClient = createServerFn({ method: "POST" })
   .middleware([sendSupabaseAuth, requireSupabaseAuth])
   .inputValidator((d) =>
@@ -119,6 +109,7 @@ export const adminCreateClient = createServerFn({ method: "POST" })
     return { client };
   });
 
+
 export const adminUpdateClient = createServerFn({ method: "POST" })
   .middleware([sendSupabaseAuth, requireSupabaseAuth])
   .inputValidator((d) =>
@@ -155,6 +146,7 @@ export const adminUpdateClient = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+
 export const adminRegenerateKey = createServerFn({ method: "POST" })
   .middleware([sendSupabaseAuth, requireSupabaseAuth])
   .inputValidator((d) => z.object({ id: z.string().uuid() }).parse(d))
@@ -165,6 +157,7 @@ export const adminRegenerateKey = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { api_key };
   });
+
 
 export const adminDeleteClient = createServerFn({ method: "POST" })
   .middleware([sendSupabaseAuth, requireSupabaseAuth])
@@ -177,6 +170,7 @@ export const adminDeleteClient = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+
 
 export const adminSetIps = createServerFn({ method: "POST" })
   .middleware([sendSupabaseAuth, requireSupabaseAuth])
@@ -196,6 +190,7 @@ export const adminSetIps = createServerFn({ method: "POST" })
     }
     return { ok: true };
   });
+
 
 export const adminSetDomains = createServerFn({ method: "POST" })
   .middleware([sendSupabaseAuth, requireSupabaseAuth])
@@ -219,7 +214,7 @@ export const adminSetDomains = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
-// --- Bootstrap: claim admin if none exists yet ---
+
 export const claimAdminIfNone = createServerFn({ method: "POST" })
   .middleware([sendSupabaseAuth, requireSupabaseAuth])
   .handler(async ({ context }) => {
@@ -235,3 +230,4 @@ export const claimAdminIfNone = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { claimed: true };
   });
+

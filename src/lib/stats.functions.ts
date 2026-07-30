@@ -1,30 +1,8 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { supabaseAdmin } from "@/integrations/supabase/client.server";
-
-type Aggregated = {
-  total: number;
-  success: number;
-  failed: number;
-  byDay: { date: string; success: number; failed: number }[];
-  byEndpoint: { name: string; count: number }[];
-  byCategory: { name: string; value: number }[];
-  byStatus: { name: string; count: number }[];
-  generatedAt: number;
-};
-
-// In-memory cache (per worker instance). Keyed by range+client.
-const CACHE_TTL_MS = 60_000;
-const SLOW_MS = 800;
-const cache = new Map<string, { data: Aggregated; expires: number }>();
-const metrics = {
-  hits: 0,
-  misses: 0,
-  invalidations: 0,
-  slowQueries: 0,
-  lastQueryMs: 0,
-  lastSlowAt: 0 as number | null,
-};
+import { supabaseAdmin } from "./stats.server";
+import { CACHE_TTL_MS, SLOW_MS, cache, metrics } from "./stats.server";
+import type { Aggregated } from "./stats.server";
 
 export const getStats = createServerFn({ method: "GET" })
   .inputValidator((d) =>
@@ -106,12 +84,14 @@ export const getStats = createServerFn({ method: "GET" })
     return result;
   });
 
+
 export const invalidateStatsCache = createServerFn({ method: "POST" }).handler(async () => {
   const size = cache.size;
   cache.clear();
   metrics.invalidations++;
   return { cleared: size };
 });
+
 
 export const getStatsCacheMetrics = createServerFn({ method: "GET" }).handler(async () => {
   const now = Date.now();

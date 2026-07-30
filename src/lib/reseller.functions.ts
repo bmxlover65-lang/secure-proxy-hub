@@ -1,23 +1,10 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { sendSupabaseAuth } from "@/lib/server-function-auth";
 
-function genKey() {
-  const bytes = new Uint8Array(20);
-  crypto.getRandomValues(bytes);
-  const hex = Array.from(bytes).map((b) => b.toString(16).padStart(2, "0")).join("").toUpperCase();
-  return `HAPI_${hex}`;
-}
-
-async function getSetting(key: string, fallback: number): Promise<number> {
-  const { data } = await supabaseAdmin.from("app_settings").select("value").eq("key", key).maybeSingle();
-  if (!data) return fallback;
-  const v = data.value;
-  const n = typeof v === "number" ? v : Number(v);
-  return Number.isFinite(n) ? n : fallback;
-}
+import { supabaseAdmin } from "./reseller.server";
+import { assertAdmin, genKey, getSetting } from "./reseller.server";
 
 export const getMyOverview = createServerFn({ method: "GET" })
   .middleware([sendSupabaseAuth, requireSupabaseAuth])
@@ -41,6 +28,7 @@ export const getMyOverview = createServerFn({ method: "GET" })
       settings: settingsMap,
     };
   });
+
 
 export const resellerCreateClient = createServerFn({ method: "POST" })
   .middleware([sendSupabaseAuth, requireSupabaseAuth])
@@ -108,6 +96,7 @@ export const resellerCreateClient = createServerFn({ method: "POST" })
     return { client, new_balance: balRow as unknown as number, charged: cost };
   });
 
+
 export const resellerUpdateClient = createServerFn({ method: "POST" })
   .middleware([sendSupabaseAuth, requireSupabaseAuth])
   .inputValidator((d) =>
@@ -130,6 +119,7 @@ export const resellerUpdateClient = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+
 export const resellerDeleteClient = createServerFn({ method: "POST" })
   .middleware([sendSupabaseAuth, requireSupabaseAuth])
   .inputValidator((d) => z.object({ id: z.string().uuid() }).parse(d))
@@ -142,6 +132,7 @@ export const resellerDeleteClient = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+
 
 export const resellerSetIps = createServerFn({ method: "POST" })
   .middleware([sendSupabaseAuth, requireSupabaseAuth])
@@ -163,6 +154,7 @@ export const resellerSetIps = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+
 export const resellerSetDomains = createServerFn({ method: "POST" })
   .middleware([sendSupabaseAuth, requireSupabaseAuth])
   .inputValidator((d) =>
@@ -183,6 +175,7 @@ export const resellerSetDomains = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+
 export const resellerListLogs = createServerFn({ method: "GET" })
   .middleware([sendSupabaseAuth, requireSupabaseAuth])
   .handler(async ({ context }) => {
@@ -199,7 +192,7 @@ export const resellerListLogs = createServerFn({ method: "GET" })
     return { logs: logs ?? [] };
   });
 
-// Per-API-key usage metrics for the signed-in reseller, with optional date range
+
 export const getMyKeyMetrics = createServerFn({ method: "POST" })
   .middleware([sendSupabaseAuth, requireSupabaseAuth])
   .inputValidator((d) =>
@@ -263,7 +256,7 @@ export const getMyKeyMetrics = createServerFn({ method: "POST" })
     };
   });
 
-// Admin: per-user usage metrics with optional date range
+
 export const adminUserMetrics = createServerFn({ method: "POST" })
   .middleware([sendSupabaseAuth, requireSupabaseAuth])
   .inputValidator((d) =>
@@ -305,12 +298,6 @@ export const adminUserMetrics = createServerFn({ method: "POST" })
     return { metrics: per };
   });
 
-// --- Admin: list users + balances + activity ---
-async function assertAdmin(userId: string) {
-  const { data, error } = await supabaseAdmin
-    .from("user_roles").select("role").eq("user_id", userId).eq("role", "admin").maybeSingle();
-  if (error || !data) throw new Error("Forbidden: admin only");
-}
 
 export const adminListUsers = createServerFn({ method: "GET" })
   .middleware([sendSupabaseAuth, requireSupabaseAuth])
@@ -335,6 +322,7 @@ export const adminListUsers = createServerFn({ method: "GET" })
     };
   });
 
+
 export const adminAdjustWallet = createServerFn({ method: "POST" })
   .middleware([sendSupabaseAuth, requireSupabaseAuth])
   .inputValidator((d) =>
@@ -357,6 +345,7 @@ export const adminAdjustWallet = createServerFn({ method: "POST" })
     return { new_balance: bal as unknown as number };
   });
 
+
 export const adminListTransactions = createServerFn({ method: "GET" })
   .middleware([sendSupabaseAuth, requireSupabaseAuth])
   .handler(async ({ context }) => {
@@ -373,6 +362,7 @@ export const adminListTransactions = createServerFn({ method: "GET" })
       transactions: (txs ?? []).map((t) => ({ ...t, user: map[t.user_id] ?? null })),
     };
   });
+
 
 export const adminUpdateSettings = createServerFn({ method: "POST" })
   .middleware([sendSupabaseAuth, requireSupabaseAuth])
@@ -393,6 +383,7 @@ export const adminUpdateSettings = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+
 
 export const adminSetUserRole = createServerFn({ method: "POST" })
   .middleware([sendSupabaseAuth, requireSupabaseAuth])
@@ -418,6 +409,7 @@ export const adminSetUserRole = createServerFn({ method: "POST" })
     }
     return { ok: true };
   });
+
 
 export const getPublicSettings = createServerFn({ method: "GET" }).handler(async () => {
   const { data } = await supabaseAdmin.from("app_settings").select("key,value");
