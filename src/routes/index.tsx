@@ -138,29 +138,30 @@ function Index() {
         className="pointer-events-none fixed inset-0 -z-20 bg-background"
         style={{ backgroundImage: "var(--gradient-mesh)" }}
       />
-      <NetworkBackground className="pointer-events-none fixed inset-0 -z-10 h-full w-full opacity-80" />
+      <div aria-hidden="true" className="grid-lines pointer-events-none fixed inset-0 -z-10 opacity-[0.28]" />
+      <NetworkBackground className="pointer-events-none fixed inset-0 -z-10 h-full w-full opacity-30" />
       <a
         href="#main"
         className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-primary focus:px-4 focus:py-2 focus:text-primary-foreground focus:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
       >
         Skip to main content
       </a>
-      <header className="sticky top-0 z-30 border-b border-border/60 bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/70">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3.5">
+      <header className="sticky top-0 z-30 border-b border-border bg-background/90 backdrop-blur supports-[backdrop-filter]:bg-background/80">
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
           <Link
             to="/"
             aria-label="Hyper Softs SaaS — Home"
             className="flex items-center gap-2.5 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
           >
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg" style={{ background: "var(--gradient-primary)", boxShadow: "var(--shadow-glow)" }}>
-              <Shield className="h-5 w-5 text-primary-foreground" aria-hidden="true" />
+            <div className="flex h-9 w-9 items-center justify-center border border-primary bg-primary">
+              <Shield className="h-5 w-5 text-primary-foreground" aria-hidden="true" strokeWidth={2.4} />
             </div>
             <div className="flex flex-col leading-none">
-              <span className="font-display text-base font-bold tracking-tight">Hyper Softs</span>
-              <span className="text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground">SaaS Platform</span>
+              <span className="font-display text-base font-bold uppercase tracking-tight">Hyper Softs</span>
+              <span className="label-mono mt-1">SaaS · Control Plane</span>
             </div>
           </Link>
-          <nav aria-label="Primary" className="hidden items-center gap-6 text-sm text-muted-foreground md:flex">
+          <nav aria-label="Primary" className="hidden items-center gap-6 text-[11px] uppercase tracking-[0.18em] text-muted-foreground md:flex">
             {[
               { href: "#security", label: "Security" },
               { href: "#features", label: "Features" },
@@ -194,54 +195,96 @@ function Index() {
 
       <main id="main">
       {/* HERO */}
-      <section aria-labelledby="hero-heading" className="relative mx-auto max-w-5xl px-4 py-20 text-center md:py-28">
-        <div className="mx-auto mb-6 inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary">
-          <Sparkles className="h-3.5 w-3.5" aria-hidden="true" /> Trusted by 200+ resellers worldwide
-        </div>
-        <h1 id="hero-heading" className="font-display text-balance text-4xl font-bold leading-[1.05] tracking-tight sm:text-5xl md:text-7xl">
-          Premium API proxy for{" "}
-          <span className="font-cursive bg-clip-text text-transparent text-5xl sm:text-6xl md:text-8xl" style={{ backgroundImage: "var(--gradient-primary)" }}>
-            SaaS
+      <section aria-labelledby="hero-heading" className="relative mx-auto max-w-6xl px-4 pb-12 pt-10 md:pt-14">
+        {/* status rail */}
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-2 border border-border bg-card/60 px-3 py-2 text-[10.5px] uppercase tracking-[0.18em] text-muted-foreground">
+          <span className="inline-flex items-center gap-2 text-primary">
+            <span className="h-1.5 w-1.5 animate-pulse bg-primary" /> System · Online
           </span>
-          <br />
-          <span className="font-cursive bg-clip-text text-transparent text-5xl sm:text-6xl md:text-8xl" style={{ backgroundImage: "var(--gradient-hero)" }}>
-            Lottery Game
-          </span>{" "}
-          resellers
-        </h1>
-        <p className="mx-auto mt-6 max-w-2xl text-balance text-base leading-relaxed text-muted-foreground sm:text-lg md:text-xl">
-          Mint 30-day API keys, lock them to your IPs and domains, and bill your wallet in coins —
-          all from one beautifully crafted dashboard for SaaS &amp; lottery-game resellers.
-        </p>
-        <div className="mt-8 flex flex-wrap justify-center gap-3">
-          <Button asChild size="lg" className="shadow-lg" style={{ boxShadow: "var(--shadow-glow)" }}>
-            <Link to="/signup">Get started free <ArrowRight className="ml-1.5 h-4 w-4" /></Link>
-          </Button>
-          <Button asChild size="lg" variant="outline">
-            <a href={`https://t.me/${TELEGRAM}`} target="_blank" rel="noreferrer">
-              <Send className="mr-1.5 h-4 w-4" /> Talk on Telegram
-            </a>
-          </Button>
-        </div>
-        <div className="mt-6 flex flex-wrap justify-center gap-x-5 gap-y-2 text-xs text-muted-foreground">
-          <span className="inline-flex items-center gap-1.5"><CheckCircle2 className="h-3.5 w-3.5 text-success" /> 30-day API keys</span>
-          <span className="inline-flex items-center gap-1.5"><CheckCircle2 className="h-3.5 w-3.5 text-success" /> 1000 coins = ₹2000</span>
-          <span className="inline-flex items-center gap-1.5"><CheckCircle2 className="h-3.5 w-3.5 text-success" /> Auto wallet credit on payment</span>
+          <span className="text-border">|</span>
+          <span>Node · IN-BOM-1</span>
+          <span className="text-border">|</span>
+          <span>Proxy · sass.hyperapi.in</span>
+          <span className="ml-auto border border-primary/50 bg-primary/10 px-2 py-0.5 text-primary">99.9% Uptime</span>
         </div>
 
-        {/* Stats strip */}
-        <div className="mx-auto mt-14 grid max-w-3xl grid-cols-2 gap-3 md:grid-cols-4">
-          {[
-            { v: "200+", l: "Resellers" },
-            { v: "<200ms", l: "Avg latency" },
-            { v: "99.99%", l: "Uptime" },
-            { v: "24/7", l: "Monitoring" },
-          ].map((s) => (
-            <div key={s.l} className="rounded-xl border border-border/60 px-4 py-4 text-center" style={{ background: "var(--gradient-card)" }}>
-              <div className="font-display text-2xl font-bold tracking-tight">{s.v}</div>
-              <div className="mt-0.5 text-xs text-muted-foreground">{s.l}</div>
+        <div className="mt-12 grid items-start gap-10 lg:grid-cols-[1.05fr_0.95fr]">
+          <div>
+            <div className="inline-flex items-center gap-2 border border-border bg-secondary/40 px-2.5 py-1 text-[10.5px] uppercase tracking-[0.2em] text-primary">
+              <Sparkles className="h-3 w-3" aria-hidden="true" /> CH.00 · Reseller API Infrastructure
             </div>
-          ))}
+            <h1 id="hero-heading" className="font-display mt-6 text-balance text-4xl font-bold leading-[0.95] tracking-tight sm:text-5xl md:text-6xl">
+              API access,
+              <br />
+              <span className="text-primary">engineered</span> for resellers.
+            </h1>
+            <p className="mt-6 max-w-xl text-[13px] leading-relaxed text-muted-foreground sm:text-sm">
+              Hyper Softs runs the proxy layer for SaaS &amp; lottery-game resellers — coin-based
+              wallet billing, per-key IP and domain whitelists, hard rate limits and 30-day fixed
+              key validity. One HTTP call. Zero bloat.
+            </p>
+            <div className="mt-8 flex flex-wrap gap-3">
+              <Button asChild size="lg" className="rounded-none uppercase tracking-[0.12em]">
+                <Link to="/signup">Open Dashboard <ArrowRight className="ml-1.5 h-4 w-4" /></Link>
+              </Button>
+              <Button asChild size="lg" variant="outline" className="rounded-none uppercase tracking-[0.12em]">
+                <a href={`https://t.me/${TELEGRAM}`} target="_blank" rel="noreferrer">
+                  <Send className="mr-1.5 h-4 w-4" /> Request Access
+                </a>
+              </Button>
+            </div>
+            <dl className="mt-10 grid grid-cols-2 gap-x-6 gap-y-5 border-t border-border pt-6">
+              {[
+                { v: "30 DAYS", l: "Fixed key validity" },
+                { v: "SHA-256", l: "Hashed API keys" },
+                { v: "IP + DOMAIN", l: "Per-key whitelist" },
+                { v: "₹2000", l: "Per 1000 coins" },
+              ].map((s) => (
+                <div key={s.l} className="border-l-2 border-primary/70 pl-3">
+                  <dt className="font-display text-base font-bold tracking-tight text-primary">{s.v}</dt>
+                  <dd className="label-mono mt-1">{s.l}</dd>
+                </div>
+              ))}
+            </dl>
+          </div>
+
+          {/* terminal panel */}
+          <div className="bracket-frame">
+            <div className="border border-border" style={{ background: "var(--gradient-card)" }}>
+              <div className="flex items-center gap-2 border-b border-border px-3 py-2 text-[10.5px] uppercase tracking-[0.18em] text-muted-foreground">
+                <span className="text-primary">&gt;_</span>
+                <span>hypersofts@prod ~ proxy-call</span>
+                <span className="ml-auto text-primary">200 OK</span>
+              </div>
+              <pre className="overflow-x-auto px-3 py-4 text-[11.5px] leading-relaxed text-muted-foreground sm:text-xs">
+{`$ curl -s \\
+  "https://sass.hyperapi.in/api/public/proxy?\\
+   api_key=hs_live_••••••••&\\
+   category=wingo&game=30s&type=sametrend"
+
+`}<span className="text-primary">{`→ 4`}</span>
+              </pre>
+              <div className="grid grid-cols-3 border-t border-border text-[10px] uppercase tracking-[0.16em]">
+                <div className="border-r border-border px-3 py-2">
+                  <div className="text-muted-foreground">Latency</div>
+                  <div className="mt-1 font-semibold text-foreground">118ms</div>
+                </div>
+                <div className="border-r border-border px-3 py-2">
+                  <div className="text-muted-foreground">Cost</div>
+                  <div className="mt-1 font-semibold text-foreground">0 coins</div>
+                </div>
+                <div className="px-3 py-2">
+                  <div className="text-muted-foreground">State</div>
+                  <div className="mt-1 font-semibold text-primary">Delivered</div>
+                </div>
+              </div>
+            </div>
+            <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-[10.5px] uppercase tracking-[0.16em] text-muted-foreground">
+              <span className="inline-flex items-center gap-1.5"><CheckCircle2 className="h-3 w-3 text-primary" /> 30-day keys</span>
+              <span className="inline-flex items-center gap-1.5"><CheckCircle2 className="h-3 w-3 text-primary" /> 1000 coins = ₹2000</span>
+              <span className="inline-flex items-center gap-1.5"><CheckCircle2 className="h-3 w-3 text-primary" /> Auto wallet credit</span>
+            </div>
+          </div>
         </div>
       </section>
 
