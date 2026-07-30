@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState, useCallback } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
+import { useCachedData } from "@/lib/use-cached";
 import { getMyOverview, resellerCreateClient, resellerDeleteClient, resellerUpdateClient, resellerSetIps, resellerSetDomains } from "@/lib/reseller.functions";
 import { PageHeader } from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
@@ -23,7 +24,6 @@ function KeysPage() {
   const update = useServerFn(resellerUpdateClient);
   const setIps = useServerFn(resellerSetIps);
   const setDomains = useServerFn(resellerSetDomains);
-  const [data, setData] = useState<Awaited<ReturnType<typeof getMyOverview>> | null>(null);
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
   const [category, setCategory] = useState<"wingo" | "k3" | "d5" | "motorace">("wingo");
@@ -37,21 +37,34 @@ function KeysPage() {
   const [initialIps, setInitialIps] = useState("");
   const [initialDomains, setInitialDomains] = useState("");
 
-  const reload = useCallback(async () => {
-    try {
-      const ov = await fetchOverview(); setData(ov);
-      const ids = (ov.clients ?? []).map((c) => c.id);
-      if (ids.length === 0) { setIpMap({}); setDomainMap({}); return; }
+  const fetchKeys = useCallback(async () => {
+    const ov = await fetchOverview();
+    const ids = (ov.clients ?? []).map((c) => c.id);
+    const im: Record<string, string[]> = {};
+    const dm: Record<string, string[]> = {};
+    if (ids.length > 0) {
       const [{ data: ips }, { data: doms }] = await Promise.all([
         supabase.from("allowed_ips").select("client_id, ip_address").in("client_id", ids),
         supabase.from("allowed_domains").select("client_id, domain").in("client_id", ids),
       ]);
-      const im: Record<string, string[]> = {}; (ips ?? []).forEach((r) => { (im[r.client_id] ??= []).push(r.ip_address); });
-      const dm: Record<string, string[]> = {}; (doms ?? []).forEach((r) => { (dm[r.client_id] ??= []).push(r.domain); });
-      setIpMap(im); setDomainMap(dm);
-    } catch { /* ignore */ }
+      (ips ?? []).forEach((r) => { (im[r.client_id] ??= []).push(r.ip_address); });
+      (doms ?? []).forEach((r) => { (dm[r.client_id] ??= []).push(r.domain); });
+    }
+    return { ov, im, dm };
   }, [fetchOverview]);
-  useEffect(() => { reload(); }, [reload]);
+
+  const { data: keysData, refetch: reload } = useCachedData<{
+    ov: Awaited<ReturnType<typeof getMyOverview>>;
+    im: Record<string, string[]>;
+    dm: Record<string, string[]>;
+  }>("reseller:keys", fetchKeys);
+  const data = keysData?.ov ?? null;
+
+  useEffect(() => {
+    if (!keysData) return;
+    setIpMap(keysData.im);
+    setDomainMap(keysData.dm);
+  }, [keysData]);
 
   const cost = Number(data?.settings.coins_per_api_key ?? 1000);
   const balance = Number(data?.profile?.wallet_balance ?? 0);

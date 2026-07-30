@@ -1,7 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useState, useCallback } from "react";
+import { useCallback, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { getMyOverview, getMyKeyMetrics } from "@/lib/reseller.functions";
+import { useCachedData } from "@/lib/use-cached";
 import { PageHeader } from "@/components/PageHeader";
 import { StatCard } from "@/components/StatCard";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -20,20 +21,19 @@ type Metrics = Awaited<ReturnType<typeof getMyKeyMetrics>>;
 function ResellerDashboard() {
   const fetchOverview = useServerFn(getMyOverview);
   const fetchMetrics = useServerFn(getMyKeyMetrics);
-  const [data, setData] = useState<Overview | null>(null);
-  const [metrics, setMetrics] = useState<Metrics | null>(null);
   const [from, setFrom] = useState<string>("");
   const [to, setTo] = useState<string>("");
 
-  useEffect(() => { fetchOverview().then(setData).catch(() => setData(null)); }, [fetchOverview]);
+  const { data } = useCachedData<Overview>("reseller:overview", () => fetchOverview());
 
-  const loadMetrics = useCallback(() => {
+  const metricsKey = `reseller:metrics:${from}:${to}`;
+  const loadMetricsFn = useCallback(() => {
     const payload: { from?: string; to?: string } = {};
     if (from) payload.from = new Date(from).toISOString();
     if (to) payload.to = new Date(to).toISOString();
-    fetchMetrics({ data: payload }).then(setMetrics).catch(() => setMetrics(null));
+    return fetchMetrics({ data: payload });
   }, [fetchMetrics, from, to]);
-  useEffect(() => { loadMetrics(); }, [loadMetrics]);
+  const { data: metrics, refetch: loadMetrics } = useCachedData<Metrics>(metricsKey, loadMetricsFn);
 
   const balance = Number(data?.profile?.wallet_balance ?? 0);
   const cost = Number(data?.settings.coins_per_api_key ?? 1000);

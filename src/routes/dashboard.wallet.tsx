@@ -1,8 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState, useCallback } from "react";
+import { useCallback, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { getMyOverview } from "@/lib/reseller.functions";
 import { createTopupOrder, listMyOrders } from "@/lib/payments.functions";
+import { useCachedData } from "@/lib/use-cached";
 import { PageHeader } from "@/components/PageHeader";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -17,17 +18,24 @@ function WalletPage() {
   const fetchOverview = useServerFn(getMyOverview);
   const createOrder = useServerFn(createTopupOrder);
   const fetchOrders = useServerFn(listMyOrders);
-  const [data, setData] = useState<Awaited<ReturnType<typeof getMyOverview>> | null>(null);
-  const [orders, setOrders] = useState<Awaited<ReturnType<typeof listMyOrders>>["orders"]>([]);
   const [coins, setCoins] = useState<number>(1000);
   const [loading, setLoading] = useState(false);
   const [statusFilter, setStatusFilter] = useState<"all" | "pending" | "success" | "failed">("all");
 
+  const { data, refetch: refetchOverview } = useCachedData<Awaited<ReturnType<typeof getMyOverview>>>(
+    "reseller:overview",
+    () => fetchOverview(),
+  );
+  const { data: ordersData, refetch: refetchOrders } = useCachedData<Awaited<ReturnType<typeof listMyOrders>>>(
+    "reseller:orders",
+    () => fetchOrders(),
+  );
+  const orders = ordersData?.orders ?? [];
+
   const reload = useCallback(() => {
-    fetchOverview().then(setData).catch(() => {});
-    fetchOrders().then((r) => setOrders(r.orders)).catch(() => {});
-  }, [fetchOverview, fetchOrders]);
-  useEffect(() => { reload(); }, [reload]);
+    void refetchOverview();
+    void refetchOrders();
+  }, [refetchOverview, refetchOrders]);
 
   const balance = Number(data?.profile?.wallet_balance ?? 0);
   const paise = Number(data?.settings.paise_per_1000_coins ?? 2000);

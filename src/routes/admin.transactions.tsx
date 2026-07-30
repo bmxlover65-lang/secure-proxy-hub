@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
+import { useCachedData } from "@/lib/use-cached";
 import { adminListTransactions } from "@/lib/reseller.functions";
 import { PageHeader } from "@/components/PageHeader";
 import { Card, CardContent } from "@/components/ui/card";
@@ -10,8 +10,11 @@ export const Route = createFileRoute("/admin/transactions")({ component: AdminTx
 
 function AdminTx() {
   const fetchTx = useServerFn(adminListTransactions);
-  const [txs, setTxs] = useState<Awaited<ReturnType<typeof adminListTransactions>>["transactions"]>([]);
-  useEffect(() => { fetchTx().then((r) => setTxs(r.transactions)).catch(() => {}); }, [fetchTx]);
+  const { data: txData } = useCachedData<Awaited<ReturnType<typeof adminListTransactions>>>(
+    "admin:transactions",
+    () => fetchTx(),
+  );
+  const txs = txData?.transactions ?? [];
 
   return (
     <div className="space-y-6">

@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
+import { useCachedData } from "@/lib/use-cached";
 import { resellerListLogs } from "@/lib/reseller.functions";
 import { PageHeader } from "@/components/PageHeader";
 import { Card, CardContent } from "@/components/ui/card";
@@ -10,8 +10,12 @@ export const Route = createFileRoute("/dashboard/logs")({ component: LogsPage })
 
 function LogsPage() {
   const fetchLogs = useServerFn(resellerListLogs);
-  const [logs, setLogs] = useState<Awaited<ReturnType<typeof resellerListLogs>>["logs"]>([]);
-  useEffect(() => { fetchLogs().then((r) => setLogs(r.logs)).catch(() => {}); }, [fetchLogs]);
+  const { data: logsData } = useCachedData<Awaited<ReturnType<typeof resellerListLogs>>>(
+    "reseller:logs",
+    () => fetchLogs(),
+    { staleTime: 15_000 },
+  );
+  const logs = logsData?.logs ?? [];
 
   return (
     <div className="space-y-6">

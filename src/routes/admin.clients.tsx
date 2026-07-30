@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState, useCallback } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
+import { useCachedData } from "@/lib/use-cached";
 import {
   adminCreateClient, adminUpdateClient, adminDeleteClient,
   adminRegenerateKey, adminSetIps, adminSetDomains,
@@ -63,20 +64,31 @@ function ClientsPage() {
   const setIps = useServerFn(adminSetIps);
   const setDomains = useServerFn(adminSetDomains);
 
-  const load = useCallback(async () => {
-    const { data: rs } = await supabase.from("api_clients").select("*").order("created_at", { ascending: false });
-    setList((rs as Client[] | null) ?? []);
-    const { data: ips } = await supabase.from("allowed_ips").select("client_id, ip_address");
+  const fetchClients = useCallback(async () => {
+    const [rs, ips, doms] = await Promise.all([
+      supabase.from("api_clients").select("*").order("created_at", { ascending: false }),
+      supabase.from("allowed_ips").select("client_id, ip_address"),
+      supabase.from("allowed_domains").select("client_id, domain"),
+    ]);
     const im: Record<string, string[]> = {};
-    (ips ?? []).forEach((r) => { (im[r.client_id] ??= []).push(r.ip_address); });
-    setIpMap(im);
-    const { data: doms } = await supabase.from("allowed_domains").select("client_id, domain");
+    (ips.data ?? []).forEach((r) => { (im[r.client_id] ??= []).push(r.ip_address); });
     const dm: Record<string, string[]> = {};
-    (doms ?? []).forEach((r) => { (dm[r.client_id] ??= []).push(r.domain); });
-    setDomainMap(dm);
+    (doms.data ?? []).forEach((r) => { (dm[r.client_id] ??= []).push(r.domain); });
+    return { list: (rs.data as Client[] | null) ?? [], im, dm };
   }, []);
 
-  useEffect(() => { load(); }, [load]);
+  const { data: clientsData, refetch: load } = useCachedData<{
+    list: Client[];
+    im: Record<string, string[]>;
+    dm: Record<string, string[]>;
+  }>("admin:clients", fetchClients);
+
+  useEffect(() => {
+    if (!clientsData) return;
+    setList(clientsData.list);
+    setIpMap(clientsData.im);
+    setDomainMap(clientsData.dm);
+  }, [clientsData]);
 
   const copy = (v: string) => { navigator.clipboard.writeText(v); toast.success("Copied to clipboard"); };
 

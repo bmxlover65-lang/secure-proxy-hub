@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
+import { useCachedData } from "@/lib/use-cached";
 import { getMyOverview } from "@/lib/reseller.functions";
 import { PageHeader } from "@/components/PageHeader";
 import { Card, CardContent } from "@/components/ui/card";
@@ -10,8 +10,10 @@ export const Route = createFileRoute("/dashboard/transactions")({ component: TxP
 
 function TxPage() {
   const fetchOverview = useServerFn(getMyOverview);
-  const [data, setData] = useState<Awaited<ReturnType<typeof getMyOverview>> | null>(null);
-  useEffect(() => { fetchOverview().then(setData).catch(() => {}); }, [fetchOverview]);
+  const { data } = useCachedData<Awaited<ReturnType<typeof getMyOverview>>>(
+    "reseller:overview",
+    () => fetchOverview(),
+  );
   const txs = data?.transactions ?? [];
 
   return (
