@@ -1,94 +1,89 @@
-import { Shield, Zap, Lock, BarChart3, Globe2 } from "lucide-react";
+import { Shield, Lock, Gauge, Clock, Network, ArrowLeft } from "lucide-react";
 import type { ReactNode } from "react";
-import { NetworkBackground } from "./NetworkBackground";
+import { Link } from "@tanstack/react-router";
+
+const SPECS = [
+  { icon: Lock, k: "IP + DOMAIN", v: "Per-key whitelist" },
+  { icon: Gauge, k: "RATE LIMITS", v: "Per-key throttling" },
+  { icon: Clock, k: "30 DAYS", v: "Fixed key validity" },
+  { icon: Network, k: "SHA-256", v: "Hashed API keys" },
+];
 
 export function AuthLayout({ children, title, subtitle }: { children: ReactNode; title: string; subtitle: string }) {
   return (
     <div className="relative min-h-screen w-full overflow-hidden bg-background text-foreground">
-      {/* Animated network nodes background — full screen */}
-      <NetworkBackground className="pointer-events-none absolute inset-0 h-full w-full" />
-
-      {/* Color wash overlays */}
-      <div className="pointer-events-none absolute inset-0" style={{ backgroundImage: "var(--gradient-mesh)" }} />
-      <div
-        className="pointer-events-none absolute -left-40 top-1/4 h-[500px] w-[500px] rounded-full opacity-30 blur-[120px]"
-        style={{ background: "var(--gradient-primary)" }}
-      />
-      <div
-        className="pointer-events-none absolute -right-32 bottom-0 h-[450px] w-[450px] rounded-full opacity-25 blur-[120px]"
-        style={{ background: "var(--gradient-hero)" }}
-      />
+      <div className="grid-lines pointer-events-none absolute inset-0 opacity-60" />
 
       {/* Header */}
-      <header className="relative z-10 flex items-center justify-between px-6 py-5 md:px-10">
-        <div className="flex items-center gap-3">
-          <div
-            className="flex h-10 w-10 items-center justify-center rounded-xl"
-            style={{ background: "var(--gradient-primary)", boxShadow: "var(--shadow-glow)" }}
-          >
-            <Shield className="h-5 w-5 text-primary-foreground" />
+      <header className="relative z-10 flex items-center justify-between gap-4 border-b border-border px-4 py-4 sm:px-6 md:px-10">
+        <Link to="/" className="flex min-w-0 items-center gap-3">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center bg-primary">
+            <Shield className="h-4.5 w-4.5 text-primary-foreground" />
           </div>
-          <div className="text-base font-semibold tracking-tight">Hyper Softs SaaS</div>
-        </div>
-        <div className="hidden items-center gap-2 rounded-full border border-border/40 bg-card/40 px-3 py-1.5 text-xs backdrop-blur-md sm:flex">
-          <span className="relative flex h-2 w-2">
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-success opacity-75" />
-            <span className="relative inline-flex h-2 w-2 rounded-full bg-success" />
-          </span>
-          <span className="text-muted-foreground">All systems operational</span>
+          <div className="min-w-0">
+            <div className="truncate text-sm font-bold uppercase tracking-[0.16em]">Hyper Softs</div>
+            <div className="label-mono text-[0.6rem] text-muted-foreground">SaaS · Control Plane</div>
+          </div>
+        </Link>
+        <div className="flex items-center gap-2 border border-border px-2.5 py-1.5">
+          <span className="h-2 w-2 shrink-0 bg-primary" />
+          <span className="label-mono text-[0.6rem] text-muted-foreground">System · Online</span>
         </div>
       </header>
 
-      {/* Main */}
-      <main className="relative z-10 grid min-h-[calc(100vh-80px)] grid-cols-1 gap-10 px-4 pb-10 sm:px-6 sm:pb-12 md:px-10 lg:grid-cols-2 lg:items-center lg:gap-20 lg:px-16">
-        {/* Left: marketing */}
+      <main className="relative z-10 grid min-h-[calc(100vh-69px)] grid-cols-1 gap-10 px-4 py-10 sm:px-6 md:px-10 lg:grid-cols-[1.05fr_minmax(0,26rem)] lg:items-center lg:gap-16 lg:px-16">
+        {/* Left: schematic marketing rail */}
         <div className="hidden flex-col gap-8 lg:flex">
-          <div className="inline-flex w-fit items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary backdrop-blur-md">
-            <Globe2 className="h-3.5 w-3.5" />
-            Global API Proxy Network
+          <div className="label-mono w-fit border border-primary/40 px-2.5 py-1 text-[0.62rem] text-primary">
+            // Reseller API infrastructure
           </div>
-          <h1 className="text-4xl font-bold leading-[1.1] tracking-tight md:text-5xl">
-            Premium API access for{" "}
-            <span
-              className="bg-clip-text text-transparent"
-              style={{ backgroundImage: "var(--gradient-hero)" }}
-            >
-              lottery game data
-            </span>
+          <h1 className="max-w-xl text-4xl font-bold leading-[1.05] tracking-tight md:text-5xl">
+            API access,{" "}
+            <span className="text-primary">engineered</span> for resellers.
           </h1>
-          <p className="max-w-md text-base text-muted-foreground">
-            Manage API clients, monitor live traffic, and proxy requests securely with IP whitelisting and rate limiting — all from one dashboard.
+          <p className="max-w-md font-mono text-sm leading-relaxed text-muted-foreground">
+            Coin-based wallet billing, per-key IP and domain whitelists, hard rate
+            limits and 30-day fixed key validity. One HTTP call. Zero bloat.
           </p>
-          <div className="grid max-w-md grid-cols-2 gap-3">
-            {[
-              { icon: Zap, label: "Lightning fast", desc: "< 200ms" },
-              { icon: Lock, label: "IP whitelist", desc: "Per client" },
-              { icon: BarChart3, label: "Live analytics", desc: "Real-time" },
-              { icon: Shield, label: "Secure proxy", desc: "Token-based" },
-            ].map((f) => (
+          <div className="grid max-w-lg grid-cols-2 border border-border">
+            {SPECS.map((s, i) => (
               <div
-                key={f.label}
-                className="group rounded-xl border border-border/40 bg-card/40 p-3 backdrop-blur-md transition-all hover:border-primary/40 hover:bg-card/60"
+                key={s.k}
+                className={`flex items-start gap-3 p-4 ${i % 2 === 0 ? "border-r border-border" : ""} ${i < 2 ? "border-b border-border" : ""}`}
               >
-                <div
-                  className="mb-2 flex h-8 w-8 items-center justify-center rounded-lg"
-                  style={{ background: "var(--gradient-primary)" }}
-                >
-                  <f.icon className="h-4 w-4 text-primary-foreground" />
+                <s.icon className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                <div className="min-w-0">
+                  <div className="truncate text-sm font-bold tracking-tight">{s.k}</div>
+                  <div className="label-mono truncate text-[0.6rem] text-muted-foreground">{s.v}</div>
                 </div>
-                <div className="text-sm font-semibold">{f.label}</div>
-                <div className="text-xs text-muted-foreground">{f.desc}</div>
               </div>
             ))}
           </div>
+          <div className="border border-border bg-card/60">
+            <div className="label-mono border-b border-border px-3 py-2 text-[0.6rem] text-muted-foreground">
+              &gt;_ hypersofts@prod ~ auth
+            </div>
+            <pre className="overflow-x-auto p-3 font-mono text-xs leading-relaxed text-muted-foreground">
+{`$ curl -s "https://sass.hyperapi.in/api/public/proxy?\\
+   api_key=hs_live_********&\\
+   category=wingo&game=30s&type=sametrend"
+`}<span className="text-primary">→ 4</span>
+            </pre>
+          </div>
         </div>
 
-        {/* Right: form card */}
+        {/* Right: form panel */}
         <div className="flex w-full items-center justify-center">
           <div className="w-full max-w-md">
-            <div className="mb-6 sm:mb-8">
-              <h2 className="text-2xl font-bold tracking-tight sm:text-3xl md:text-4xl">{title}</h2>
-              <p className="mt-2 text-sm text-muted-foreground">{subtitle}</p>
+            <Link
+              to="/"
+              className="label-mono mb-5 inline-flex items-center gap-2 text-[0.62rem] text-muted-foreground transition-colors hover:text-primary lg:hidden"
+            >
+              <ArrowLeft className="h-3.5 w-3.5" /> Back to home
+            </Link>
+            <div className="mb-5 border-l-2 border-primary pl-4">
+              <h2 className="text-2xl font-bold uppercase tracking-tight sm:text-3xl">{title}</h2>
+              <p className="mt-1.5 font-mono text-xs text-muted-foreground sm:text-sm">{subtitle}</p>
             </div>
             {children}
           </div>
