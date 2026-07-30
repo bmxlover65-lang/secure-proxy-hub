@@ -92,6 +92,7 @@ export function AppShell({
             <Link
               key={it.to}
               to={it.to}
+              preload="intent"
               onClick={() => setMobileOpen(false)}
               className={`group relative flex items-center gap-3 overflow-hidden rounded-xl px-3 py-2.5 text-sm transition-all duration-200 ${
                 active
