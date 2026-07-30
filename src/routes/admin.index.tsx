@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useCachedData } from "@/lib/use-cached";
 import { StatCard } from "@/components/StatCard";
 import { PageHeader } from "@/components/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -13,24 +13,25 @@ export const Route = createFileRoute("/admin/")({
 });
 
 function AdminDashboard() {
-  const [stats, setStats] = useState({ total: 0, active: 0, requests: 0, today: 0 });
-  const [recent, setRecent] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    (async () => {
-      const [{ count: total }, { count: active }, { count: requests }, { count: today }, logs] = await Promise.all([
+  const { data, isFetching } = useCachedData<{
+    stats: { total: number; active: number; requests: number; today: number };
+    recent: any[];
+  }>("admin:overview", async () => {
+    const [{ count: total }, { count: active }, { count: requests }, { count: today }, logs] = await Promise.all([
         supabase.from("api_clients").select("id", { count: "exact", head: true }),
         supabase.from("api_clients").select("id", { count: "exact", head: true }).eq("status", "active"),
         supabase.from("request_logs").select("id", { count: "exact", head: true }),
         supabase.from("request_logs").select("id", { count: "exact", head: true }).gte("created_at", new Date(Date.now() - 86400000).toISOString()),
         supabase.from("request_logs").select("id, created_at, ip_address, category, game, status_code, success, error_message").order("created_at", { ascending: false }).limit(8),
-      ]);
-      setStats({ total: total ?? 0, active: active ?? 0, requests: requests ?? 0, today: today ?? 0 });
-      setRecent(logs.data ?? []);
-      setLoading(false);
-    })();
-  }, []);
+    ]);
+    return {
+      stats: { total: total ?? 0, active: active ?? 0, requests: requests ?? 0, today: today ?? 0 },
+      recent: logs.data ?? [],
+    };
+  });
+  const stats = data?.stats ?? { total: 0, active: 0, requests: 0, today: 0 };
+  const recent = data?.recent ?? [];
+  const loading = !data && isFetching;
 
   return (
     <div className="space-y-6">
