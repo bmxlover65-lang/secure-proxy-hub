@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import {
   adminCreateClient, adminUpdateClient, adminDeleteClient,
   adminRegenerateKey, adminSetIps, adminSetDomains,
-} from "@/server/admin.functions";
+} from "@/lib/admin.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";

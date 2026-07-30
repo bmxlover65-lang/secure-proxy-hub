@@ -3,6 +3,8 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { sendSupabaseAuth } from "@/lib/server-function-auth";
+export { buildUpstreamUrl, fetchUpstream, SUPPORTED_GAMES } from "@/server/upstream";
+export type { UpstreamType } from "@/server/upstream";
 import { buildUpstreamUrl, fetchUpstream, SUPPORTED_GAMES, type UpstreamType } from "@/server/upstream";
 
 

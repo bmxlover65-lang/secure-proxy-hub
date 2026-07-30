@@ -2,10 +2,16 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { sendSupabaseAuth } from "@/lib/server-function-auth";
-import { buildUpstreamUrl, fetchUpstream, SUPPORTED_GAMES, type UpstreamType } from "@/server/upstream";
 
-import { supabaseAdmin } from "./admin.server";
-import { assertAdmin, genKey } from "./admin.server";
+import {
+  supabaseAdmin,
+  assertAdmin,
+  genKey,
+  buildUpstreamUrl,
+  fetchUpstream,
+  SUPPORTED_GAMES,
+  type UpstreamType,
+} from "./admin.server";
 
 export const adminTestUpstream = createServerFn({ method: "POST" })
   .middleware([sendSupabaseAuth, requireSupabaseAuth])

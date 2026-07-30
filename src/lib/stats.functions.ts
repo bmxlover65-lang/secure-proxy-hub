@@ -1,7 +1,8 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { supabaseAdmin } from "./stats.server";
-import { Aggregated, CACHE_TTL_MS, SLOW_MS, cache, metrics } from "./stats.server";
+import { CACHE_TTL_MS, SLOW_MS, cache, metrics } from "./stats.server";
+import type { Aggregated } from "./stats.server";
 
 export const getStats = createServerFn({ method: "GET" })
   .inputValidator((d) =>

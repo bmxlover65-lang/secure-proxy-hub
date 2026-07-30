@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState, useCallback } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
-import { getMyOverview, resellerCreateClient, resellerDeleteClient, resellerUpdateClient, resellerSetIps, resellerSetDomains } from "@/server/reseller.functions";
+import { getMyOverview, resellerCreateClient, resellerDeleteClient, resellerUpdateClient, resellerSetIps, resellerSetDomains } from "@/lib/reseller.functions";
 import { PageHeader } from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

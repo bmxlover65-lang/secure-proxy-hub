@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { adminTestUpstream, adminTestAllUpstreams } from "@/server/admin.functions";
+import { adminTestUpstream, adminTestAllUpstreams } from "@/lib/admin.functions";
 import { SUPPORTED_GAMES } from "@/lib/games";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";

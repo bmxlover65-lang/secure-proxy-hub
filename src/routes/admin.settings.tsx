@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { adminUpdateSettings, getPublicSettings } from "@/server/reseller.functions";
+import { adminUpdateSettings, getPublicSettings } from "@/lib/reseller.functions";
 import { PageHeader } from "@/components/PageHeader";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
