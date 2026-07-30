@@ -22,12 +22,12 @@ export function AuthLayout({ children, title, subtitle }: { children: ReactNode;
           </div>
           <div className="min-w-0">
             <div className="truncate text-sm font-bold uppercase tracking-[0.16em]">Hyper Softs</div>
-            <div className="label-mono text-[0.6rem] text-muted-foreground">SaaS · Control Plane</div>
+            <div className="label-mono hidden text-[0.6rem] text-muted-foreground sm:block">SaaS · Control Plane</div>
           </div>
         </Link>
-        <div className="flex items-center gap-2 border border-border px-2.5 py-1.5">
+        <div className="flex shrink-0 items-center gap-2 border border-border px-2.5 py-1.5">
           <span className="h-2 w-2 shrink-0 bg-primary" />
-          <span className="label-mono text-[0.6rem] text-muted-foreground">System · Online</span>
+          <span className="label-mono whitespace-nowrap text-[0.6rem] text-muted-foreground">Online</span>
         </div>
       </header>
 
