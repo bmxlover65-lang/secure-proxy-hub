@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState, useCallback } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
+import { useCachedData } from "@/lib/use-cached";
 import {
   adminCreateClient, adminUpdateClient, adminDeleteClient,
   adminRegenerateKey, adminSetIps, adminSetDomains,
