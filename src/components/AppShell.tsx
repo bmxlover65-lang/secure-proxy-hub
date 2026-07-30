@@ -141,7 +141,7 @@ export function AppShell({
   return (
     <div className="min-h-screen bg-background text-foreground" style={{ backgroundImage: "var(--gradient-mesh)" }}>
       {/* Desktop sidebar */}
-      <aside className="fixed inset-y-0 left-0 z-30 hidden w-72 border-r border-border/60 bg-card/80 backdrop-blur md:flex md:flex-col">
+      <aside className="fixed inset-y-0 left-0 z-30 hidden w-72 border-r border-border bg-card/90 backdrop-blur md:flex md:flex-col">
         <SidebarContent />
       </aside>
 
@@ -157,28 +157,28 @@ export function AppShell({
 
       <main className="md:pl-72">
         {/* Top bar */}
-        <header className="sticky top-0 z-20 flex h-16 items-center gap-3 border-b border-border/60 bg-background/70 px-4 backdrop-blur md:px-8">
+        <header className="sticky top-0 z-20 flex h-14 items-center gap-3 border-b border-border bg-background/85 px-4 backdrop-blur md:px-8">
           <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setMobileOpen((o) => !o)}>
             {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </Button>
-          <div className="flex flex-1 items-center gap-2 text-sm">
-            <span className="text-muted-foreground capitalize">{mode}</span>
-            <ChevronRight className="h-4 w-4 text-muted-foreground/50" />
-            <span className="font-medium">{currentItem.label}</span>
+          <div className="flex min-w-0 flex-1 items-center gap-2 text-[11px] uppercase tracking-[0.18em]">
+            <span className="text-primary">{mode === "admin" ? "OPS" : "API"}</span>
+            <span className="text-muted-foreground/50">/</span>
+            <span className="truncate font-semibold">{currentItem.label}</span>
           </div>
           {mode === "reseller" && walletBalance !== undefined && (
-            <div className="flex items-center gap-2 rounded-full border border-primary/40 bg-primary/10 px-3 py-1.5 text-xs">
+            <div className="flex shrink-0 items-center gap-2 border border-primary/50 bg-primary/10 px-2.5 py-1 text-[11px]">
               <Coins className="h-3.5 w-3.5 text-primary" />
-              <span className="font-semibold text-foreground">{walletBalance.toLocaleString()}</span>
-              <span className="text-muted-foreground">coins</span>
+              <span className="font-bold text-primary tabular-nums">{walletBalance.toLocaleString()}</span>
+              <span className="text-muted-foreground uppercase tracking-[0.16em]">coins</span>
             </div>
           )}
-          <div className="hidden items-center gap-2 rounded-full border border-border/60 bg-secondary/40 px-3 py-1.5 text-xs sm:flex">
+          <div className="hidden shrink-0 items-center gap-2 border border-border bg-secondary/30 px-2.5 py-1 text-[10.5px] uppercase tracking-[0.18em] sm:flex">
             <span className="relative flex h-2 w-2">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-success opacity-75" />
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-success" />
+              <span className="absolute inline-flex h-full w-full animate-ping bg-primary opacity-75" />
+              <span className="relative inline-flex h-2 w-2 bg-primary" />
             </span>
-            <span className="text-muted-foreground">System Online</span>
+            <span className="text-muted-foreground">System · Online</span>
           </div>
         </header>
 
