@@ -16,23 +16,20 @@ export function StatCard({
 }) {
   return (
     <Card
-      className="group relative overflow-hidden border-border/60 transition-all hover:border-primary/40 hover:shadow-[var(--shadow-glow)]"
+      className="group relative overflow-hidden rounded-none border-border transition-colors hover:border-primary/60"
       style={{ background: "var(--gradient-card)" }}
     >
-      <div
-        className="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full opacity-0 blur-3xl transition-opacity group-hover:opacity-30"
-        style={{ background: "var(--gradient-primary)" }}
-      />
-      <CardContent className="relative p-5">
+      <span aria-hidden="true" className="absolute left-0 top-0 h-full w-[2px] bg-primary/0 transition-colors group-hover:bg-primary" />
+      <CardContent className="relative p-4 sm:p-5">
         <div className="flex items-start justify-between">
           <div className="min-w-0">
-            <div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">{label}</div>
-            <div className="mt-2 text-3xl font-bold tracking-tight tabular-nums">{value}</div>
+            <div className="label-mono">{label}</div>
+            <div className="font-display mt-2 text-3xl font-bold tracking-tight tabular-nums">{value}</div>
             {(hint || trend) && (
-              <div className="mt-1.5 flex items-center gap-2 text-xs">
+              <div className="mt-2 flex items-center gap-2 text-[11px]">
                 {trend && (
-                  <span className={`rounded-full px-1.5 py-0.5 font-medium ${
-                    trend.positive ? "bg-success/15 text-success" : "bg-destructive/15 text-destructive"
+                  <span className={`border px-1.5 py-0.5 font-semibold ${
+                    trend.positive ? "border-primary/40 bg-primary/10 text-primary" : "border-destructive/40 bg-destructive/10 text-destructive"
                   }`}>
                     {trend.value}
                   </span>
@@ -41,11 +38,8 @@ export function StatCard({
               </div>
             )}
           </div>
-          <div
-            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl transition-transform group-hover:scale-105"
-            style={{ background: "var(--gradient-primary)", boxShadow: "var(--shadow-glow)" }}
-          >
-            <Icon className="h-5 w-5 text-primary-foreground" />
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center border border-border bg-secondary/40 text-primary transition-colors group-hover:border-primary/60">
+            <Icon className="h-4 w-4" />
           </div>
         </div>
       </CardContent>
