@@ -8,11 +8,26 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { AuthLayout } from "@/components/AuthLayout";
 import { toast } from "sonner";
-import { Mail, Lock, User as UserIcon, Loader2, ArrowRight, Sparkles, Eye, EyeOff } from "lucide-react";
+import { Mail, Lock, User as UserIcon, Loader2, ArrowRight, Wallet, Eye, EyeOff } from "lucide-react";
+import { authPanel, authLabel, authInput, authInputPwd, authButton, authIcon, authLink } from "@/components/auth-ui";
 
 export const Route = createFileRoute("/signup")({
   component: SignupPage,
-  head: () => ({ meta: [{ title: "Create account — Hyper Softs SaaS" }] }),
+  head: () => ({
+    meta: [
+      { title: "Create a reseller account — Hyper Softs SaaS" },
+      { name: "description", content: "Create a free Hyper Softs SaaS reseller account, top up your coin wallet and mint secure 30-day API keys with IP and domain whitelisting. 1000 coins = ₹2000." },
+      { name: "robots", content: "index,follow" },
+      { property: "og:title", content: "Create a reseller account — Hyper Softs SaaS" },
+      { property: "og:description", content: "Sign up as a reseller and mint secure 30-day API keys with IP whitelist, domain whitelist and rate limiting." },
+      { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://sass.hyperapi.in/signup" },
+      { property: "og:image", content: "https://sass.hyperapi.in/og-hero.jpg" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:image", content: "https://sass.hyperapi.in/og-hero.jpg" },
+    ],
+    links: [{ rel: "canonical", href: "https://sass.hyperapi.in/signup" }],
+  }),
 });
 
 const schema = z.object({
@@ -59,32 +74,23 @@ function SignupPage() {
   };
 
   return (
-    <AuthLayout title="Create your account" subtitle="Sign up as a reseller and start using the API platform">
-      <form
-        onSubmit={onSubmit}
-        className="relative space-y-5 overflow-hidden rounded-2xl border border-border/40 bg-card/50 p-7 backdrop-blur-2xl"
-        style={{ boxShadow: "var(--shadow-elegant)" }}
-      >
-        <div
-          className="pointer-events-none absolute inset-x-0 top-0 h-px"
-          style={{ background: "linear-gradient(90deg, transparent, color-mix(in oklab, var(--primary) 60%, transparent), transparent)" }}
-        />
-
-        <div className="flex items-center gap-2.5 rounded-xl border border-primary/30 bg-primary/10 p-3 backdrop-blur">
-          <div className="flex h-7 w-7 items-center justify-center rounded-md bg-primary/20">
-            <Sparkles className="h-3.5 w-3.5 text-primary" />
-          </div>
-          <span className="text-xs text-foreground/90">Get a <strong className="font-semibold text-primary">reseller wallet</strong> after signup</span>
+    <AuthLayout title="Create account" subtitle="Register as a reseller and mint your first API key">
+      <form onSubmit={onSubmit} className={authPanel}>
+        <div className="flex items-center gap-3 border border-primary/40 bg-primary/[0.06] p-3">
+          <Wallet className="h-4 w-4 shrink-0 text-primary" />
+          <span className="label-mono text-[0.6rem] leading-relaxed text-muted-foreground">
+            Coin wallet issued on signup · 1000 coins = ₹2000
+          </span>
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="full_name" className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Full name</Label>
+          <Label htmlFor="full_name" className={authLabel}>Full name</Label>
           <div className="group relative">
-            <UserIcon className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground transition-colors group-focus-within:text-primary" />
+            <UserIcon className={authIcon} />
             <Input
               id="full_name"
               placeholder="John Doe"
-              className="h-12 border-border/60 bg-background/40 pl-11 text-base backdrop-blur transition-all focus-visible:border-primary/60 focus-visible:bg-background/70"
+              className={authInput}
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
               required
@@ -93,14 +99,14 @@ function SignupPage() {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="email" className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Email</Label>
+          <Label htmlFor="email" className={authLabel}>Email</Label>
           <div className="group relative">
-            <Mail className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground transition-colors group-focus-within:text-primary" />
+            <Mail className={authIcon} />
             <Input
               id="email"
               type="email"
               placeholder="you@example.com"
-              className="h-12 border-border/60 bg-background/40 pl-11 text-base backdrop-blur transition-all focus-visible:border-primary/60 focus-visible:bg-background/70"
+              className={authInput}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               autoComplete="email"
@@ -110,14 +116,14 @@ function SignupPage() {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="password" className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Password</Label>
+          <Label htmlFor="password" className={authLabel}>Password</Label>
           <div className="group relative">
-            <Lock className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground transition-colors group-focus-within:text-primary" />
+            <Lock className={authIcon} />
             <Input
               id="password"
               type={showPwd ? "text" : "password"}
               placeholder="At least 8 characters"
-              className="h-12 border-border/60 bg-background/40 pl-11 pr-11 text-base backdrop-blur transition-all focus-visible:border-primary/60 focus-visible:bg-background/70"
+              className={authInputPwd}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               autoComplete="new-password"
@@ -126,7 +132,7 @@ function SignupPage() {
             <button
               type="button"
               onClick={() => setShowPwd((s) => !s)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-secondary/60 hover:text-foreground"
+              className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-muted-foreground transition-colors hover:text-primary"
               aria-label={showPwd ? "Hide password" : "Show password"}
             >
               {showPwd ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -134,25 +140,21 @@ function SignupPage() {
           </div>
         </div>
 
-        <Button
-          type="submit"
-          className="group relative h-12 w-full overflow-hidden text-sm font-semibold text-primary-foreground transition-all hover:scale-[1.01] active:scale-[0.99]"
-          style={{ background: "var(--gradient-primary)", boxShadow: "var(--shadow-glow)" }}
-          disabled={submitting}
-        >
-          <span className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/25 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
-          <span className="relative flex items-center justify-center">
+        <Button type="submit" className={authButton} disabled={submitting}>
+          <span className="flex items-center justify-center">
             {submitting ? (
-              <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Creating account…</>
+              <><Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" /> Creating account…</>
             ) : (
-              <>Create account <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" /></>
+              <>Create account <ArrowRight className="ml-2 h-3.5 w-3.5 transition-transform group-hover:translate-x-1" /></>
             )}
           </span>
         </Button>
 
-        <p className="text-center text-sm text-muted-foreground">
+        <div className="h-px bg-border" />
+
+        <p className="text-center font-mono text-xs text-muted-foreground">
           Already have an account?{" "}
-          <Link to="/login" className="font-semibold text-primary transition-colors hover:text-primary/80">
+          <Link to="/login" className={authLink}>
             Sign in
           </Link>
         </p>
