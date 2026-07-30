@@ -9,10 +9,23 @@ import { Label } from "@/components/ui/label";
 import { AuthLayout } from "@/components/AuthLayout";
 import { toast } from "sonner";
 import { Mail, Lock, Loader2, ArrowRight, Eye, EyeOff } from "lucide-react";
+import { authPanel, authLabel, authInput, authInputPwd, authButton, authIcon, authAlert, authLink } from "@/components/auth-ui";
 
 export const Route = createFileRoute("/login")({
   component: LoginPage,
-  head: () => ({ meta: [{ title: "Sign in — Hyper Softs SaaS" }] }),
+  head: () => ({
+    meta: [
+      { title: "Sign in — Hyper Softs SaaS Reseller Panel" },
+      { name: "description", content: "Sign in to the Hyper Softs SaaS reseller panel to mint 30-day API keys, manage IP and domain whitelists, monitor live request logs and top up your coin wallet." },
+      { name: "robots", content: "noindex,follow" },
+      { property: "og:title", content: "Sign in — Hyper Softs SaaS" },
+      { property: "og:description", content: "Reseller sign-in for the Hyper Softs API proxy control plane." },
+      { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://sass.hyperapi.in/login" },
+      { name: "twitter:card", content: "summary_large_image" },
+    ],
+    links: [{ rel: "canonical", href: "https://sass.hyperapi.in/login" }],
+  }),
 });
 
 const schema = z.object({
@@ -62,27 +75,17 @@ function LoginPage() {
   };
 
   return (
-    <AuthLayout title="Welcome back" subtitle="Sign in to manage your admin dashboard">
-      <form
-        onSubmit={onSubmit}
-        className="relative space-y-5 overflow-hidden rounded-2xl border border-border/40 bg-card/50 p-7 backdrop-blur-2xl"
-        style={{ boxShadow: "var(--shadow-elegant)" }}
-      >
-        {/* subtle gradient border glow */}
-        <div
-          className="pointer-events-none absolute inset-x-0 top-0 h-px"
-          style={{ background: "linear-gradient(90deg, transparent, color-mix(in oklab, var(--primary) 60%, transparent), transparent)" }}
-        />
-
+    <AuthLayout title="Sign in" subtitle="Access your reseller control plane">
+      <form onSubmit={onSubmit} className={authPanel}>
         <div className="space-y-2">
-          <Label htmlFor="email" className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Email</Label>
+          <Label htmlFor="email" className={authLabel}>Email</Label>
           <div className="group relative">
-            <Mail className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground transition-colors group-focus-within:text-primary" />
+            <Mail className={authIcon} />
             <Input
               id="email"
               type="email"
               placeholder="you@example.com"
-              className="h-12 border-border/60 bg-background/40 pl-11 text-base backdrop-blur transition-all focus-visible:border-primary/60 focus-visible:bg-background/70"
+              className={authInput}
               value={email}
               onChange={(e) => { setEmail(e.target.value); setErrorMsg(null); }}
               autoComplete="email"
@@ -94,18 +97,18 @@ function LoginPage() {
 
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <Label htmlFor="password" className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Password</Label>
-            <Link to="/forgot-password" className="text-xs text-muted-foreground transition-colors hover:text-primary">
+            <Label htmlFor="password" className={authLabel}>Password</Label>
+            <Link to="/forgot-password" className="label-mono text-[0.6rem] text-muted-foreground transition-colors hover:text-primary">
               Forgot?
             </Link>
           </div>
           <div className="group relative">
-            <Lock className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground transition-colors group-focus-within:text-primary" />
+            <Lock className={authIcon} />
             <Input
               id="password"
               type={showPwd ? "text" : "password"}
               placeholder="••••••••"
-              className="h-12 border-border/60 bg-background/40 pl-11 pr-11 text-base backdrop-blur transition-all focus-visible:border-primary/60 focus-visible:bg-background/70"
+              className={authInputPwd}
               value={password}
               onChange={(e) => { setPassword(e.target.value); setErrorMsg(null); }}
               autoComplete="current-password"
@@ -115,7 +118,7 @@ function LoginPage() {
             <button
               type="button"
               onClick={() => setShowPwd((s) => !s)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-secondary/60 hover:text-foreground"
+              className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-muted-foreground transition-colors hover:text-primary"
               aria-label={showPwd ? "Hide password" : "Show password"}
             >
               {showPwd ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -124,41 +127,26 @@ function LoginPage() {
         </div>
 
         {errorMsg && (
-          <div
-            role="alert"
-            className="animate-fade-in rounded-lg border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive"
-          >
+          <div role="alert" className={authAlert}>
             {errorMsg}
           </div>
         )}
 
-        <Button
-          type="submit"
-          className="group relative h-12 w-full overflow-hidden text-sm font-semibold text-primary-foreground transition-all hover:scale-[1.01] active:scale-[0.99]"
-          style={{ background: "var(--gradient-primary)", boxShadow: "var(--shadow-glow)" }}
-          disabled={submitting || !email || !password}
-        >
-          {/* shimmer */}
-          <span
-            className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/25 to-transparent transition-transform duration-700 group-hover:translate-x-full"
-          />
-          <span className="relative flex items-center justify-center">
+        <Button type="submit" className={authButton} disabled={submitting || !email || !password}>
+          <span className="flex items-center justify-center">
             {submitting ? (
-              <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Signing in…</>
+              <><Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" /> Signing in…</>
             ) : (
-              <>Sign in <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" /></>
+              <>Sign in <ArrowRight className="ml-2 h-3.5 w-3.5 transition-transform group-hover:translate-x-1" /></>
             )}
           </span>
         </Button>
 
-        <div className="relative py-1 text-center text-xs text-muted-foreground">
-          <div className="absolute inset-0 top-1/2 h-px bg-border/60" />
-          <span className="relative bg-card/80 px-3 backdrop-blur-md">or</span>
-        </div>
+        <div className="h-px bg-border" />
 
-        <p className="text-center text-sm text-muted-foreground">
+        <p className="text-center font-mono text-xs text-muted-foreground">
           Don't have an account?{" "}
-          <Link to="/signup" className="font-semibold text-primary transition-colors hover:text-primary/80">
+          <Link to="/signup" className={authLink}>
             Create one
           </Link>
         </p>
