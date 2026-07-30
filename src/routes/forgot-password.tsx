@@ -8,10 +8,23 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Mail, Loader2, ArrowRight, CheckCircle2 } from "lucide-react";
+import { authPanel, authLabel, authInput, authButton, authIcon, authAlert, authLink } from "@/components/auth-ui";
 
 export const Route = createFileRoute("/forgot-password")({
   component: ForgotPasswordPage,
-  head: () => ({ meta: [{ title: "Forgot password — Hyper Softs SaaS" }] }),
+  head: () => ({
+    meta: [
+      { title: "Reset your password — Hyper Softs SaaS" },
+      { name: "description", content: "Request a secure password reset link for your Hyper Softs SaaS reseller account." },
+      { name: "robots", content: "noindex,follow" },
+      { property: "og:title", content: "Reset your password — Hyper Softs SaaS" },
+      { property: "og:description", content: "Request a password reset link for your Hyper Softs reseller account." },
+      { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://sass.hyperapi.in/forgot-password" },
+      { name: "twitter:card", content: "summary_large_image" },
+    ],
+    links: [{ rel: "canonical", href: "https://sass.hyperapi.in/forgot-password" }],
+  }),
 });
 
 const schema = z.object({ email: z.string().trim().email().max(255) });
@@ -50,38 +63,34 @@ function ForgotPasswordPage() {
   };
 
   return (
-    <AuthLayout title="Forgot password?" subtitle="Enter your email and we'll send you a reset link">
-      <form
-        onSubmit={onSubmit}
-        className="relative space-y-5 overflow-hidden rounded-2xl border border-border/40 bg-card/50 p-7 backdrop-blur-2xl"
-        style={{ boxShadow: "var(--shadow-elegant)" }}
-      >
+    <AuthLayout title="Reset password" subtitle="We'll email you a secure reset link">
+      <form onSubmit={onSubmit} className={authPanel}>
         {sent ? (
           <div className="space-y-4 text-center">
-            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-success/15 text-success">
-              <CheckCircle2 className="h-7 w-7" />
+            <div className="mx-auto flex h-12 w-12 items-center justify-center border border-primary/50 bg-primary/10 text-primary">
+              <CheckCircle2 className="h-6 w-6" />
             </div>
             <div>
-              <h3 className="text-lg font-semibold">Check your email</h3>
-              <p className="mt-1 text-sm text-muted-foreground">
+              <h3 className="text-base font-bold uppercase tracking-tight">Check your email</h3>
+              <p className="mt-1.5 font-mono text-xs leading-relaxed text-muted-foreground">
                 We sent a password reset link to <span className="font-medium text-foreground">{email}</span>. Click the link to set a new password.
               </p>
             </div>
-            <Link to="/login" className="inline-flex text-sm font-semibold text-primary hover:text-primary/80">
+            <Link to="/login" className={`inline-flex text-xs ${authLink}`}>
               Back to sign in
             </Link>
           </div>
         ) : (
           <>
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Email</Label>
+              <Label htmlFor="email" className={authLabel}>Email</Label>
               <div className="group relative">
-                <Mail className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground transition-colors group-focus-within:text-primary" />
+                <Mail className={authIcon} />
                 <Input
                   id="email"
                   type="email"
                   placeholder="you@example.com"
-                  className="h-12 border-border/60 bg-background/40 pl-11 text-base backdrop-blur transition-all focus-visible:border-primary/60 focus-visible:bg-background/70"
+                  className={authInput}
                   value={email}
                   onChange={(e) => { setEmail(e.target.value); setErrorMsg(null); }}
                   autoComplete="email"
@@ -92,29 +101,24 @@ function ForgotPasswordPage() {
             </div>
 
             {errorMsg && (
-              <div role="alert" className="animate-fade-in rounded-lg border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+              <div role="alert" className={authAlert}>
                 {errorMsg}
               </div>
             )}
 
-            <Button
-              type="submit"
-              className="group relative h-12 w-full overflow-hidden text-sm font-semibold text-primary-foreground transition-all hover:scale-[1.01] active:scale-[0.99]"
-              style={{ background: "var(--gradient-primary)", boxShadow: "var(--shadow-glow)" }}
-              disabled={submitting || !email}
-            >
-              <span className="relative flex items-center justify-center">
+            <Button type="submit" className={authButton} disabled={submitting || !email}>
+              <span className="flex items-center justify-center">
                 {submitting ? (
-                  <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Sending…</>
+                  <><Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" /> Sending…</>
                 ) : (
-                  <>Send reset link <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" /></>
+                  <>Send reset link <ArrowRight className="ml-2 h-3.5 w-3.5 transition-transform group-hover:translate-x-1" /></>
                 )}
               </span>
             </Button>
 
-            <p className="text-center text-sm text-muted-foreground">
+            <p className="text-center font-mono text-xs text-muted-foreground">
               Remembered it?{" "}
-              <Link to="/login" className="font-semibold text-primary transition-colors hover:text-primary/80">
+              <Link to="/login" className={authLink}>
                 Back to sign in
               </Link>
             </p>
