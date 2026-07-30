@@ -8,10 +8,22 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Lock, Loader2, ArrowRight, Eye, EyeOff } from "lucide-react";
+import { authPanel, authLabel, authInput, authInputPwd, authButton, authIcon, authAlert, authLink } from "@/components/auth-ui";
 
 export const Route = createFileRoute("/reset-password")({
   component: ResetPasswordPage,
-  head: () => ({ meta: [{ title: "Reset password — Hyper Softs SaaS" }] }),
+  head: () => ({
+    meta: [
+      { title: "Set a new password — Hyper Softs SaaS" },
+      { name: "description", content: "Choose a new password for your Hyper Softs SaaS reseller account." },
+      { name: "robots", content: "noindex,nofollow" },
+      { property: "og:title", content: "Set a new password — Hyper Softs SaaS" },
+      { property: "og:description", content: "Choose a new password for your Hyper Softs reseller account." },
+      { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://sass.hyperapi.in/reset-password" },
+      { name: "twitter:card", content: "summary_large_image" },
+    ],
+  }),
 });
 
 const schema = z.object({
@@ -71,32 +83,28 @@ function ResetPasswordPage() {
   };
 
   return (
-    <AuthLayout title="Set a new password" subtitle="Choose a strong password for your account">
-      <form
-        onSubmit={onSubmit}
-        className="relative space-y-5 overflow-hidden rounded-2xl border border-border/40 bg-card/50 p-7 backdrop-blur-2xl"
-        style={{ boxShadow: "var(--shadow-elegant)" }}
-      >
+    <AuthLayout title="New password" subtitle="Choose a strong password for your account">
+      <form onSubmit={onSubmit} className={authPanel}>
         {ready && !hasSession ? (
           <div className="space-y-3 text-center">
-            <p className="text-sm text-muted-foreground">
+            <p className="font-mono text-xs leading-relaxed text-muted-foreground">
               This reset link is invalid or has expired. Request a new one.
             </p>
-            <Link to="/forgot-password" className="inline-flex text-sm font-semibold text-primary hover:text-primary/80">
+            <Link to="/forgot-password" className={`inline-flex text-xs ${authLink}`}>
               Send a new reset link
             </Link>
           </div>
         ) : (
           <>
             <div className="space-y-2">
-              <Label htmlFor="password" className="text-xs font-medium uppercase tracking-wider text-muted-foreground">New password</Label>
+              <Label htmlFor="password" className={authLabel}>New password</Label>
               <div className="group relative">
-                <Lock className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground transition-colors group-focus-within:text-primary" />
+                <Lock className={authIcon} />
                 <Input
                   id="password"
                   type={showPwd ? "text" : "password"}
                   placeholder="••••••••"
-                  className="h-12 border-border/60 bg-background/40 pl-11 pr-11 text-base backdrop-blur"
+                  className={authInputPwd}
                   value={password}
                   onChange={(e) => { setPassword(e.target.value); setErrorMsg(null); }}
                   autoComplete="new-password"
@@ -106,7 +114,7 @@ function ResetPasswordPage() {
                 <button
                   type="button"
                   onClick={() => setShowPwd((s) => !s)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-secondary/60 hover:text-foreground"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-muted-foreground transition-colors hover:text-primary"
                   aria-label={showPwd ? "Hide password" : "Show password"}
                 >
                   {showPwd ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -115,14 +123,14 @@ function ResetPasswordPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="confirm" className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Confirm password</Label>
+              <Label htmlFor="confirm" className={authLabel}>Confirm password</Label>
               <div className="group relative">
-                <Lock className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Lock className={authIcon} />
                 <Input
                   id="confirm"
                   type={showPwd ? "text" : "password"}
                   placeholder="••••••••"
-                  className="h-12 border-border/60 bg-background/40 pl-11 text-base backdrop-blur"
+                  className={authInput}
                   value={confirm}
                   onChange={(e) => { setConfirm(e.target.value); setErrorMsg(null); }}
                   autoComplete="new-password"
@@ -133,22 +141,17 @@ function ResetPasswordPage() {
             </div>
 
             {errorMsg && (
-              <div role="alert" className="animate-fade-in rounded-lg border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+              <div role="alert" className={authAlert}>
                 {errorMsg}
               </div>
             )}
 
-            <Button
-              type="submit"
-              className="group relative h-12 w-full overflow-hidden text-sm font-semibold text-primary-foreground transition-all hover:scale-[1.01] active:scale-[0.99]"
-              style={{ background: "var(--gradient-primary)", boxShadow: "var(--shadow-glow)" }}
-              disabled={submitting || !hasSession || !password || !confirm}
-            >
-              <span className="relative flex items-center justify-center">
+            <Button type="submit" className={authButton} disabled={submitting || !hasSession || !password || !confirm}>
+              <span className="flex items-center justify-center">
                 {submitting ? (
-                  <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Updating…</>
+                  <><Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" /> Updating…</>
                 ) : (
-                  <>Update password <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" /></>
+                  <>Update password <ArrowRight className="ml-2 h-3.5 w-3.5 transition-transform group-hover:translate-x-1" /></>
                 )}
               </span>
             </Button>
