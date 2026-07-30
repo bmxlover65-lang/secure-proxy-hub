@@ -289,39 +289,28 @@ function Index() {
       </section>
 
       {/* QUICK ACCESS CTA */}
-      <section aria-labelledby="quick-access-heading" className="mx-auto max-w-5xl px-4 pb-8">
-        <div
-          className="relative overflow-hidden rounded-3xl border border-primary/30 p-8 text-center md:p-12"
-          style={{ background: "var(--gradient-card)", boxShadow: "var(--shadow-glow)" }}
-        >
-          <div
-            aria-hidden="true"
-            className="pointer-events-none absolute inset-0 opacity-30"
-            style={{ backgroundImage: "var(--gradient-mesh)" }}
-          />
-          <div className="relative">
-            <h2 id="quick-access-heading" className="font-display text-3xl font-bold tracking-tight md:text-5xl">
-              Jump into your{" "}
-              <span className="font-cursive bg-clip-text text-transparent text-5xl md:text-7xl" style={{ backgroundImage: "var(--gradient-primary)" }}>
-                Reseller
-              </span>{" "}
-              <span className="font-cursive bg-clip-text text-transparent text-5xl md:text-7xl" style={{ backgroundImage: "var(--gradient-hero)" }}>
-                Workspace
-              </span>
-            </h2>
-            <p className="mx-auto mt-3 max-w-xl text-muted-foreground">
-              Manage keys, monitor live usage, and read the integration docs — all in one place.
-            </p>
-            <div className="mt-7 flex flex-wrap justify-center gap-3">
-              <Button asChild size="lg" className="shadow-lg" style={{ boxShadow: "var(--shadow-glow)" }}>
+      <section aria-labelledby="quick-access-heading" className="mx-auto max-w-6xl px-4 pb-10">
+        <div className="border border-border" style={{ background: "var(--gradient-card)" }}>
+          <div className="label-mono border-b border-border px-4 py-2">// workspace access</div>
+          <div className="flex flex-col gap-5 p-5 md:flex-row md:items-center md:justify-between md:p-7">
+            <div className="min-w-0">
+              <h2 id="quick-access-heading" className="font-display text-2xl font-bold tracking-tight sm:text-3xl">
+                Your <span className="text-primary">reseller workspace</span>
+              </h2>
+              <p className="mt-2 max-w-lg text-[13px] text-muted-foreground">
+                Manage keys, monitor live usage, and read the integration docs — all in one place.
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-3 md:shrink-0">
+              <Button asChild size="lg" className="rounded-none uppercase tracking-[0.12em]">
                 <Link to="/dashboard">
-                  <LayoutDashboard className="mr-1.5 h-4 w-4" aria-hidden="true" /> View Reseller Panel
+                  <LayoutDashboard className="mr-1.5 h-4 w-4" aria-hidden="true" /> Reseller Panel
                   <ArrowRight className="ml-1.5 h-4 w-4" aria-hidden="true" />
                 </Link>
               </Button>
-              <Button asChild size="lg" variant="outline">
+              <Button asChild size="lg" variant="outline" className="rounded-none uppercase tracking-[0.12em]">
                 <Link to="/dashboard/docs">
-                  <BookOpen className="mr-1.5 h-4 w-4" aria-hidden="true" /> View API Docs
+                  <BookOpen className="mr-1.5 h-4 w-4" aria-hidden="true" /> API Docs
                 </Link>
               </Button>
             </div>
