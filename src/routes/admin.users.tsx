@@ -1,7 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState, useCallback } from "react";
+import { useCallback, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { adminListUsers, adminAdjustWallet, adminSetUserRole, adminUserMetrics } from "@/lib/reseller.functions";
+import { useCachedData } from "@/lib/use-cached";
 import { PageHeader } from "@/components/PageHeader";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -18,22 +19,35 @@ function AdminUsers() {
   const adjust = useServerFn(adminAdjustWallet);
   const setRole = useServerFn(adminSetUserRole);
   const fetchMetrics = useServerFn(adminUserMetrics);
-  const [users, setUsers] = useState<Awaited<ReturnType<typeof adminListUsers>>["users"]>([]);
-  const [metrics, setMetrics] = useState<Record<string, { total: number; success: number; error: number; last: string | null }>>({});
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
   const [open, setOpen] = useState<string | null>(null);
   const [amount, setAmount] = useState<number>(1000);
   const [reason, setReason] = useState("");
 
-  const reload = useCallback(() => {
-    fetchUsers().then((r) => setUsers(r.users)).catch(() => {});
+  const { data: usersData, refetch: refetchUsers } = useCachedData<Awaited<ReturnType<typeof adminListUsers>>>(
+    "admin:users",
+    () => fetchUsers(),
+  );
+  const users = usersData?.users ?? [];
+
+  const metricsFn = useCallback(() => {
     const payload: { from?: string; to?: string } = {};
     if (from) payload.from = new Date(from).toISOString();
     if (to) payload.to = new Date(to).toISOString();
-    fetchMetrics({ data: payload }).then((r) => setMetrics(r.metrics)).catch(() => {});
-  }, [fetchUsers, fetchMetrics, from, to]);
-  useEffect(() => { reload(); }, [reload]);
+    return fetchMetrics({ data: payload });
+  }, [fetchMetrics, from, to]);
+  const { data: metricsData, refetch: refetchMetrics } = useCachedData<Awaited<ReturnType<typeof adminUserMetrics>>>(
+    `admin:user-metrics:${from}:${to}`,
+    metricsFn,
+  );
+  const metrics: Record<string, { total: number; success: number; error: number; last: string | null }> =
+    metricsData?.metrics ?? {};
+
+  const reload = useCallback(() => {
+    void refetchUsers();
+    void refetchMetrics();
+  }, [refetchUsers, refetchMetrics]);
 
   const submit = async (uid: string) => {
     try {
