@@ -1,7 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState, useCallback } from "react";
+import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { adminListPaymentOrders } from "@/lib/payments.functions";
+import { useCachedData } from "@/lib/use-cached";
 import { PageHeader } from "@/components/PageHeader";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -13,15 +14,11 @@ type Order = Awaited<ReturnType<typeof adminListPaymentOrders>>["orders"][number
 
 function AdminPayments() {
   const fetchOrders = useServerFn(adminListPaymentOrders);
-  const [orders, setOrders] = useState<Order[]>([]);
   const [filter, setFilter] = useState<"all" | "pending" | "success" | "failed">("all");
-  const [loading, setLoading] = useState(false);
-
-  const reload = useCallback(() => {
-    setLoading(true);
-    fetchOrders().then((r) => setOrders(r.orders)).catch(() => {}).finally(() => setLoading(false));
-  }, [fetchOrders]);
-  useEffect(() => { reload(); }, [reload]);
+  const { data, isFetching: loading, refetch: reload } = useCachedData<
+    Awaited<ReturnType<typeof adminListPaymentOrders>>
+  >("admin:payment-orders", () => fetchOrders(), { staleTime: 15_000 });
+  const orders: Order[] = data?.orders ?? [];
 
   const filtered = filter === "all" ? orders : orders.filter((o) => o.status === filter);
 
