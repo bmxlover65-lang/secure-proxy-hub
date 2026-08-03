@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
-import { resolveAllowedGames } from "@/server/allowed-games";
+import { parseGameCode, resolveAllowedGames } from "@/server/allowed-games";
 import {
   corsPreflight, domainMatches, getClientIp,
   getRequestHostname, jsonResponse, logCallback,
@@ -156,6 +156,24 @@ async function handle(request: Request) {
     return fail(403, `Category '${client.category ?? "unset"}' is not enabled on this platform`, client.id);
   }
 
+  // Optional gameCode from the partner app (WinGo_30S, K3_1M, D5_1M, MotoRace_1M...).
+  const rawGameCode = (
+    url.searchParams.get("gameCode") ||
+    url.searchParams.get("game_code") ||
+    String(body.gameCode ?? body.game_code ?? "")
+  ).trim();
+  let requested: { category: string; game: string } | null = null;
+  if (rawGameCode) {
+    requested = parseGameCode(rawGameCode);
+    if (!requested) {
+      return fail(400, `Unsupported gameCode '${rawGameCode}' (TRX / video games are not served)`, client.id);
+    }
+    const match = allowed.find((a) => a.category === requested!.category);
+    if (!match || !match.games.includes(requested.game)) {
+      return fail(403, `gameCode '${rawGameCode}' not allowed for this key`, client.id);
+    }
+  }
+
   if (row.used_at) {
     await supabaseAdmin.from("game_tokens").update({
       replay_count: (row.replay_count ?? 0) + 1,
@@ -199,6 +217,7 @@ async function handle(request: Request) {
     user_id: row.external_user_id,
     client: client.name,
     allowed_games: allowed,
+    game: requested,
     session_expires_at: row.expires_at,
   };
 
@@ -206,7 +225,8 @@ async function handle(request: Request) {
     client_id: client.id, callback_type: "TokenEnter", token,
     external_user_id: row.external_user_id, status_code: 200, success: true,
     ip_address: ip, host, response_time_ms: Date.now() - started,
-    request_payload: { host, method: request.method }, response_payload: payload,
+    request_payload: { host, method: request.method, gameCode: rawGameCode || null },
+    response_payload: payload,
   });
   if (wantsHtml(request)) {
     return page(
@@ -214,7 +234,8 @@ async function handle(request: Request) {
       [
         `Player: <b style="color:#e8e8e8">${escapeHtml(String(row.external_user_id))}</b>`,
         `Operator: ${escapeHtml(client.name ?? "-")}`,
-        `Games: ${escapeHtml(allowed.join(", "))}`,
+        ...(requested ? [`Game: ${escapeHtml(`${requested.category}/${requested.game}`)}`] : []),
+        `Games: ${escapeHtml(allowed.map((a) => `${a.category}:${a.games.join("/")}`).join("  "))}`,
         `Valid until: ${escapeHtml(new Date(row.expires_at).toISOString())}`,
       ],
       "#c4f000",
