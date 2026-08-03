@@ -196,14 +196,17 @@ export const addCallbackAclEntry = createServerFn({ method: "POST" })
     if (error) {
       // 23505 = unique violation: this domain/IP is already whitelisted for the key.
       if (error.code === "23505") {
-        const col = data.kind === "domain" ? "domain" : "ip_address";
-        const value = data.kind === "domain" ? (row as { domain: string }).domain : data.value;
-        const { error: updErr } = await context.supabase
-          .from(table)
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          .update({ label, op } as any)
-          .eq("client_id", data.client_id)
-          .eq(col, value);
+        const { error: updErr } = data.kind === "domain"
+          ? await context.supabase
+              .from("allowed_domains")
+              .update({ label, op })
+              .eq("client_id", data.client_id)
+              .eq("domain", (row as { domain: string }).domain)
+          : await context.supabase
+              .from("allowed_ips")
+              .update({ label, op })
+              .eq("client_id", data.client_id)
+              .eq("ip_address", data.value);
         if (updErr) throw new Error(updErr.message);
         return { ok: true, duplicate: true };
       }
