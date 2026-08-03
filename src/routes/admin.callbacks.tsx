@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { PageHeader } from "@/components/PageHeader";
 import { CallbackPanel } from "@/components/CallbackPanel";
+import { TokenFlowLogs } from "@/components/TokenFlowLogs";
 import { Webhook } from "lucide-react";
 
 export const Route = createFileRoute("/admin/callbacks")({
@@ -26,6 +27,7 @@ function AdminCallbacksPage() {
         title="Callbacks & Tokens"
         description="Every GetBalance / PlaceBet / WinLoss callback, token issue and replay attempt — with signature and whitelist result."
       />
+      <TokenFlowLogs />
       <CallbackPanel scope="admin" />
     </div>
   );

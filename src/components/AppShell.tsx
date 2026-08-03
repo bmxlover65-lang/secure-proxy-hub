@@ -1,4 +1,5 @@
-import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
+import {
+  Plug, Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useAuth } from "@/lib/auth-context";
 import { Button } from "@/components/ui/button";
 import {
@@ -17,6 +18,7 @@ const adminNav: NavItem[] = [
   { to: "/admin/clients", label: "API Clients", icon: KeyRound, description: "All keys" },
   { to: "/admin/logs", label: "Request Logs", icon: ScrollText, description: "Activity history" },
   { to: "/admin/callbacks", label: "Callbacks & Tokens", icon: Webhook, description: "Wallet callback logs" },
+  { to: "/admin/integration", label: "Integration Config", icon: Plug, description: "Keys, TTL & token logs" },
   { to: "/admin/stats", label: "Statistics", icon: BarChart3, description: "Usage charts" },
   { to: "/admin/cache", label: "Cache Monitor", icon: Database, description: "Hit/miss & TTL" },
   { to: "/admin/health", label: "API Health", icon: Activity, description: "Test endpoints" },
