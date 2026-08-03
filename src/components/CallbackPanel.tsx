@@ -4,7 +4,7 @@ import { toast } from "sonner";
 import { useCachedData, invalidateCache } from "@/lib/use-cached";
 import {
   listCallbackClients, listCallbackLogs, listRecentTokens,
-  updateCallbackSettings, regenerateCallbackSecret,
+  updateCallbackSettings, regenerateCallbackSecret, getTokenStats,
 } from "@/lib/callback.functions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -14,6 +14,19 @@ import { Switch } from "@/components/ui/switch";
 import { Copy, RefreshCw, Save, KeyRound, Webhook } from "lucide-react";
 
 const TYPES = ["", "TokenIssue", "TokenValidate", "GetBalance", "PlaceBet", "WinLoss"];
+const TOKEN_STATES = ["all", "active", "used", "expired", "replayed"] as const;
+const OPS: { key: "cb_token" | "cb_getbalance" | "cb_placebet" | "cb_winloss"; label: string }[] = [
+  { key: "cb_token", label: "Token" },
+  { key: "cb_getbalance", label: "GetBalance" },
+  { key: "cb_placebet", label: "PlaceBet" },
+  { key: "cb_winloss", label: "WinLoss" },
+];
+
+function toIso(v: string, end = false): string | undefined {
+  if (!v) return undefined;
+  const d = new Date(end ? `${v}T23:59:59` : `${v}T00:00:00`);
+  return Number.isNaN(d.getTime()) ? undefined : d.toISOString();
+}
 
 function copy(v: string) {
   void navigator.clipboard.writeText(v);
@@ -26,27 +39,62 @@ export function CallbackPanel({ scope }: { scope: "admin" | "reseller" }) {
   const fetchTokens = useServerFn(listRecentTokens);
   const saveSettings = useServerFn(updateCallbackSettings);
   const regen = useServerFn(regenerateCallbackSecret);
+  const fetchStats = useServerFn(getTokenStats);
 
   const [type, setType] = useState("");
   const [onlyFailed, setOnlyFailed] = useState(false);
+  const [statusFilter, setStatusFilter] = useState<"all" | "success" | "failed">("all");
+  const [userQ, setUserQ] = useState("");
+  const [from, setFrom] = useState("");
+  const [to, setTo] = useState("");
+  const [tokenState, setTokenState] = useState<(typeof TOKEN_STATES)[number]>("all");
   const [drafts, setDrafts] = useState<Record<string, { url: string; ttl: string }>>({});
   const [busy, setBusy] = useState<string | null>(null);
+
+  const fromIso = toIso(from);
+  const toIsoVal = toIso(to, true);
+  const rangeKey = `${from}|${to}`;
 
   const { data: clientsData, refetch: refetchClients } = useCachedData<Awaited<ReturnType<typeof listCallbackClients>>>(
     `${scope}:cb:clients`, () => fetchClients(), { staleTime: 20_000 },
   );
   const { data: logsData, refetch: refetchLogs, isFetching } = useCachedData<Awaited<ReturnType<typeof listCallbackLogs>>>(
-    `${scope}:cb:logs:${type}:${onlyFailed}`,
-    () => fetchLogs({ data: { limit: 200, callback_type: type || undefined, only_failed: onlyFailed || undefined } }),
+    `${scope}:cb:logs:${type}:${statusFilter}:${userQ}:${rangeKey}`,
+    () => fetchLogs({
+      data: {
+        limit: 200,
+        callback_type: type || undefined,
+        status: statusFilter,
+        external_user_id: userQ.trim() || undefined,
+        from: fromIso,
+        to: toIsoVal,
+      },
+    }),
     { staleTime: 10_000 },
   );
   const { data: tokensData, refetch: refetchTokens } = useCachedData<Awaited<ReturnType<typeof listRecentTokens>>>(
-    `${scope}:cb:tokens`, () => fetchTokens({ data: { limit: 50 } }), { staleTime: 10_000 },
+    `${scope}:cb:tokens:${tokenState}:${userQ}:${rangeKey}`,
+    () => fetchTokens({
+      data: {
+        limit: 100,
+        state: tokenState,
+        external_user_id: userQ.trim() || undefined,
+        from: fromIso,
+        to: toIsoVal,
+      },
+    }),
+    { staleTime: 10_000 },
+  );
+  const { data: statsData, refetch: refetchStats } = useCachedData<Awaited<ReturnType<typeof getTokenStats>>>(
+    `${scope}:cb:tokenstats:${rangeKey}`,
+    () => fetchStats({ data: { from: fromIso, to: toIsoVal } }),
+    { staleTime: 10_000 },
   );
 
   const clients = clientsData?.clients ?? [];
   const logs = logsData?.logs ?? [];
   const tokens = tokensData?.tokens ?? [];
+  const stats = statsData?.stats;
   const nameOf = (id: string | null) => clients.find((c) => c.id === id)?.name ?? "—";
 
   const onSave = async (id: string, current: { callback_url: string | null; token_ttl_seconds: number }) => {
@@ -71,13 +119,35 @@ export function CallbackPanel({ scope }: { scope: "admin" | "reseller" }) {
   const onToggle = async (id: string, enabled: boolean) => {
     setBusy(id);
     try {
-      await saveSettings({ data: { client_id: id, callback_enabled: enabled } });
+      await saveSettings({ data: { client_id: id, callback_enabled: enabled, mode: enabled ? "callback" : "data" } });
       invalidateCache(`${scope}:cb:clients`);
       await refetchClients();
       toast.success(enabled ? "Callback mode enabled" : "Callback mode disabled");
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Update failed");
     } finally { setBusy(null); }
+  };
+
+  const onOpToggle = async (
+    id: string,
+    key: "cb_token" | "cb_getbalance" | "cb_placebet" | "cb_winloss",
+    value: boolean,
+  ) => {
+    setBusy(id);
+    try {
+      await saveSettings({ data: { client_id: id, [key]: value } });
+      invalidateCache(`${scope}:cb:clients`);
+      await refetchClients();
+      toast.success(`${key.replace("cb_", "")} ${value ? "enabled" : "disabled"}`);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Update failed");
+    } finally { setBusy(null); }
+  };
+
+  const refreshAll = () => {
+    void refetchLogs();
+    void refetchTokens();
+    void refetchStats();
   };
 
   const onRegen = async (id: string) => {
