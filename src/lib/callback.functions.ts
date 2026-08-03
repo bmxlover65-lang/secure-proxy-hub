@@ -193,8 +193,26 @@ export const addCallbackAclEntry = createServerFn({ method: "POST" })
         : { client_id: data.client_id, ip_address: data.value, label, op };
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { error } = await context.supabase.from(table).insert(row as any);
-    if (error) throw new Error(error.message);
-    return { ok: true };
+    if (error) {
+      // 23505 = unique violation: this domain/IP is already whitelisted for the key.
+      if (error.code === "23505") {
+        const { error: updErr } = data.kind === "domain"
+          ? await context.supabase
+              .from("allowed_domains")
+              .update({ label, op })
+              .eq("client_id", data.client_id)
+              .eq("domain", (row as { domain: string }).domain)
+          : await context.supabase
+              .from("allowed_ips")
+              .update({ label, op })
+              .eq("client_id", data.client_id)
+              .eq("ip_address", data.value);
+        if (updErr) throw new Error(updErr.message);
+        return { ok: true, duplicate: true };
+      }
+      throw new Error(error.message);
+    }
+    return { ok: true, duplicate: false };
   });
 
 export const removeCallbackAclEntry = createServerFn({ method: "POST" })
