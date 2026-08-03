@@ -3,7 +3,14 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { sendSupabaseAuth } from "@/lib/server-function-auth";
 
-export type Payload = Record<string, unknown> | null;
+export type Payload = string | null;
+
+/** JSON payloads are serialized to text so the client can render them as-is. */
+function asText(v: unknown): Payload {
+  if (v === null || v === undefined) return null;
+  if (typeof v === "string") return v;
+  try { return JSON.stringify(v, null, 2); } catch { return String(v); }
+}
 
 export type ErrorEntry = {
   id: string;
@@ -73,8 +80,8 @@ export const listErrorLogs = createServerFn({ method: "POST" })
         host: r.host,
         external_user_id: r.external_user_id,
         response_time_ms: r.response_time_ms,
-        request_payload: (r.request_payload ?? null) as Payload,
-        response_payload: (r.response_payload ?? null) as Payload,
+        request_payload: asText(r.request_payload),
+        response_payload: asText(r.response_payload),
       }));
     };
 
@@ -106,7 +113,7 @@ export const listErrorLogs = createServerFn({ method: "POST" })
         host: r.host,
         external_user_id: null,
         response_time_ms: r.response_time_ms,
-        request_payload: { endpoint: r.endpoint, category: r.category, game: r.game, type: r.type },
+        request_payload: asText({ endpoint: r.endpoint, category: r.category, game: r.game, type: r.type }),
         response_payload: null,
       }));
     };

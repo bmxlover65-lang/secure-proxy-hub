@@ -17,9 +17,8 @@ function toIso(v: string, end = false): string | undefined {
   return Number.isNaN(d.getTime()) ? undefined : d.toISOString();
 }
 
-function pretty(v: unknown): string {
-  if (v === null || v === undefined) return "—";
-  try { return JSON.stringify(v, null, 2); } catch { return String(v); }
+function pretty(v: string | null): string {
+  return v && v.trim() ? v : "—";
 }
 
 function Row({ e }: { e: ErrorEntry }) {
@@ -101,7 +100,7 @@ export function ErrorLogPanel() {
   const [to, setTo] = useState("");
 
   const key = `error-log:${source}:${search}:${from}:${to}`;
-  const { data, isFetching, refetch } = useCachedData<{ entries: ErrorEntry[]; counts: Record<string, number> }>(key, () =>
+  const { data, isFetching, refetch } = useCachedData(key, () =>
     fetchErrors({
       data: {
         limit: 200, source,
