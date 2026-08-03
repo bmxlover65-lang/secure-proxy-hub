@@ -11,6 +11,12 @@ import { toast } from "sonner";
 
 const SOURCES = ["all", "callback", "request"] as const;
 
+/** Default window: last 7 days, so huge log tables stay fast. */
+function daysAgo(n: number): string {
+  const d = new Date(Date.now() - n * 86_400_000);
+  return d.toISOString().slice(0, 10);
+}
+
 function toIso(v: string, end = false): string | undefined {
   if (!v) return undefined;
   const d = new Date(end ? `${v}T23:59:59` : `${v}T00:00:00`);
@@ -96,7 +102,7 @@ export function ErrorLogPanel() {
   const fetchErrors = useServerFn(listErrorLogs);
   const [source, setSource] = useState<(typeof SOURCES)[number]>("all");
   const [search, setSearch] = useState("");
-  const [from, setFrom] = useState("");
+  const [from, setFrom] = useState(() => daysAgo(7));
   const [to, setTo] = useState("");
 
   const key = `error-log:${source}:${search}:${from}:${to}`;
@@ -112,6 +118,7 @@ export function ErrorLogPanel() {
   );
   const entries = data?.entries ?? [];
   const counts = data?.counts;
+  const loadError = data?.error ?? null;
 
   return (
     <Card style={{ background: "var(--gradient-card)" }} className="border-border/60">
@@ -167,6 +174,12 @@ export function ErrorLogPanel() {
             <Input type="date" className="mt-1 h-8" value={to} onChange={(ev) => setTo(ev.target.value)} />
           </div>
         </div>
+
+        {loadError && (
+          <div className="border border-destructive/50 bg-destructive/10 px-3 py-2 text-xs text-destructive">
+            {loadError}
+          </div>
+        )}
 
         <div className="space-y-1.5">
           {entries.length === 0 ? (
