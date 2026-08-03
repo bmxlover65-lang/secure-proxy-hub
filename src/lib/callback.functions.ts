@@ -148,3 +148,180 @@ export const getTokenStats = createServerFn({ method: "POST" })
       },
     };
   });
+/* ============================ Whitelist (ACL) ============================ */
+
+/** Domains + IPs whitelisted for one callback key, including per-operation scope. */
+export const listCallbackAcl = createServerFn({ method: "POST" })
+  .middleware([sendSupabaseAuth, requireSupabaseAuth])
+  .inputValidator((d) => z.object({ client_id: z.string().uuid() }).parse(d))
+  .handler(async ({ data, context }) => {
+    const [doms, ips] = await Promise.all([
+      context.supabase
+        .from("allowed_domains")
+        .select("id, domain, label, op, created_at")
+        .eq("client_id", data.client_id)
+        .order("created_at", { ascending: true }),
+      context.supabase
+        .from("allowed_ips")
+        .select("id, ip_address, label, op, created_at")
+        .eq("client_id", data.client_id)
+        .order("created_at", { ascending: true }),
+    ]);
+    if (doms.error) throw new Error(doms.error.message);
+    if (ips.error) throw new Error(ips.error.message);
+    return { domains: doms.data ?? [], ips: ips.data ?? [] };
+  });
+
+export const addCallbackAclEntry = createServerFn({ method: "POST" })
+  .middleware([sendSupabaseAuth, requireSupabaseAuth])
+  .inputValidator((d) =>
+    z.object({
+      client_id: z.string().uuid(),
+      kind: z.enum(["domain", "ip"]),
+      value: z.string().trim().min(1).max(255),
+      op: OP_ENUM.nullable().optional(),
+      label: z.string().trim().max(80).optional(),
+    }).parse(d),
+  )
+  .handler(async ({ data, context }) => {
+    const op = data.op ?? null;
+    const label = data.label?.trim() ? data.label.trim() : null;
+    const table = data.kind === "domain" ? "allowed_domains" : "allowed_ips";
+    const row =
+      data.kind === "domain"
+        ? { client_id: data.client_id, domain: data.value.toLowerCase().replace(/^https?:\/\//, "").split("/")[0], label, op }
+        : { client_id: data.client_id, ip_address: data.value, label, op };
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { error } = await context.supabase.from(table).insert(row as any);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+export const removeCallbackAclEntry = createServerFn({ method: "POST" })
+  .middleware([sendSupabaseAuth, requireSupabaseAuth])
+  .inputValidator((d) =>
+    z.object({ id: z.string().uuid(), kind: z.enum(["domain", "ip"]) }).parse(d),
+  )
+  .handler(async ({ data, context }) => {
+    const table = data.kind === "domain" ? "allowed_domains" : "allowed_ips";
+    const { error } = await context.supabase.from(table).delete().eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+/* ========================= Integration dry-run test ===================== */
+
+/**
+ * Sends a signed dry-run GetBalance / PlaceBet / WinLoss call to the key's
+ * callback URL. Amounts are 0 and `dry_run: true` is set, so nothing is
+ * credited or debited. The attempt is written to callback_logs as `Test:<op>`.
+ */
+export const runIntegrationTest = createServerFn({ method: "POST" })
+  .middleware([sendSupabaseAuth, requireSupabaseAuth])
+  .inputValidator((d) =>
+    z.object({
+      client_id: z.string().uuid(),
+      callback_type: z.enum(TEST_OPS),
+      user_id: z.string().trim().min(1).max(64).default("test-user"),
+    }).parse(d),
+  )
+  .handler(async ({ data, context }) => {
+    const { data: client, error } = await context.supabase
+      .from("api_clients")
+      .select("id, name, mode, status, callback_url, callback_secret, callback_enabled, cb_getbalance, cb_placebet, cb_winloss")
+      .eq("id", data.client_id)
+      .maybeSingle();
+    if (error) throw new Error(error.message);
+    if (!client) throw new Error("API key not found or not yours");
+
+    const { hmacHex, logCallback } = await import("@/server/callback");
+    const started = Date.now();
+
+    const finish = async (status: number, ok: boolean, msg: string | null, resp?: unknown) => {
+      await logCallback({
+        client_id: client.id,
+        callback_type: `Test:${data.callback_type}`,
+        external_user_id: data.user_id,
+        amount: 0,
+        status_code: status,
+        success: ok,
+        signature_status: client.callback_secret ? "valid" : "unconfigured",
+        error_message: msg,
+        host: "admin-panel",
+        ip_address: "internal",
+        response_time_ms: Date.now() - started,
+        response_payload: resp ?? null,
+      });
+      return { ok, status, message: msg ?? "ok", response: resp ?? null, at: new Date().toISOString() };
+    };
+
+    if (client.mode !== "callback" || !client.callback_enabled) {
+      return finish(403, false, "Callback mode is disabled for this key");
+    }
+    if (client.status !== "active") return finish(403, false, "Key is not active");
+    if (!client.callback_url) return finish(400, false, "No callback URL configured");
+    if (!client.callback_secret) return finish(400, false, "No HMAC secret generated");
+    const opFlag =
+      data.callback_type === "GetBalance" ? client.cb_getbalance
+      : data.callback_type === "PlaceBet" ? client.cb_placebet
+      : client.cb_winloss;
+    if (opFlag === false) return finish(403, false, `${data.callback_type} is disabled for this key`);
+
+    const payload = {
+      callback_type: data.callback_type,
+      user_id: data.user_id,
+      amount: 0,
+      dry_run: true,
+      bet_details: data.callback_type === "PlaceBet" ? { dry_run: true } : null,
+      win_details: data.callback_type === "WinLoss" ? { dry_run: true } : null,
+      ts: Math.floor(Date.now() / 1000),
+    };
+    const raw = JSON.stringify(payload);
+    const signature = await hmacHex(client.callback_secret, raw);
+
+    try {
+      const res = await fetch(client.callback_url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Signature": signature,
+          "X-Hyper-Timestamp": String(payload.ts),
+          "X-Hyper-Dry-Run": "1",
+        },
+        body: raw,
+      });
+      const text = await res.text();
+      let parsed: unknown;
+      try { parsed = JSON.parse(text); } catch { parsed = { raw: text.slice(0, 1500) }; }
+      const p = (parsed && typeof parsed === "object" ? parsed as Record<string, unknown> : {});
+      const balance = p.new_balance ?? p.balance ?? null;
+      const ok = res.status === 200 && (p.status === "success" || p.code === 0 || balance !== null);
+      return finish(
+        res.status,
+        ok,
+        ok ? null : String(p.message ?? p.msg ?? `Upstream status ${res.status}`),
+        parsed,
+      );
+    } catch (e) {
+      return finish(502, false, `Callback unreachable: ${e instanceof Error ? e.message : "fetch failed"}`);
+    }
+  });
+
+/** Latest dry-run result per key + operation, taken from callback_logs. */
+export const listIntegrationTests = createServerFn({ method: "POST" })
+  .middleware([sendSupabaseAuth, requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data, error } = await context.supabase
+      .from("callback_logs")
+      .select("id, created_at, client_id, callback_type, success, status_code, error_message, response_time_ms")
+      .like("callback_type", "Test:%")
+      .order("created_at", { ascending: false })
+      .limit(200);
+    if (error) throw new Error(error.message);
+    const latest: Record<string, NonNullable<typeof data>[number]> = {};
+    for (const row of data ?? []) {
+      const key = `${row.client_id}|${row.callback_type}`;
+      if (!latest[key]) latest[key] = row;
+    }
+    return { tests: Object.values(latest) };
+  });
