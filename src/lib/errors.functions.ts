@@ -49,6 +49,8 @@ export const listErrorLogs = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const sb = context.supabase;
+    // Log tables can hold millions of rows; always bound the scan by time.
+    const from = data.from ?? new Date(Date.now() - 7 * 86_400_000).toISOString();
     const wantCb = data.source !== "request";
     const wantReq = data.source !== "callback";
 
@@ -62,7 +64,7 @@ export const listErrorLogs = createServerFn({ method: "POST" })
         .eq("success", false)
         .order("created_at", { ascending: false })
         .limit(data.limit);
-      if (data.from) q = q.gte("created_at", data.from);
+      q = q.gte("created_at", from);
       if (data.to) q = q.lte("created_at", data.to);
       const { data: rows, error } = await q;
       if (error) throw new Error(error.message);
@@ -95,7 +97,7 @@ export const listErrorLogs = createServerFn({ method: "POST" })
         .eq("success", false)
         .order("created_at", { ascending: false })
         .limit(data.limit);
-      if (data.from) q = q.gte("created_at", data.from);
+      q = q.gte("created_at", from);
       if (data.to) q = q.lte("created_at", data.to);
       const { data: rows, error } = await q;
       if (error) throw new Error(error.message);
@@ -118,7 +120,14 @@ export const listErrorLogs = createServerFn({ method: "POST" })
       }));
     };
 
-    const [cb, rq] = await Promise.all([cbQuery(), reqQuery()]);
+    let loadError: string | null = null;
+    const safe = async (fn: () => Promise<ErrorEntry[]>) => {
+      try { return await fn(); } catch (e) {
+        loadError = e instanceof Error ? e.message : "query failed";
+        return [] as ErrorEntry[];
+      }
+    };
+    const [cb, rq] = await Promise.all([safe(cbQuery), safe(reqQuery)]);
     let entries = [...cb, ...rq].sort((a, b) => b.created_at.localeCompare(a.created_at));
 
     const ids = Array.from(new Set(entries.map((e) => e.client_id).filter((v): v is string => !!v)));
@@ -147,5 +156,5 @@ export const listErrorLogs = createServerFn({ method: "POST" })
       whitelist: entries.filter((e) => /whitelist|domain|ip /i.test(e.message)).length,
     };
 
-    return { entries, counts };
+    return { entries, counts, error: loadError as string | null };
   });
