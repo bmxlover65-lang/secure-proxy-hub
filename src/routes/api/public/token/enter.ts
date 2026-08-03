@@ -12,6 +12,53 @@ import {
  * The token itself is the credential (single-use + short TTL), so no api_key
  * or HMAC signature is required here — this URL is opened by the end user.
  */
+function escapeHtml(s: string): string {
+  return s.replace(/[&<>"']/g, (c) =>
+    ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c] as string);
+}
+
+/** True when a real browser / webview opened the URL (not a server-to-server call). */
+function wantsHtml(request: Request): boolean {
+  const url = new URL(request.url);
+  const fmt = (url.searchParams.get("format") || "").toLowerCase();
+  if (fmt === "json") return false;
+  if (fmt === "html") return true;
+  const accept = request.headers.get("accept") || "";
+  return accept.includes("text/html");
+}
+
+function htmlResponse(html: string, status: number) {
+  return new Response(html, {
+    status,
+    headers: {
+      "Content-Type": "text/html; charset=utf-8",
+      "Cache-Control": "no-store",
+      "Access-Control-Allow-Origin": "*",
+    },
+  });
+}
+
+function page(title: string, lines: string[], accent: string, status: number) {
+  return htmlResponse(
+    `<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>${escapeHtml(title)} — Hyper Softs SaaS</title>
+<style>
+ :root{color-scheme:dark}
+ body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;
+   background:#070707;color:#e8e8e8;font:14px/1.6 ui-monospace,"JetBrains Mono",Menlo,monospace}
+ .card{max-width:420px;width:calc(100% - 32px);border:1px solid #222;background:#0d0d0d;padding:24px}
+ h1{margin:0 0 12px;font-size:16px;letter-spacing:.08em;text-transform:uppercase;color:${accent}}
+ p{margin:4px 0;color:#9c9c9c;word-break:break-word}
+ .bar{height:2px;background:${accent};margin-bottom:18px;width:38px}
+</style></head><body><div class="card"><div class="bar"></div>
+<h1>${escapeHtml(title)}</h1>${lines.map((l) => `<p>${l}</p>`).join("")}
+</div></body></html>`,
+    status,
+  );
+}
+
 async function handle(request: Request) {
   const started = Date.now();
   const url = new URL(request.url);
@@ -33,6 +80,9 @@ async function handle(request: Request) {
       ip_address: ip, host, response_time_ms: Date.now() - started,
       request_payload: { token: token || null, host, method: request.method },
     });
+    if (wantsHtml(request)) {
+      return page("Session error", [escapeHtml(msg), `Status: ${status}`], "#ff5555", status);
+    }
     return jsonResponse({ code: status, msg }, status);
   };
 
@@ -158,6 +208,19 @@ async function handle(request: Request) {
     ip_address: ip, host, response_time_ms: Date.now() - started,
     request_payload: { host, method: request.method }, response_payload: payload,
   });
+  if (wantsHtml(request)) {
+    return page(
+      "Session active",
+      [
+        `Player: <b style="color:#e8e8e8">${escapeHtml(String(row.external_user_id))}</b>`,
+        `Operator: ${escapeHtml(client.name ?? "-")}`,
+        `Games: ${escapeHtml(allowed.join(", "))}`,
+        `Valid until: ${escapeHtml(new Date(row.expires_at).toISOString())}`,
+      ],
+      "#c4f000",
+      200,
+    );
+  }
   return jsonResponse(payload, 200);
 }
 
