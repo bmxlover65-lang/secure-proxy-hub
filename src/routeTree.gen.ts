@@ -24,6 +24,7 @@ import { Route as DashboardWalletRouteImport } from './routes/dashboard.wallet'
 import { Route as DashboardTransactionsRouteImport } from './routes/dashboard.transactions'
 import { Route as DashboardLogsRouteImport } from './routes/dashboard.logs'
 import { Route as DashboardKeysRouteImport } from './routes/dashboard.keys'
+import { Route as DashboardErrorsRouteImport } from './routes/dashboard.errors'
 import { Route as DashboardDocsRouteImport } from './routes/dashboard.docs'
 import { Route as DashboardCallbacksRouteImport } from './routes/dashboard.callbacks'
 import { Route as AdminUsersRouteImport } from './routes/admin.users'
@@ -34,6 +35,7 @@ import { Route as AdminPaymentsRouteImport } from './routes/admin.payments'
 import { Route as AdminLogsRouteImport } from './routes/admin.logs'
 import { Route as AdminIntegrationRouteImport } from './routes/admin.integration'
 import { Route as AdminHealthRouteImport } from './routes/admin.health'
+import { Route as AdminErrorsRouteImport } from './routes/admin.errors'
 import { Route as AdminDocsRouteImport } from './routes/admin.docs'
 import { Route as AdminClientsRouteImport } from './routes/admin.clients'
 import { Route as AdminCallbacksRouteImport } from './routes/admin.callbacks'
@@ -121,6 +123,11 @@ const DashboardKeysRoute = DashboardKeysRouteImport.update({
   path: '/keys',
   getParentRoute: () => DashboardRoute,
 } as any)
+const DashboardErrorsRoute = DashboardErrorsRouteImport.update({
+  id: '/errors',
+  path: '/errors',
+  getParentRoute: () => DashboardRoute,
+} as any)
 const DashboardDocsRoute = DashboardDocsRouteImport.update({
   id: '/docs',
   path: '/docs',
@@ -169,6 +176,11 @@ const AdminIntegrationRoute = AdminIntegrationRouteImport.update({
 const AdminHealthRoute = AdminHealthRouteImport.update({
   id: '/health',
   path: '/health',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminErrorsRoute = AdminErrorsRouteImport.update({
+  id: '/errors',
+  path: '/errors',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminDocsRoute = AdminDocsRouteImport.update({
@@ -242,6 +254,7 @@ export interface FileRoutesByFullPath {
   '/admin/callbacks': typeof AdminCallbacksRoute
   '/admin/clients': typeof AdminClientsRoute
   '/admin/docs': typeof AdminDocsRoute
+  '/admin/errors': typeof AdminErrorsRoute
   '/admin/health': typeof AdminHealthRoute
   '/admin/integration': typeof AdminIntegrationRoute
   '/admin/logs': typeof AdminLogsRoute
@@ -252,6 +265,7 @@ export interface FileRoutesByFullPath {
   '/admin/users': typeof AdminUsersRoute
   '/dashboard/callbacks': typeof DashboardCallbacksRoute
   '/dashboard/docs': typeof DashboardDocsRoute
+  '/dashboard/errors': typeof DashboardErrorsRoute
   '/dashboard/keys': typeof DashboardKeysRoute
   '/dashboard/logs': typeof DashboardLogsRoute
   '/dashboard/transactions': typeof DashboardTransactionsRoute
@@ -278,6 +292,7 @@ export interface FileRoutesByTo {
   '/admin/callbacks': typeof AdminCallbacksRoute
   '/admin/clients': typeof AdminClientsRoute
   '/admin/docs': typeof AdminDocsRoute
+  '/admin/errors': typeof AdminErrorsRoute
   '/admin/health': typeof AdminHealthRoute
   '/admin/integration': typeof AdminIntegrationRoute
   '/admin/logs': typeof AdminLogsRoute
@@ -288,6 +303,7 @@ export interface FileRoutesByTo {
   '/admin/users': typeof AdminUsersRoute
   '/dashboard/callbacks': typeof DashboardCallbacksRoute
   '/dashboard/docs': typeof DashboardDocsRoute
+  '/dashboard/errors': typeof DashboardErrorsRoute
   '/dashboard/keys': typeof DashboardKeysRoute
   '/dashboard/logs': typeof DashboardLogsRoute
   '/dashboard/transactions': typeof DashboardTransactionsRoute
@@ -317,6 +333,7 @@ export interface FileRoutesById {
   '/admin/callbacks': typeof AdminCallbacksRoute
   '/admin/clients': typeof AdminClientsRoute
   '/admin/docs': typeof AdminDocsRoute
+  '/admin/errors': typeof AdminErrorsRoute
   '/admin/health': typeof AdminHealthRoute
   '/admin/integration': typeof AdminIntegrationRoute
   '/admin/logs': typeof AdminLogsRoute
@@ -327,6 +344,7 @@ export interface FileRoutesById {
   '/admin/users': typeof AdminUsersRoute
   '/dashboard/callbacks': typeof DashboardCallbacksRoute
   '/dashboard/docs': typeof DashboardDocsRoute
+  '/dashboard/errors': typeof DashboardErrorsRoute
   '/dashboard/keys': typeof DashboardKeysRoute
   '/dashboard/logs': typeof DashboardLogsRoute
   '/dashboard/transactions': typeof DashboardTransactionsRoute
@@ -357,6 +375,7 @@ export interface FileRouteTypes {
     | '/admin/callbacks'
     | '/admin/clients'
     | '/admin/docs'
+    | '/admin/errors'
     | '/admin/health'
     | '/admin/integration'
     | '/admin/logs'
@@ -367,6 +386,7 @@ export interface FileRouteTypes {
     | '/admin/users'
     | '/dashboard/callbacks'
     | '/dashboard/docs'
+    | '/dashboard/errors'
     | '/dashboard/keys'
     | '/dashboard/logs'
     | '/dashboard/transactions'
@@ -393,6 +413,7 @@ export interface FileRouteTypes {
     | '/admin/callbacks'
     | '/admin/clients'
     | '/admin/docs'
+    | '/admin/errors'
     | '/admin/health'
     | '/admin/integration'
     | '/admin/logs'
@@ -403,6 +424,7 @@ export interface FileRouteTypes {
     | '/admin/users'
     | '/dashboard/callbacks'
     | '/dashboard/docs'
+    | '/dashboard/errors'
     | '/dashboard/keys'
     | '/dashboard/logs'
     | '/dashboard/transactions'
@@ -431,6 +453,7 @@ export interface FileRouteTypes {
     | '/admin/callbacks'
     | '/admin/clients'
     | '/admin/docs'
+    | '/admin/errors'
     | '/admin/health'
     | '/admin/integration'
     | '/admin/logs'
@@ -441,6 +464,7 @@ export interface FileRouteTypes {
     | '/admin/users'
     | '/dashboard/callbacks'
     | '/dashboard/docs'
+    | '/dashboard/errors'
     | '/dashboard/keys'
     | '/dashboard/logs'
     | '/dashboard/transactions'
@@ -582,6 +606,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardKeysRouteImport
       parentRoute: typeof DashboardRoute
     }
+    '/dashboard/errors': {
+      id: '/dashboard/errors'
+      path: '/errors'
+      fullPath: '/dashboard/errors'
+      preLoaderRoute: typeof DashboardErrorsRouteImport
+      parentRoute: typeof DashboardRoute
+    }
     '/dashboard/docs': {
       id: '/dashboard/docs'
       path: '/docs'
@@ -650,6 +681,13 @@ declare module '@tanstack/react-router' {
       path: '/health'
       fullPath: '/admin/health'
       preLoaderRoute: typeof AdminHealthRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/errors': {
+      id: '/admin/errors'
+      path: '/errors'
+      fullPath: '/admin/errors'
+      preLoaderRoute: typeof AdminErrorsRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/docs': {
@@ -737,6 +775,7 @@ interface AdminRouteChildren {
   AdminCallbacksRoute: typeof AdminCallbacksRoute
   AdminClientsRoute: typeof AdminClientsRoute
   AdminDocsRoute: typeof AdminDocsRoute
+  AdminErrorsRoute: typeof AdminErrorsRoute
   AdminHealthRoute: typeof AdminHealthRoute
   AdminIntegrationRoute: typeof AdminIntegrationRoute
   AdminLogsRoute: typeof AdminLogsRoute
@@ -753,6 +792,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminCallbacksRoute: AdminCallbacksRoute,
   AdminClientsRoute: AdminClientsRoute,
   AdminDocsRoute: AdminDocsRoute,
+  AdminErrorsRoute: AdminErrorsRoute,
   AdminHealthRoute: AdminHealthRoute,
   AdminIntegrationRoute: AdminIntegrationRoute,
   AdminLogsRoute: AdminLogsRoute,
@@ -769,6 +809,7 @@ const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 interface DashboardRouteChildren {
   DashboardCallbacksRoute: typeof DashboardCallbacksRoute
   DashboardDocsRoute: typeof DashboardDocsRoute
+  DashboardErrorsRoute: typeof DashboardErrorsRoute
   DashboardKeysRoute: typeof DashboardKeysRoute
   DashboardLogsRoute: typeof DashboardLogsRoute
   DashboardTransactionsRoute: typeof DashboardTransactionsRoute
@@ -779,6 +820,7 @@ interface DashboardRouteChildren {
 const DashboardRouteChildren: DashboardRouteChildren = {
   DashboardCallbacksRoute: DashboardCallbacksRoute,
   DashboardDocsRoute: DashboardDocsRoute,
+  DashboardErrorsRoute: DashboardErrorsRoute,
   DashboardKeysRoute: DashboardKeysRoute,
   DashboardLogsRoute: DashboardLogsRoute,
   DashboardTransactionsRoute: DashboardTransactionsRoute,
@@ -811,12 +853,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-  }
-}
