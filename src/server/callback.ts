@@ -198,21 +198,27 @@ export async function authorizeCallback(opts: {
     return { ok: false, status: 403, msg: "API key expired", clientId: c.id, signature: "unconfigured" };
   }
 
-  const { data: ips } = await supabaseAdmin.from("allowed_ips").select("ip_address").eq("client_id", c.id);
-  const allowedIps = (ips || []).map((r) => (r.ip_address || "").trim());
+  // An entry with op = null applies to every operation; otherwise only to that op.
+  const scoped = <T extends { op?: string | null }>(rows: T[] | null) =>
+    (rows || []).filter((r) => !r.op || (op ? r.op === op : false));
+
+  const { data: ipRows } = await supabaseAdmin
+    .from("allowed_ips").select("ip_address, op").eq("client_id", c.id);
+  const allowedIps = scoped(ipRows).map((r) => (r.ip_address || "").trim());
   const ipWildcard = allowedIps.includes("*");
   if (!ipWildcard && (allowedIps.length === 0 || !allowedIps.includes(ip))) {
-    return { ok: false, status: 403, msg: `IP ${ip} not whitelisted`, clientId: c.id, signature: "unconfigured" };
+    return { ok: false, status: 403, msg: `IP ${ip} not whitelisted${op ? ` for ${op}` : ""}`, clientId: c.id, signature: "unconfigured" };
   }
 
-  const { data: doms } = await supabaseAdmin.from("allowed_domains").select("domain").eq("client_id", c.id);
-  const domains = (doms || []).map((r) => r.domain || "");
+  const { data: domRows } = await supabaseAdmin
+    .from("allowed_domains").select("domain, op").eq("client_id", c.id);
+  const domains = scoped(domRows).map((r) => r.domain || "");
   if (domains.length === 0) {
-    return { ok: false, status: 403, msg: "No domains configured", clientId: c.id, signature: "unconfigured" };
+    return { ok: false, status: 403, msg: `No domains configured${op ? ` for ${op}` : ""}`, clientId: c.id, signature: "unconfigured" };
   }
   const domainWildcard = domains.some((d) => d.trim() === "*");
   if (!domainWildcard && (!host || !domains.some((d) => domainMatches(host, d)))) {
-    return { ok: false, status: 403, msg: `Domain ${host ?? "missing"} not whitelisted`, clientId: c.id, signature: "unconfigured" };
+    return { ok: false, status: 403, msg: `Domain ${host ?? "missing"} not whitelisted${op ? ` for ${op}` : ""}`, clientId: c.id, signature: "unconfigured" };
   }
 
   const signature = await verifySignature(c.callback_secret, rawBody, providedSig);

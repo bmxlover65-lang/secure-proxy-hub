@@ -11,6 +11,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { CallbackAclEditor } from "@/components/CallbackAclEditor";
+import { IntegrationTestPanel } from "@/components/IntegrationTestPanel";
 import { Copy, RefreshCw, Save, KeyRound, Webhook } from "lucide-react";
 
 const TYPES = ["", "TokenIssue", "TokenValidate", "GetBalance", "PlaceBet", "WinLoss"];
@@ -165,6 +167,9 @@ export function CallbackPanel({ scope }: { scope: "admin" | "reseller" }) {
 
   return (
     <div className="space-y-6">
+      {/* Dry-run integration tests */}
+      <IntegrationTestPanel scope={scope} clients={clients} />
+
       {/* Per-client integration settings */}
       <Card style={{ background: "var(--gradient-card)" }} className="border-border">
         <CardHeader className="flex-row items-center justify-between gap-2">
@@ -219,6 +224,8 @@ export function CallbackPanel({ scope }: { scope: "admin" | "reseller" }) {
                     ))}
                   </div>
                 )}
+
+                {c.mode === "callback" && <CallbackAclEditor clientId={c.id} scope={scope} />}
 
                 <div className="mt-4 grid gap-3 md:grid-cols-[1fr_140px_auto]">
                   <div className="space-y-1.5">
