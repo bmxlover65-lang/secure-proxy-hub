@@ -43,6 +43,7 @@ import { Route as ApiPublicProxyRouteImport } from './routes/api/public/proxy'
 import { Route as ApiPublicBondpayCallbackRouteImport } from './routes/api/public/bondpay-callback'
 import { Route as ApiPublicTokenValidateRouteImport } from './routes/api/public/token/validate'
 import { Route as ApiPublicTokenIssueRouteImport } from './routes/api/public/token/issue'
+import { Route as ApiPublicTokenEnterRouteImport } from './routes/api/public/token/enter'
 
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
@@ -215,6 +216,11 @@ const ApiPublicTokenIssueRoute = ApiPublicTokenIssueRouteImport.update({
   path: '/api/public/token/issue',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicTokenEnterRoute = ApiPublicTokenEnterRouteImport.update({
+  id: '/api/public/token/enter',
+  path: '/api/public/token/enter',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -249,6 +255,7 @@ export interface FileRoutesByFullPath {
   '/api/public/proxy': typeof ApiPublicProxyRoute
   '/api/public/sametrend': typeof ApiPublicSametrendRoute
   '/api/public/wallet': typeof ApiPublicWalletRoute
+  '/api/public/token/enter': typeof ApiPublicTokenEnterRoute
   '/api/public/token/issue': typeof ApiPublicTokenIssueRoute
   '/api/public/token/validate': typeof ApiPublicTokenValidateRoute
 }
@@ -283,6 +290,7 @@ export interface FileRoutesByTo {
   '/api/public/proxy': typeof ApiPublicProxyRoute
   '/api/public/sametrend': typeof ApiPublicSametrendRoute
   '/api/public/wallet': typeof ApiPublicWalletRoute
+  '/api/public/token/enter': typeof ApiPublicTokenEnterRoute
   '/api/public/token/issue': typeof ApiPublicTokenIssueRoute
   '/api/public/token/validate': typeof ApiPublicTokenValidateRoute
 }
@@ -320,6 +328,7 @@ export interface FileRoutesById {
   '/api/public/proxy': typeof ApiPublicProxyRoute
   '/api/public/sametrend': typeof ApiPublicSametrendRoute
   '/api/public/wallet': typeof ApiPublicWalletRoute
+  '/api/public/token/enter': typeof ApiPublicTokenEnterRoute
   '/api/public/token/issue': typeof ApiPublicTokenIssueRoute
   '/api/public/token/validate': typeof ApiPublicTokenValidateRoute
 }
@@ -358,6 +367,7 @@ export interface FileRouteTypes {
     | '/api/public/proxy'
     | '/api/public/sametrend'
     | '/api/public/wallet'
+    | '/api/public/token/enter'
     | '/api/public/token/issue'
     | '/api/public/token/validate'
   fileRoutesByTo: FileRoutesByTo
@@ -392,6 +402,7 @@ export interface FileRouteTypes {
     | '/api/public/proxy'
     | '/api/public/sametrend'
     | '/api/public/wallet'
+    | '/api/public/token/enter'
     | '/api/public/token/issue'
     | '/api/public/token/validate'
   id:
@@ -428,6 +439,7 @@ export interface FileRouteTypes {
     | '/api/public/proxy'
     | '/api/public/sametrend'
     | '/api/public/wallet'
+    | '/api/public/token/enter'
     | '/api/public/token/issue'
     | '/api/public/token/validate'
   fileRoutesById: FileRoutesById
@@ -446,6 +458,7 @@ export interface RootRouteChildren {
   ApiPublicProxyRoute: typeof ApiPublicProxyRoute
   ApiPublicSametrendRoute: typeof ApiPublicSametrendRoute
   ApiPublicWalletRoute: typeof ApiPublicWalletRoute
+  ApiPublicTokenEnterRoute: typeof ApiPublicTokenEnterRoute
   ApiPublicTokenIssueRoute: typeof ApiPublicTokenIssueRoute
   ApiPublicTokenValidateRoute: typeof ApiPublicTokenValidateRoute
 }
@@ -690,6 +703,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicTokenIssueRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/token/enter': {
+      id: '/api/public/token/enter'
+      path: '/api/public/token/enter'
+      fullPath: '/api/public/token/enter'
+      preLoaderRoute: typeof ApiPublicTokenEnterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -763,9 +783,19 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicProxyRoute: ApiPublicProxyRoute,
   ApiPublicSametrendRoute: ApiPublicSametrendRoute,
   ApiPublicWalletRoute: ApiPublicWalletRoute,
+  ApiPublicTokenEnterRoute: ApiPublicTokenEnterRoute,
   ApiPublicTokenIssueRoute: ApiPublicTokenIssueRoute,
   ApiPublicTokenValidateRoute: ApiPublicTokenValidateRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}
