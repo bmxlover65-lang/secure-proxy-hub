@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
-import { CATEGORY_META } from "@/lib/games";
+import { resolveAllowedGames } from "@/server/allowed-games";
 import {
   corsPreflight, domainMatches, getClientIp,
   getRequestHostname, jsonResponse, logCallback,
@@ -48,7 +48,7 @@ async function handle(request: Request) {
 
   const { data: client } = await supabaseAdmin
     .from("api_clients")
-    .select("id, name, status, expires_at, category, mode, callback_enabled, cb_token")
+    .select("id, name, status, expires_at, category, mode, callback_enabled, cb_token, cb_getbalance, cb_placebet, cb_winloss")
     .eq("id", row.client_id)
     .maybeSingle();
 
@@ -73,6 +73,37 @@ async function handle(request: Request) {
     if (!wildcard && !domains.some((d) => domainMatches(host, d))) {
       return fail(403, `Domain ${host} not whitelisted for token`, client.id);
     }
+  }
+
+  // Games this key is allowed to play: platform-supported ∩ admin-enabled ∩ key category.
+  const { data: cfg } = await supabaseAdmin
+    .from("integration_config")
+    .select("hyper_base, hyper_cb_key, hyper_cb_secret, hyper_token_ttl, enforce_config, allowed_categories")
+    .eq("id", "default")
+    .maybeSingle();
+
+  if (cfg?.enforce_config) {
+    const missing = (["hyper_base", "hyper_cb_key", "hyper_cb_secret", "hyper_token_ttl"] as const)
+      .filter((f) => {
+        const v = cfg[f] as unknown;
+        return v === null || v === undefined || (typeof v === "string" && v.trim() === "");
+      });
+    if (missing.length > 0) {
+      return fail(503, `Integration config incomplete: ${missing.join(", ")}`, client.id);
+    }
+  }
+
+  const allowed = resolveAllowedGames(
+    client.category,
+    cfg?.allowed_categories ?? null,
+    [
+      ...(client.cb_getbalance === false ? [] : ["GetBalance"]),
+      ...(client.cb_placebet === false ? [] : ["PlaceBet"]),
+      ...(client.cb_winloss === false ? [] : ["WinLoss"]),
+    ],
+  );
+  if (allowed.length === 0) {
+    return fail(403, `Category '${client.category ?? "unset"}' is not enabled on this platform`, client.id);
   }
 
   if (row.used_at) {
@@ -111,12 +142,6 @@ async function handle(request: Request) {
     }).eq("id", row.id);
     return fail(409, "Token already used (replay blocked)", client.id);
   }
-
-  // Games this key is allowed to play (we only support these categories).
-  const cat = (client.category || "").toLowerCase();
-  const allowed = cat === "all" || !CATEGORY_META[cat]
-    ? Object.entries(CATEGORY_META).map(([category, m]) => ({ category, games: m.games }))
-    : [{ category: cat, games: CATEGORY_META[cat].games }];
 
   const payload = {
     code: 0,

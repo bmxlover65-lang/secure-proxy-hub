@@ -325,3 +325,62 @@ export const listIntegrationTests = createServerFn({ method: "POST" })
     }
     return { tests: Object.values(latest) };
   });
+
+/* ===================== Token flow logs (issue / enter / validate) ======== */
+
+const TOKEN_FLOW_TYPES = ["TokenIssue", "TokenEnter", "TokenValidate"] as const;
+
+/** Short non-reversible fingerprint so tokens are traceable but never displayed raw. */
+async function tokenHash(token: string): Promise<string> {
+  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(token));
+  return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, "0")).join("").slice(0, 16);
+}
+
+export const listTokenFlowLogs = createServerFn({ method: "POST" })
+  .middleware([sendSupabaseAuth, requireSupabaseAuth])
+  .inputValidator((d) =>
+    z.object({
+      limit: z.number().int().min(1).max(500).default(150),
+      flow: z.enum(["all", "TokenIssue", "TokenEnter", "TokenValidate"]).default("all"),
+      status: z.enum(["all", "allowed", "blocked"]).default("all"),
+      external_user_id: z.string().trim().max(64).optional(),
+      client_id: z.string().uuid().optional(),
+      from: z.string().datetime().optional(),
+      to: z.string().datetime().optional(),
+    }).parse(d ?? {}),
+  )
+  .handler(async ({ data, context }) => {
+    let q = context.supabase
+      .from("callback_logs")
+      .select("id, created_at, client_id, callback_type, external_user_id, token, status_code, success, signature_status, error_message, ip_address, host, response_time_ms")
+      .in("callback_type", data.flow === "all" ? [...TOKEN_FLOW_TYPES] : [data.flow])
+      .order("created_at", { ascending: false })
+      .limit(data.limit);
+    if (data.status === "allowed") q = q.eq("success", true);
+    if (data.status === "blocked") q = q.eq("success", false);
+    if (data.client_id) q = q.eq("client_id", data.client_id);
+    if (data.external_user_id) q = q.ilike("external_user_id", `%${data.external_user_id}%`);
+    if (data.from) q = q.gte("created_at", data.from);
+    if (data.to) q = q.lte("created_at", data.to);
+    const { data: rows, error } = await q;
+    if (error) throw new Error(error.message);
+
+    const logs = await Promise.all(
+      (rows ?? []).map(async (r) => ({
+        id: r.id,
+        created_at: r.created_at,
+        client_id: r.client_id,
+        flow: r.callback_type,
+        external_user_id: r.external_user_id,
+        token_hash: r.token ? await tokenHash(r.token) : null,
+        status_code: r.status_code,
+        allowed: r.success,
+        reason: r.success ? "allowed" : (r.error_message || `blocked (${r.status_code})`),
+        signature_status: r.signature_status,
+        ip_address: r.ip_address,
+        host: r.host,
+        response_time_ms: r.response_time_ms,
+      })),
+    );
+    return { logs };
+  });
