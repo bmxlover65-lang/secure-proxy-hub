@@ -185,7 +185,16 @@ export function CallbackPanel({ scope }: { scope: "admin" | "reseller" }) {
                     <div className="truncate font-semibold">{c.name}</div>
                     <div className="label-mono text-[10px] text-muted-foreground">{c.category} · {c.api_key}</div>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span
+                      className={`px-2 py-0.5 text-[10px] uppercase tracking-wider ${
+                        c.mode === "callback"
+                          ? "bg-primary/15 text-primary"
+                          : "bg-muted text-muted-foreground"
+                      }`}
+                    >
+                      {c.mode === "callback" ? "callback system" : "data / endpoint key"}
+                    </span>
                     <span className="label-mono text-[10px]">callback mode</span>
                     <Switch
                       checked={!!c.callback_enabled}
@@ -194,6 +203,22 @@ export function CallbackPanel({ scope }: { scope: "admin" | "reseller" }) {
                     />
                   </div>
                 </div>
+
+                {c.mode === "callback" && (
+                  <div className="mt-3 flex flex-wrap items-center gap-4 border border-border/40 bg-muted/10 p-3">
+                    <span className="label-mono text-[10px] text-muted-foreground">allowed operations</span>
+                    {OPS.map((op) => (
+                      <label key={op.key} className="flex items-center gap-2">
+                        <Switch
+                          checked={c[op.key] !== false}
+                          disabled={busy === c.id}
+                          onCheckedChange={(v) => void onOpToggle(c.id, op.key, v)}
+                        />
+                        <span className="font-mono text-[11px]">{op.label}</span>
+                      </label>
+                    ))}
+                  </div>
+                )}
 
                 <div className="mt-4 grid gap-3 md:grid-cols-[1fr_140px_auto]">
                   <div className="space-y-1.5">
