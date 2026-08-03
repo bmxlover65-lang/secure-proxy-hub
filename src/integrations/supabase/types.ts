@@ -21,6 +21,7 @@ export type Database = {
           domain: string
           id: string
           label: string | null
+          op: string | null
         }
         Insert: {
           client_id: string
@@ -28,6 +29,7 @@ export type Database = {
           domain: string
           id?: string
           label?: string | null
+          op?: string | null
         }
         Update: {
           client_id?: string
@@ -35,6 +37,7 @@ export type Database = {
           domain?: string
           id?: string
           label?: string | null
+          op?: string | null
         }
         Relationships: [
           {
@@ -60,6 +63,7 @@ export type Database = {
           id: string
           ip_address: string
           label: string | null
+          op: string | null
         }
         Insert: {
           client_id: string
@@ -67,6 +71,7 @@ export type Database = {
           id?: string
           ip_address: string
           label?: string | null
+          op?: string | null
         }
         Update: {
           client_id?: string
@@ -74,6 +79,7 @@ export type Database = {
           id?: string
           ip_address?: string
           label?: string | null
+          op?: string | null
         }
         Relationships: [
           {
