@@ -75,6 +75,37 @@ async function handle(request: Request) {
     }
   }
 
+  // Games this key is allowed to play: platform-supported ∩ admin-enabled ∩ key category.
+  const { data: cfg } = await supabaseAdmin
+    .from("integration_config")
+    .select("hyper_base, hyper_cb_key, hyper_cb_secret, hyper_token_ttl, enforce_config, allowed_categories")
+    .eq("id", "default")
+    .maybeSingle();
+
+  if (cfg?.enforce_config) {
+    const missing = (["hyper_base", "hyper_cb_key", "hyper_cb_secret", "hyper_token_ttl"] as const)
+      .filter((f) => {
+        const v = cfg[f] as unknown;
+        return v === null || v === undefined || (typeof v === "string" && v.trim() === "");
+      });
+    if (missing.length > 0) {
+      return fail(503, `Integration config incomplete: ${missing.join(", ")}`, client.id);
+    }
+  }
+
+  const allowed = resolveAllowedGames(
+    client.category,
+    cfg?.allowed_categories ?? null,
+    [
+      ...(client.cb_getbalance === false ? [] : ["GetBalance"]),
+      ...(client.cb_placebet === false ? [] : ["PlaceBet"]),
+      ...(client.cb_winloss === false ? [] : ["WinLoss"]),
+    ],
+  );
+  if (allowed.length === 0) {
+    return fail(403, `Category '${client.category ?? "unset"}' is not enabled on this platform`, client.id);
+  }
+
   if (row.used_at) {
     await supabaseAdmin.from("game_tokens").update({
       replay_count: (row.replay_count ?? 0) + 1,
@@ -110,37 +141,6 @@ async function handle(request: Request) {
       last_attempt_at: new Date().toISOString(),
     }).eq("id", row.id);
     return fail(409, "Token already used (replay blocked)", client.id);
-  }
-
-  // Games this key is allowed to play: platform-supported ∩ admin-enabled ∩ key category.
-  const { data: cfg } = await supabaseAdmin
-    .from("integration_config")
-    .select("hyper_base, hyper_cb_key, hyper_cb_secret, hyper_token_ttl, enforce_config, allowed_categories")
-    .eq("id", "default")
-    .maybeSingle();
-
-  if (cfg?.enforce_config) {
-    const missing = (["hyper_base", "hyper_cb_key", "hyper_cb_secret", "hyper_token_ttl"] as const)
-      .filter((f) => {
-        const v = cfg[f] as unknown;
-        return v === null || v === undefined || (typeof v === "string" && v.trim() === "");
-      });
-    if (missing.length > 0) {
-      return fail(503, `Integration config incomplete: ${missing.join(", ")}`, client.id);
-    }
-  }
-
-  const allowed = resolveAllowedGames(
-    client.category,
-    cfg?.allowed_categories ?? null,
-    [
-      ...(client.cb_getbalance === false ? [] : ["GetBalance"]),
-      ...(client.cb_placebet === false ? [] : ["PlaceBet"]),
-      ...(client.cb_winloss === false ? [] : ["WinLoss"]),
-    ],
-  );
-  if (allowed.length === 0) {
-    return fail(403, `Category '${client.category ?? "unset"}' is not enabled on this platform`, client.id);
   }
 
   const payload = {
