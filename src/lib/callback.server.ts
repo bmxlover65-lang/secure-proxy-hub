@@ -5,4 +5,4 @@ export function genSecret(): string {
 }
 
 export const CALLBACK_SELECT =
-  "id, name, api_key, status, category, expires_at, callback_url, callback_secret, callback_enabled, token_ttl_seconds";
+  "id, name, api_key, status, category, expires_at, callback_url, callback_secret, callback_enabled, token_ttl_seconds, mode, cb_getbalance, cb_placebet, cb_winloss, cb_token";

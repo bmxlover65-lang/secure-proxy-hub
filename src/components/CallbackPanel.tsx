@@ -4,7 +4,7 @@ import { toast } from "sonner";
 import { useCachedData, invalidateCache } from "@/lib/use-cached";
 import {
   listCallbackClients, listCallbackLogs, listRecentTokens,
-  updateCallbackSettings, regenerateCallbackSecret,
+  updateCallbackSettings, regenerateCallbackSecret, getTokenStats,
 } from "@/lib/callback.functions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -14,6 +14,19 @@ import { Switch } from "@/components/ui/switch";
 import { Copy, RefreshCw, Save, KeyRound, Webhook } from "lucide-react";
 
 const TYPES = ["", "TokenIssue", "TokenValidate", "GetBalance", "PlaceBet", "WinLoss"];
+const TOKEN_STATES = ["all", "active", "used", "expired", "replayed"] as const;
+const OPS: { key: "cb_token" | "cb_getbalance" | "cb_placebet" | "cb_winloss"; label: string }[] = [
+  { key: "cb_token", label: "Token" },
+  { key: "cb_getbalance", label: "GetBalance" },
+  { key: "cb_placebet", label: "PlaceBet" },
+  { key: "cb_winloss", label: "WinLoss" },
+];
+
+function toIso(v: string, end = false): string | undefined {
+  if (!v) return undefined;
+  const d = new Date(end ? `${v}T23:59:59` : `${v}T00:00:00`);
+  return Number.isNaN(d.getTime()) ? undefined : d.toISOString();
+}
 
 function copy(v: string) {
   void navigator.clipboard.writeText(v);
@@ -26,27 +39,62 @@ export function CallbackPanel({ scope }: { scope: "admin" | "reseller" }) {
   const fetchTokens = useServerFn(listRecentTokens);
   const saveSettings = useServerFn(updateCallbackSettings);
   const regen = useServerFn(regenerateCallbackSecret);
+  const fetchStats = useServerFn(getTokenStats);
 
   const [type, setType] = useState("");
   const [onlyFailed, setOnlyFailed] = useState(false);
+  const [statusFilter, setStatusFilter] = useState<"all" | "success" | "failed">("all");
+  const [userQ, setUserQ] = useState("");
+  const [from, setFrom] = useState("");
+  const [to, setTo] = useState("");
+  const [tokenState, setTokenState] = useState<(typeof TOKEN_STATES)[number]>("all");
   const [drafts, setDrafts] = useState<Record<string, { url: string; ttl: string }>>({});
   const [busy, setBusy] = useState<string | null>(null);
+
+  const fromIso = toIso(from);
+  const toIsoVal = toIso(to, true);
+  const rangeKey = `${from}|${to}`;
 
   const { data: clientsData, refetch: refetchClients } = useCachedData<Awaited<ReturnType<typeof listCallbackClients>>>(
     `${scope}:cb:clients`, () => fetchClients(), { staleTime: 20_000 },
   );
   const { data: logsData, refetch: refetchLogs, isFetching } = useCachedData<Awaited<ReturnType<typeof listCallbackLogs>>>(
-    `${scope}:cb:logs:${type}:${onlyFailed}`,
-    () => fetchLogs({ data: { limit: 200, callback_type: type || undefined, only_failed: onlyFailed || undefined } }),
+    `${scope}:cb:logs:${type}:${statusFilter}:${userQ}:${rangeKey}`,
+    () => fetchLogs({
+      data: {
+        limit: 200,
+        callback_type: type || undefined,
+        status: statusFilter,
+        external_user_id: userQ.trim() || undefined,
+        from: fromIso,
+        to: toIsoVal,
+      },
+    }),
     { staleTime: 10_000 },
   );
   const { data: tokensData, refetch: refetchTokens } = useCachedData<Awaited<ReturnType<typeof listRecentTokens>>>(
-    `${scope}:cb:tokens`, () => fetchTokens({ data: { limit: 50 } }), { staleTime: 10_000 },
+    `${scope}:cb:tokens:${tokenState}:${userQ}:${rangeKey}`,
+    () => fetchTokens({
+      data: {
+        limit: 100,
+        state: tokenState,
+        external_user_id: userQ.trim() || undefined,
+        from: fromIso,
+        to: toIsoVal,
+      },
+    }),
+    { staleTime: 10_000 },
+  );
+  const { data: statsData, refetch: refetchStats } = useCachedData<Awaited<ReturnType<typeof getTokenStats>>>(
+    `${scope}:cb:tokenstats:${rangeKey}`,
+    () => fetchStats({ data: { from: fromIso, to: toIsoVal } }),
+    { staleTime: 10_000 },
   );
 
   const clients = clientsData?.clients ?? [];
   const logs = logsData?.logs ?? [];
   const tokens = tokensData?.tokens ?? [];
+  const stats = statsData?.stats;
   const nameOf = (id: string | null) => clients.find((c) => c.id === id)?.name ?? "—";
 
   const onSave = async (id: string, current: { callback_url: string | null; token_ttl_seconds: number }) => {
@@ -71,13 +119,35 @@ export function CallbackPanel({ scope }: { scope: "admin" | "reseller" }) {
   const onToggle = async (id: string, enabled: boolean) => {
     setBusy(id);
     try {
-      await saveSettings({ data: { client_id: id, callback_enabled: enabled } });
+      await saveSettings({ data: { client_id: id, callback_enabled: enabled, mode: enabled ? "callback" : "data" } });
       invalidateCache(`${scope}:cb:clients`);
       await refetchClients();
       toast.success(enabled ? "Callback mode enabled" : "Callback mode disabled");
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Update failed");
     } finally { setBusy(null); }
+  };
+
+  const onOpToggle = async (
+    id: string,
+    key: "cb_token" | "cb_getbalance" | "cb_placebet" | "cb_winloss",
+    value: boolean,
+  ) => {
+    setBusy(id);
+    try {
+      await saveSettings({ data: { client_id: id, [key]: value } });
+      invalidateCache(`${scope}:cb:clients`);
+      await refetchClients();
+      toast.success(`${key.replace("cb_", "")} ${value ? "enabled" : "disabled"}`);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Update failed");
+    } finally { setBusy(null); }
+  };
+
+  const refreshAll = () => {
+    void refetchLogs();
+    void refetchTokens();
+    void refetchStats();
   };
 
   const onRegen = async (id: string) => {
@@ -115,7 +185,16 @@ export function CallbackPanel({ scope }: { scope: "admin" | "reseller" }) {
                     <div className="truncate font-semibold">{c.name}</div>
                     <div className="label-mono text-[10px] text-muted-foreground">{c.category} · {c.api_key}</div>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span
+                      className={`px-2 py-0.5 text-[10px] uppercase tracking-wider ${
+                        c.mode === "callback"
+                          ? "bg-primary/15 text-primary"
+                          : "bg-muted text-muted-foreground"
+                      }`}
+                    >
+                      {c.mode === "callback" ? "callback system" : "data / endpoint key"}
+                    </span>
                     <span className="label-mono text-[10px]">callback mode</span>
                     <Switch
                       checked={!!c.callback_enabled}
@@ -124,6 +203,22 @@ export function CallbackPanel({ scope }: { scope: "admin" | "reseller" }) {
                     />
                   </div>
                 </div>
+
+                {c.mode === "callback" && (
+                  <div className="mt-3 flex flex-wrap items-center gap-4 border border-border/40 bg-muted/10 p-3">
+                    <span className="label-mono text-[10px] text-muted-foreground">allowed operations</span>
+                    {OPS.map((op) => (
+                      <label key={op.key} className="flex items-center gap-2">
+                        <Switch
+                          checked={c[op.key] !== false}
+                          disabled={busy === c.id}
+                          onCheckedChange={(v) => void onOpToggle(c.id, op.key, v)}
+                        />
+                        <span className="font-mono text-[11px]">{op.label}</span>
+                      </label>
+                    ))}
+                  </div>
+                )}
 
                 <div className="mt-4 grid gap-3 md:grid-cols-[1fr_140px_auto]">
                   <div className="space-y-1.5">
@@ -173,22 +268,65 @@ export function CallbackPanel({ scope }: { scope: "admin" | "reseller" }) {
 
       {/* Callback logs */}
       <Card style={{ background: "var(--gradient-card)" }} className="border-border">
-        <CardHeader className="flex-row flex-wrap items-center justify-between gap-2">
-          <CardTitle className="text-sm uppercase tracking-wide">Callback Logs</CardTitle>
-          <div className="flex flex-wrap items-center gap-2">
-            <select
-              value={type}
-              onChange={(e) => setType(e.target.value)}
-              className="border border-border bg-background px-2 py-1.5 font-mono text-xs"
-            >
-              {TYPES.map((t) => <option key={t} value={t}>{t || "all types"}</option>)}
-            </select>
-            <Button size="sm" variant={onlyFailed ? "default" : "outline"} onClick={() => setOnlyFailed((v) => !v)}>
-              Failed only
-            </Button>
-            <Button size="sm" variant="outline" disabled={isFetching} onClick={() => void refetchLogs()}>
+        <CardHeader className="space-y-3">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <CardTitle className="text-sm uppercase tracking-wide">Callback Logs</CardTitle>
+            <Button size="sm" variant="outline" disabled={isFetching} onClick={refreshAll}>
               <RefreshCw className={`h-3.5 w-3.5 ${isFetching ? "animate-spin" : ""}`} />
             </Button>
+          </div>
+          <div className="flex flex-wrap items-end gap-2">
+            <div className="space-y-1">
+              <Label className="label-mono text-[10px]">Type</Label>
+              <select
+                value={type}
+                onChange={(e) => setType(e.target.value)}
+                className="block border border-border bg-background px-2 py-1.5 font-mono text-xs"
+              >
+                {TYPES.map((t) => <option key={t} value={t}>{t || "all types"}</option>)}
+              </select>
+            </div>
+            <div className="space-y-1">
+              <Label className="label-mono text-[10px]">Status</Label>
+              <select
+                value={statusFilter}
+                onChange={(e) => {
+                  setStatusFilter(e.target.value as "all" | "success" | "failed");
+                  setOnlyFailed(e.target.value === "failed");
+                }}
+                className="block border border-border bg-background px-2 py-1.5 font-mono text-xs"
+              >
+                <option value="all">all</option>
+                <option value="success">success</option>
+                <option value="failed">failed</option>
+              </select>
+            </div>
+            <div className="space-y-1">
+              <Label className="label-mono text-[10px]">User ID</Label>
+              <Input
+                value={userQ}
+                placeholder="search user_id"
+                onChange={(e) => setUserQ(e.target.value)}
+                className="h-[34px] w-[160px] font-mono text-xs"
+              />
+            </div>
+            <div className="space-y-1">
+              <Label className="label-mono text-[10px]">From</Label>
+              <Input type="date" value={from} onChange={(e) => setFrom(e.target.value)} className="h-[34px] w-[150px] font-mono text-xs" />
+            </div>
+            <div className="space-y-1">
+              <Label className="label-mono text-[10px]">To</Label>
+              <Input type="date" value={to} onChange={(e) => setTo(e.target.value)} className="h-[34px] w-[150px] font-mono text-xs" />
+            </div>
+            {(type || statusFilter !== "all" || userQ || from || to) && (
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => { setType(""); setStatusFilter("all"); setOnlyFailed(false); setUserQ(""); setFrom(""); setTo(""); }}
+              >
+                Clear
+              </Button>
+            )}
           </div>
         </CardHeader>
         <CardContent className="p-0">
@@ -233,13 +371,39 @@ export function CallbackPanel({ scope }: { scope: "admin" | "reseller" }) {
 
       {/* Tokens */}
       <Card style={{ background: "var(--gradient-card)" }} className="border-border">
-        <CardHeader className="flex-row items-center justify-between gap-2">
-          <CardTitle className="flex items-center gap-2 text-sm uppercase tracking-wide">
-            <KeyRound className="h-4 w-4 text-primary" /> Recent Tokens
-          </CardTitle>
-          <Button size="sm" variant="outline" onClick={() => void refetchTokens()}>
-            <RefreshCw className="h-3.5 w-3.5" />
-          </Button>
+        <CardHeader className="space-y-3">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <CardTitle className="flex items-center gap-2 text-sm uppercase tracking-wide">
+              <KeyRound className="h-4 w-4 text-primary" /> Tokens (single-use)
+            </CardTitle>
+            <div className="flex items-center gap-2">
+              <select
+                value={tokenState}
+                onChange={(e) => setTokenState(e.target.value as (typeof TOKEN_STATES)[number])}
+                className="border border-border bg-background px-2 py-1.5 font-mono text-xs"
+              >
+                {TOKEN_STATES.map((s) => <option key={s} value={s}>{s}</option>)}
+              </select>
+              <Button size="sm" variant="outline" onClick={() => { void refetchTokens(); void refetchStats(); }}>
+                <RefreshCw className="h-3.5 w-3.5" />
+              </Button>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">
+            {[
+              { label: "issued", value: stats?.total ?? 0, tone: "" },
+              { label: "active", value: stats?.active ?? 0, tone: "text-primary" },
+              { label: "used", value: stats?.used ?? 0, tone: "" },
+              { label: "expired", value: stats?.expired ?? 0, tone: "text-muted-foreground" },
+              { label: "replay blocked", value: stats?.replay_blocked ?? 0, tone: "text-destructive" },
+              { label: "expired hits", value: stats?.expired_hits ?? 0, tone: "text-destructive" },
+            ].map((s) => (
+              <div key={s.label} className="border border-border/60 bg-muted/10 p-3">
+                <div className="label-mono text-[10px] text-muted-foreground">{s.label}</div>
+                <div className={`font-mono text-xl ${s.tone}`}>{s.value}</div>
+              </div>
+            ))}
+          </div>
         </CardHeader>
         <CardContent className="p-0">
           {tokens.length === 0 ? (
@@ -250,7 +414,7 @@ export function CallbackPanel({ scope }: { scope: "admin" | "reseller" }) {
                 <thead className="text-left text-[10px] uppercase tracking-wider text-muted-foreground">
                   <tr className="border-b border-border/40">
                     <th className="p-3">Issued</th>{scope === "admin" && <th>Client</th>}
-                    <th>User ID</th><th>Token</th><th>Expires</th><th>State</th><th>IP</th><th>Domain</th>
+                    <th>User ID</th><th>Token</th><th>Expires</th><th>State</th><th>Replay</th><th>Exp. hits</th><th>Last attempt</th><th>IP</th><th>Domain</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -269,6 +433,9 @@ export function CallbackPanel({ scope }: { scope: "admin" | "reseller" }) {
                             {state}
                           </span>
                         </td>
+                        <td className={`font-mono text-xs ${(t.replay_count ?? 0) > 0 ? "text-destructive" : ""}`}>{t.replay_count ?? 0}</td>
+                        <td className={`font-mono text-xs ${(t.expired_hits ?? 0) > 0 ? "text-destructive" : ""}`}>{t.expired_hits ?? 0}</td>
+                        <td className="text-xs text-muted-foreground">{t.last_attempt_at ? new Date(t.last_attempt_at).toLocaleString() : "—"}</td>
                         <td className="font-mono text-xs">{t.ip_address ?? "—"}</td>
                         <td className="font-mono text-xs">{t.domain ?? "—"}</td>
                       </tr>

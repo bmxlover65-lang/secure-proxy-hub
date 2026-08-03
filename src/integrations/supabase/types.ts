@@ -99,10 +99,15 @@ export type Database = {
           callback_secret: string | null
           callback_url: string | null
           category: string
+          cb_getbalance: boolean
+          cb_placebet: boolean
+          cb_token: boolean
+          cb_winloss: boolean
           created_at: string
           duration_days: number | null
           expires_at: string | null
           id: string
+          mode: string
           name: string
           notes: string | null
           status: string
@@ -116,10 +121,15 @@ export type Database = {
           callback_secret?: string | null
           callback_url?: string | null
           category?: string
+          cb_getbalance?: boolean
+          cb_placebet?: boolean
+          cb_token?: boolean
+          cb_winloss?: boolean
           created_at?: string
           duration_days?: number | null
           expires_at?: string | null
           id?: string
+          mode?: string
           name: string
           notes?: string | null
           status?: string
@@ -133,10 +143,15 @@ export type Database = {
           callback_secret?: string | null
           callback_url?: string | null
           category?: string
+          cb_getbalance?: boolean
+          cb_placebet?: boolean
+          cb_token?: boolean
+          cb_winloss?: boolean
           created_at?: string
           duration_days?: number | null
           expires_at?: string | null
           id?: string
+          mode?: string
           name?: string
           notes?: string | null
           status?: string
@@ -277,34 +292,49 @@ export type Database = {
           client_id: string
           created_at: string
           domain: string | null
+          expired_hits: number
           expires_at: string
           external_user_id: string
           id: string
           ip_address: string | null
+          last_attempt_at: string | null
+          replay_count: number
           token: string
           used_at: string | null
+          used_domain: string | null
+          used_ip: string | null
         }
         Insert: {
           client_id: string
           created_at?: string
           domain?: string | null
+          expired_hits?: number
           expires_at: string
           external_user_id: string
           id?: string
           ip_address?: string | null
+          last_attempt_at?: string | null
+          replay_count?: number
           token: string
           used_at?: string | null
+          used_domain?: string | null
+          used_ip?: string | null
         }
         Update: {
           client_id?: string
           created_at?: string
           domain?: string | null
+          expired_hits?: number
           expires_at?: string
           external_user_id?: string
           id?: string
           ip_address?: string | null
+          last_attempt_at?: string | null
+          replay_count?: number
           token?: string
           used_at?: string | null
+          used_domain?: string | null
+          used_ip?: string | null
         }
         Relationships: [
           {
@@ -565,6 +595,17 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      token_stats: {
+        Args: { _from?: string; _to?: string }
+        Returns: {
+          active: number
+          expired: number
+          expired_hits: number
+          replay_blocked: number
+          total: number
+          used: number
+        }[]
       }
       user_usage_in_range: {
         Args: { _from: string; _to: string }
