@@ -1,10 +1,9 @@
-import {
-  Plug, Link, useNavigate, useRouterState } from "@tanstack/react-router";
+import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useAuth } from "@/lib/auth-context";
 import { Button } from "@/components/ui/button";
 import {
   LayoutDashboard, Users, ScrollText, Activity, BookOpen, LogOut, BarChart3,
-  Shield, Menu, X, ChevronRight, Database, KeyRound, Wallet, Receipt, Settings, Coins, CreditCard, Webhook,
+  Shield, Menu, X, ChevronRight, Database, KeyRound, Wallet, Receipt, Settings, Coins, CreditCard, Webhook, Plug,
 } from "lucide-react";
 import { useState, type ReactNode } from "react";
 
