@@ -8,7 +8,24 @@ export type ClientRow = {
   callback_secret: string | null;
   callback_enabled: boolean;
   token_ttl_seconds: number;
+  mode: string;
+  cb_getbalance: boolean;
+  cb_placebet: boolean;
+  cb_winloss: boolean;
+  cb_token: boolean;
 };
+
+/** Operations that can be individually enabled per callback key. */
+export type CallbackOp = "token" | "GetBalance" | "PlaceBet" | "WinLoss";
+
+function opEnabled(c: ClientRow, op: CallbackOp): boolean {
+  switch (op) {
+    case "token": return c.cb_token !== false;
+    case "GetBalance": return c.cb_getbalance !== false;
+    case "PlaceBet": return c.cb_placebet !== false;
+    case "WinLoss": return c.cb_winloss !== false;
+  }
+}
 
 export function getClientIp(request: Request): string {
   const xff = request.headers.get("x-forwarded-for");
@@ -143,8 +160,9 @@ export async function authorizeCallback(opts: {
   request: Request;
   apiKey: string;
   rawBody: string;
+  op?: CallbackOp;
 }): Promise<AuthOk | AuthFail> {
-  const { request, apiKey, rawBody } = opts;
+  const { request, apiKey, rawBody, op } = opts;
   const ip = getClientIp(request);
   const host = getRequestHostname(request);
   const providedSig =
@@ -156,15 +174,22 @@ export async function authorizeCallback(opts: {
 
   const { data: client } = await supabaseAdmin
     .from("api_clients")
-    .select("id, status, expires_at, callback_url, callback_secret, callback_enabled, token_ttl_seconds")
+    .select("id, status, expires_at, callback_url, callback_secret, callback_enabled, token_ttl_seconds, mode, cb_getbalance, cb_placebet, cb_winloss, cb_token")
     .eq("api_key", apiKey)
     .maybeSingle();
 
   if (!client) return { ok: false, status: 401, msg: "Invalid API key", clientId: null, signature: "missing" };
   const c = client as ClientRow;
 
+  // Callback system keys are a separate system from data/endpoint API keys.
+  if (c.mode !== "callback") {
+    return { ok: false, status: 403, msg: "This is a data API key. Use a callback-mode key for token/wallet endpoints.", clientId: c.id, signature: "unconfigured" };
+  }
   if (!c.callback_enabled) {
     return { ok: false, status: 403, msg: "Callback integration mode is disabled for this key", clientId: c.id, signature: "unconfigured" };
+  }
+  if (op && !opEnabled(c, op)) {
+    return { ok: false, status: 403, msg: `Operation '${op}' is disabled for this key`, clientId: c.id, signature: "unconfigured" };
   }
   if (c.status !== "active") {
     return { ok: false, status: 403, msg: "Account suspended", clientId: c.id, signature: "unconfigured" };
