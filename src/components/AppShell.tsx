@@ -3,7 +3,7 @@ import { useAuth } from "@/lib/auth-context";
 import { Button } from "@/components/ui/button";
 import {
   LayoutDashboard, Users, ScrollText, Activity, BookOpen, LogOut, BarChart3,
-  Shield, Menu, X, ChevronRight, Database, KeyRound, Wallet, Receipt, Settings, Coins, CreditCard,
+  Shield, Menu, X, ChevronRight, Database, KeyRound, Wallet, Receipt, Settings, Coins, CreditCard, Webhook,
 } from "lucide-react";
 import { useState, type ReactNode } from "react";
 
@@ -16,6 +16,7 @@ const adminNav: NavItem[] = [
   { to: "/admin/transactions", label: "Transactions", icon: Receipt, description: "Coin activity" },
   { to: "/admin/clients", label: "API Clients", icon: KeyRound, description: "All keys" },
   { to: "/admin/logs", label: "Request Logs", icon: ScrollText, description: "Activity history" },
+  { to: "/admin/callbacks", label: "Callbacks & Tokens", icon: Webhook, description: "Wallet callback logs" },
   { to: "/admin/stats", label: "Statistics", icon: BarChart3, description: "Usage charts" },
   { to: "/admin/cache", label: "Cache Monitor", icon: Database, description: "Hit/miss & TTL" },
   { to: "/admin/health", label: "API Health", icon: Activity, description: "Test endpoints" },
@@ -29,6 +30,7 @@ const resellerNav: NavItem[] = [
   { to: "/dashboard/wallet", label: "Wallet", icon: Wallet, description: "Balance & top-up" },
   { to: "/dashboard/transactions", label: "Transactions", icon: Receipt, description: "Coin history" },
   { to: "/dashboard/logs", label: "Request Logs", icon: ScrollText, description: "API call history" },
+  { to: "/dashboard/callbacks", label: "Callback Mode", icon: Webhook, description: "Token & wallet callbacks" },
   { to: "/dashboard/docs", label: "API Docs", icon: BookOpen, description: "Integration guide" },
 ];
 
