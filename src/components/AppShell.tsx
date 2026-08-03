@@ -25,7 +25,7 @@ const adminNav: NavItem[] = [
   { to: "/admin/docs", label: "API Docs", icon: BookOpen, description: "Integration guide" },
 ];
 
-const resellerNav: NavItem[] = [
+const accountNav: NavItem[] = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard, description: "Wallet & overview" },
   { to: "/dashboard/keys", label: "API Keys", icon: KeyRound, description: "Create & manage" },
   { to: "/dashboard/wallet", label: "Wallet", icon: Wallet, description: "Balance & top-up" },
@@ -34,6 +34,14 @@ const resellerNav: NavItem[] = [
   { to: "/dashboard/callbacks", label: "Callback Mode", icon: Webhook, description: "Token & wallet callbacks" },
   { to: "/dashboard/docs", label: "API Docs", icon: BookOpen, description: "Integration guide" },
 ];
+
+interface NavSection { title: string; items: NavItem[] }
+
+const adminSections: NavSection[] = [
+  { title: "// control plane", items: adminNav },
+  { title: "// my account", items: accountNav },
+];
+const resellerSections: NavSection[] = [{ title: "// navigation", items: accountNav }];
 
 export function AppShell({
   children,
@@ -47,7 +55,8 @@ export function AppShell({
   const { user, signOut, isAdmin } = useAuth();
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-  const items = mode === "admin" ? adminNav : resellerNav;
+  const sections = mode === "admin" ? adminSections : resellerSections;
+  const items = sections.flatMap((s) => s.items);
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const initials = (user?.email ?? "U").slice(0, 2).toUpperCase();
@@ -70,8 +79,10 @@ export function AppShell({
       </div>
 
       <nav className="scrollbar-slim flex-1 space-y-0.5 overflow-y-auto p-2.5">
-        <div className="label-mono px-2.5 pb-2 pt-1">// navigation</div>
-        {items.map((it) => {
+        {sections.map((sec) => (
+          <div key={sec.title} className="pb-1">
+            <div className="label-mono px-2.5 pb-2 pt-1">{sec.title}</div>
+          {sec.items.map((it) => {
           const Icon = it.icon;
           const active =
             pathname === it.to ||
@@ -110,7 +121,9 @@ export function AppShell({
               {active && <span className="relative h-1.5 w-1.5 shrink-0 bg-primary" />}
             </Link>
           );
-        })}
+          })}
+          </div>
+        ))}
       </nav>
 
       <div className="border-t border-border p-2.5">
