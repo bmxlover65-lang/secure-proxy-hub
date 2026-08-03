@@ -121,7 +121,7 @@ export function AppShell({
               {active && <span className="relative h-1.5 w-1.5 shrink-0 bg-primary" />}
             </Link>
           );
-        }
+          })}
           </div>
         ))}
       </nav>
