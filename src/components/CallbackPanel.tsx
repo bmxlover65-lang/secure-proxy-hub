@@ -268,22 +268,65 @@ export function CallbackPanel({ scope }: { scope: "admin" | "reseller" }) {
 
       {/* Callback logs */}
       <Card style={{ background: "var(--gradient-card)" }} className="border-border">
-        <CardHeader className="flex-row flex-wrap items-center justify-between gap-2">
-          <CardTitle className="text-sm uppercase tracking-wide">Callback Logs</CardTitle>
-          <div className="flex flex-wrap items-center gap-2">
-            <select
-              value={type}
-              onChange={(e) => setType(e.target.value)}
-              className="border border-border bg-background px-2 py-1.5 font-mono text-xs"
-            >
-              {TYPES.map((t) => <option key={t} value={t}>{t || "all types"}</option>)}
-            </select>
-            <Button size="sm" variant={onlyFailed ? "default" : "outline"} onClick={() => setOnlyFailed((v) => !v)}>
-              Failed only
-            </Button>
-            <Button size="sm" variant="outline" disabled={isFetching} onClick={() => void refetchLogs()}>
+        <CardHeader className="space-y-3">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <CardTitle className="text-sm uppercase tracking-wide">Callback Logs</CardTitle>
+            <Button size="sm" variant="outline" disabled={isFetching} onClick={refreshAll}>
               <RefreshCw className={`h-3.5 w-3.5 ${isFetching ? "animate-spin" : ""}`} />
             </Button>
+          </div>
+          <div className="flex flex-wrap items-end gap-2">
+            <div className="space-y-1">
+              <Label className="label-mono text-[10px]">Type</Label>
+              <select
+                value={type}
+                onChange={(e) => setType(e.target.value)}
+                className="block border border-border bg-background px-2 py-1.5 font-mono text-xs"
+              >
+                {TYPES.map((t) => <option key={t} value={t}>{t || "all types"}</option>)}
+              </select>
+            </div>
+            <div className="space-y-1">
+              <Label className="label-mono text-[10px]">Status</Label>
+              <select
+                value={statusFilter}
+                onChange={(e) => {
+                  setStatusFilter(e.target.value as "all" | "success" | "failed");
+                  setOnlyFailed(e.target.value === "failed");
+                }}
+                className="block border border-border bg-background px-2 py-1.5 font-mono text-xs"
+              >
+                <option value="all">all</option>
+                <option value="success">success</option>
+                <option value="failed">failed</option>
+              </select>
+            </div>
+            <div className="space-y-1">
+              <Label className="label-mono text-[10px]">User ID</Label>
+              <Input
+                value={userQ}
+                placeholder="search user_id"
+                onChange={(e) => setUserQ(e.target.value)}
+                className="h-[34px] w-[160px] font-mono text-xs"
+              />
+            </div>
+            <div className="space-y-1">
+              <Label className="label-mono text-[10px]">From</Label>
+              <Input type="date" value={from} onChange={(e) => setFrom(e.target.value)} className="h-[34px] w-[150px] font-mono text-xs" />
+            </div>
+            <div className="space-y-1">
+              <Label className="label-mono text-[10px]">To</Label>
+              <Input type="date" value={to} onChange={(e) => setTo(e.target.value)} className="h-[34px] w-[150px] font-mono text-xs" />
+            </div>
+            {(type || statusFilter !== "all" || userQ || from || to) && (
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => { setType(""); setStatusFilter("all"); setOnlyFailed(false); setUserQ(""); setFrom(""); setTo(""); }}
+              >
+                Clear
+              </Button>
+            )}
           </div>
         </CardHeader>
         <CardContent className="p-0">
