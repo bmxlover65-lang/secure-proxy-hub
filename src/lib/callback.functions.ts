@@ -4,6 +4,9 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { sendSupabaseAuth } from "@/lib/server-function-auth";
 import { genSecret, CALLBACK_SELECT } from "./callback.server";
 
+const OP_ENUM = z.enum(["token", "GetBalance", "PlaceBet", "WinLoss"]);
+const TEST_OPS = ["GetBalance", "PlaceBet", "WinLoss"] as const;
+
 export const listCallbackClients = createServerFn({ method: "POST" })
   .middleware([sendSupabaseAuth, requireSupabaseAuth])
   .handler(async ({ context }) => {
