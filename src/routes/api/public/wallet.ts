@@ -31,7 +31,10 @@ export const Route = createFileRoute("/api/public/wallet")({
         const ip = getClientIp(request);
         const host = getRequestHostname(request);
 
-        const auth = await authorizeCallback({ request, apiKey, rawBody });
+        const auth = await authorizeCallback({
+          request, apiKey, rawBody,
+          op: TYPES.includes(callbackType) ? callbackType : undefined,
+        });
         if (!auth.ok) {
           await logCallback({
             client_id: auth.clientId, callback_type: callbackType, external_user_id: userId || null,
