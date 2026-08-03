@@ -20,7 +20,7 @@ export const Route = createFileRoute("/api/public/token/issue")({
         const ip = getClientIp(request);
         const host = getRequestHostname(request);
 
-        const auth = await authorizeCallback({ request, apiKey, rawBody });
+        const auth = await authorizeCallback({ request, apiKey, rawBody, op: "token" });
         if (!auth.ok) {
           await logCallback({
             client_id: auth.clientId, callback_type: "TokenIssue", external_user_id: userId || null,
