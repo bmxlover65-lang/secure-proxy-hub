@@ -359,6 +359,42 @@ export type Database = {
           },
         ]
       }
+      integration_config: {
+        Row: {
+          allowed_categories: string[]
+          enforce_config: boolean
+          hyper_base: string
+          hyper_cb_key: string | null
+          hyper_cb_secret: string | null
+          hyper_data_key: string | null
+          hyper_token_ttl: number
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          allowed_categories?: string[]
+          enforce_config?: boolean
+          hyper_base?: string
+          hyper_cb_key?: string | null
+          hyper_cb_secret?: string | null
+          hyper_data_key?: string | null
+          hyper_token_ttl?: number
+          id?: string
+          updated_at?: string
+        }
+        Update: {
+          allowed_categories?: string[]
+          enforce_config?: boolean
+          hyper_base?: string
+          hyper_cb_key?: string | null
+          hyper_cb_secret?: string | null
+          hyper_data_key?: string | null
+          hyper_token_ttl?: number
+          id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       payment_orders: {
         Row: {
           amount_inr: number
