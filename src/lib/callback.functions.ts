@@ -32,12 +32,16 @@ export const updateCallbackSettings = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { client_id, ...rest } = data;
-    const patch: Record<string, unknown> = {};
+    const patch: Record<string, string | boolean | number | null> = {};
     for (const [k, v] of Object.entries(rest)) if (v !== undefined) patch[k] = v;
     // Turning on callback mode implies the key belongs to the callback system.
     if (rest.callback_enabled === true && rest.mode === undefined) patch.mode = "callback";
     if (Object.keys(patch).length === 0) return { ok: true };
-    const { error } = await context.supabase.from("api_clients").update(patch).eq("id", client_id);
+    const { error } = await context.supabase
+      .from("api_clients")
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .update(patch as any)
+      .eq("id", client_id);
     if (error) throw new Error(error.message);
     return { ok: true };
   });
@@ -125,8 +129,8 @@ export const getTokenStats = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { data: rows, error } = await context.supabase.rpc("token_stats", {
-      _from: data.from ?? null,
-      _to: data.to ?? null,
+      ...(data.from ? { _from: data.from } : {}),
+      ...(data.to ? { _to: data.to } : {}),
     });
     if (error) throw new Error(error.message);
     const s = (rows ?? [])[0];
