@@ -3,6 +3,8 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { sendSupabaseAuth } from "@/lib/server-function-auth";
 
+export type Payload = Record<string, unknown> | null;
+
 export type ErrorEntry = {
   id: string;
   created_at: string;
@@ -17,8 +19,8 @@ export type ErrorEntry = {
   host: string | null;
   external_user_id: string | null;
   response_time_ms: number | null;
-  request_payload: unknown;
-  response_payload: unknown;
+  request_payload: Payload;
+  response_payload: Payload;
 };
 
 /**
@@ -71,8 +73,8 @@ export const listErrorLogs = createServerFn({ method: "POST" })
         host: r.host,
         external_user_id: r.external_user_id,
         response_time_ms: r.response_time_ms,
-        request_payload: r.request_payload,
-        response_payload: r.response_payload,
+        request_payload: (r.request_payload ?? null) as Payload,
+        response_payload: (r.response_payload ?? null) as Payload,
       }));
     };
 

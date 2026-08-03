@@ -101,7 +101,7 @@ export function ErrorLogPanel() {
   const [to, setTo] = useState("");
 
   const key = `error-log:${source}:${search}:${from}:${to}`;
-  const { data, isFetching, refetch } = useCachedData(key, () =>
+  const { data, isFetching, refetch } = useCachedData<{ entries: ErrorEntry[]; counts: Record<string, number> }>(key, () =>
     fetchErrors({
       data: {
         limit: 200, source,
@@ -175,7 +175,7 @@ export function ErrorLogPanel() {
               {isFetching ? "Loading errors…" : "No errors in this range — sab clean hai."}
             </div>
           ) : (
-            entries.map((e) => <Row key={e.id} e={e} />)
+            entries.map((e: ErrorEntry) => <Row key={e.id} e={e} />)
           )}
         </div>
       </CardContent>
