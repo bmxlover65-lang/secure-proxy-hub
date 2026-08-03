@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { useCachedData, invalidateCache } from "@/lib/use-cached";
+import { useCachedData } from "@/lib/use-cached";
 import { listTokenFlowLogs } from "@/lib/callback.functions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -26,7 +26,7 @@ export function TokenFlowLogs() {
   const [to, setTo] = useState("");
 
   const key = `token-flow:${flow}:${status}:${user}:${from}:${to}`;
-  const { data, loading } = useCachedData(key, () =>
+  const { data, isFetching, refetch } = useCachedData(key, () =>
     fetchLogs({
       data: {
         limit: 150, flow, status,
@@ -45,8 +45,8 @@ export function TokenFlowLogs() {
         <CardTitle className="font-display flex items-center gap-2 text-base uppercase tracking-tight">
           <ShieldCheck className="h-4 w-4 text-primary" /> Token enter / consume log
         </CardTitle>
-        <Button variant="outline" size="sm" onClick={() => invalidateCache(key)}>
-          <RefreshCw className={`mr-2 h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`} /> Refresh
+        <Button variant="outline" size="sm" onClick={() => void refetch()}>
+          <RefreshCw className={`mr-2 h-3.5 w-3.5 ${isFetching ? "animate-spin" : ""}`} /> Refresh
         </Button>
       </CardHeader>
       <CardContent className="space-y-4">
