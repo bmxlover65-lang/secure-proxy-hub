@@ -235,7 +235,7 @@ async function handle(request: Request) {
         `Player: <b style="color:#e8e8e8">${escapeHtml(String(row.external_user_id))}</b>`,
         `Operator: ${escapeHtml(client.name ?? "-")}`,
         ...(requested ? [`Game: ${escapeHtml(`${requested.category}/${requested.game}`)}`] : []),
-        `Games: ${escapeHtml(allowed.join(", "))}`,
+        `Games: ${escapeHtml(allowed.map((a) => `${a.category}:${a.games.join("/")}`).join("  "))}`,
         `Valid until: ${escapeHtml(new Date(row.expires_at).toISOString())}`,
       ],
       "#c4f000",
