@@ -371,13 +371,39 @@ export function CallbackPanel({ scope }: { scope: "admin" | "reseller" }) {
 
       {/* Tokens */}
       <Card style={{ background: "var(--gradient-card)" }} className="border-border">
-        <CardHeader className="flex-row items-center justify-between gap-2">
-          <CardTitle className="flex items-center gap-2 text-sm uppercase tracking-wide">
-            <KeyRound className="h-4 w-4 text-primary" /> Recent Tokens
-          </CardTitle>
-          <Button size="sm" variant="outline" onClick={() => void refetchTokens()}>
-            <RefreshCw className="h-3.5 w-3.5" />
-          </Button>
+        <CardHeader className="space-y-3">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <CardTitle className="flex items-center gap-2 text-sm uppercase tracking-wide">
+              <KeyRound className="h-4 w-4 text-primary" /> Tokens (single-use)
+            </CardTitle>
+            <div className="flex items-center gap-2">
+              <select
+                value={tokenState}
+                onChange={(e) => setTokenState(e.target.value as (typeof TOKEN_STATES)[number])}
+                className="border border-border bg-background px-2 py-1.5 font-mono text-xs"
+              >
+                {TOKEN_STATES.map((s) => <option key={s} value={s}>{s}</option>)}
+              </select>
+              <Button size="sm" variant="outline" onClick={() => { void refetchTokens(); void refetchStats(); }}>
+                <RefreshCw className="h-3.5 w-3.5" />
+              </Button>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">
+            {[
+              { label: "issued", value: stats?.total ?? 0, tone: "" },
+              { label: "active", value: stats?.active ?? 0, tone: "text-primary" },
+              { label: "used", value: stats?.used ?? 0, tone: "" },
+              { label: "expired", value: stats?.expired ?? 0, tone: "text-muted-foreground" },
+              { label: "replay blocked", value: stats?.replay_blocked ?? 0, tone: "text-destructive" },
+              { label: "expired hits", value: stats?.expired_hits ?? 0, tone: "text-destructive" },
+            ].map((s) => (
+              <div key={s.label} className="border border-border/60 bg-muted/10 p-3">
+                <div className="label-mono text-[10px] text-muted-foreground">{s.label}</div>
+                <div className={`font-mono text-xl ${s.tone}`}>{s.value}</div>
+              </div>
+            ))}
+          </div>
         </CardHeader>
         <CardContent className="p-0">
           {tokens.length === 0 ? (
@@ -388,7 +414,7 @@ export function CallbackPanel({ scope }: { scope: "admin" | "reseller" }) {
                 <thead className="text-left text-[10px] uppercase tracking-wider text-muted-foreground">
                   <tr className="border-b border-border/40">
                     <th className="p-3">Issued</th>{scope === "admin" && <th>Client</th>}
-                    <th>User ID</th><th>Token</th><th>Expires</th><th>State</th><th>IP</th><th>Domain</th>
+                    <th>User ID</th><th>Token</th><th>Expires</th><th>State</th><th>Replay</th><th>Exp. hits</th><th>Last attempt</th><th>IP</th><th>Domain</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -407,6 +433,9 @@ export function CallbackPanel({ scope }: { scope: "admin" | "reseller" }) {
                             {state}
                           </span>
                         </td>
+                        <td className={`font-mono text-xs ${(t.replay_count ?? 0) > 0 ? "text-destructive" : ""}`}>{t.replay_count ?? 0}</td>
+                        <td className={`font-mono text-xs ${(t.expired_hits ?? 0) > 0 ? "text-destructive" : ""}`}>{t.expired_hits ?? 0}</td>
+                        <td className="text-xs text-muted-foreground">{t.last_attempt_at ? new Date(t.last_attempt_at).toLocaleString() : "—"}</td>
                         <td className="font-mono text-xs">{t.ip_address ?? "—"}</td>
                         <td className="font-mono text-xs">{t.domain ?? "—"}</td>
                       </tr>
