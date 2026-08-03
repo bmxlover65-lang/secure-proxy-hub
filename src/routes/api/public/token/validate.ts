@@ -20,7 +20,7 @@ export const Route = createFileRoute("/api/public/token/validate")({
         const ip = getClientIp(request);
         const host = getRequestHostname(request);
 
-        const auth = await authorizeCallback({ request, apiKey, rawBody });
+        const auth = await authorizeCallback({ request, apiKey, rawBody, op: "token" });
         if (!auth.ok) {
           await logCallback({
             client_id: auth.clientId, callback_type: "TokenValidate", token: token || null,
@@ -44,25 +44,48 @@ export const Route = createFileRoute("/api/public/token/validate")({
 
         const { data: row } = await supabaseAdmin
           .from("game_tokens")
-          .select("id, external_user_id, expires_at, used_at")
+          .select("id, external_user_id, expires_at, used_at, replay_count, expired_hits")
           .eq("client_id", auth.client.id)
           .eq("token", token)
           .maybeSingle();
 
         if (!row) return fail(401, "Unknown token");
-        if (row.used_at) return fail(409, "Token already used (replay blocked)");
-        if (new Date(row.expires_at).getTime() < Date.now()) return fail(410, "Token expired");
+        if (row.used_at) {
+          await supabaseAdmin.from("game_tokens").update({
+            replay_count: (row.replay_count ?? 0) + 1,
+            last_attempt_at: new Date().toISOString(),
+          }).eq("id", row.id);
+          return fail(409, "Token already used (replay blocked)");
+        }
+        if (new Date(row.expires_at).getTime() < Date.now()) {
+          await supabaseAdmin.from("game_tokens").update({
+            expired_hits: (row.expired_hits ?? 0) + 1,
+            last_attempt_at: new Date().toISOString(),
+          }).eq("id", row.id);
+          return fail(410, "Token expired");
+        }
 
         // Single-use consume: only the first concurrent request wins.
         const { data: consumed } = await supabaseAdmin
           .from("game_tokens")
-          .update({ used_at: new Date().toISOString() })
+          .update({
+            used_at: new Date().toISOString(),
+            last_attempt_at: new Date().toISOString(),
+            used_ip: ip,
+            used_domain: host,
+          })
           .eq("id", row.id)
           .is("used_at", null)
           .select("id")
           .maybeSingle();
 
-        if (!consumed) return fail(409, "Token already used (replay blocked)");
+        if (!consumed) {
+          await supabaseAdmin.from("game_tokens").update({
+            replay_count: (row.replay_count ?? 0) + 1,
+            last_attempt_at: new Date().toISOString(),
+          }).eq("id", row.id);
+          return fail(409, "Token already used (replay blocked)");
+        }
 
         const payload = { code: 0, msg: "ok", user_id: row.external_user_id };
         await logCallback({
