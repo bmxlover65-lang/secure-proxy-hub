@@ -3,8 +3,7 @@ import { useAuth } from "@/lib/auth-context";
 import { Button } from "@/components/ui/button";
 import {
   LayoutDashboard, Users, ScrollText, Activity, BookOpen, LogOut, BarChart3,
-  Shield, Menu, X, ChevronRight, Database, KeyRound, Wallet, Receipt, Settings, Coins, CreditCard, Webhook, Plug,
-  AlertTriangle,
+  Shield, Menu, X, ChevronRight, Database, KeyRound, Wallet, Receipt, Settings, Coins, CreditCard,
 } from "lucide-react";
 import { useState, type ReactNode } from "react";
 
@@ -17,9 +16,6 @@ const adminNav: NavItem[] = [
   { to: "/admin/transactions", label: "Transactions", icon: Receipt, description: "Coin activity" },
   { to: "/admin/clients", label: "API Clients", icon: KeyRound, description: "All keys" },
   { to: "/admin/logs", label: "Request Logs", icon: ScrollText, description: "Activity history" },
-  { to: "/admin/errors", label: "Error Log", icon: AlertTriangle, description: "All failures & payloads" },
-  { to: "/admin/callbacks", label: "Callbacks & Tokens", icon: Webhook, description: "Wallet callback logs" },
-  { to: "/admin/integration", label: "Integration Config", icon: Plug, description: "Keys, TTL & token logs" },
   { to: "/admin/stats", label: "Statistics", icon: BarChart3, description: "Usage charts" },
   { to: "/admin/cache", label: "Cache Monitor", icon: Database, description: "Hit/miss & TTL" },
   { to: "/admin/health", label: "API Health", icon: Activity, description: "Test endpoints" },
@@ -27,24 +23,14 @@ const adminNav: NavItem[] = [
   { to: "/admin/docs", label: "API Docs", icon: BookOpen, description: "Integration guide" },
 ];
 
-const accountNav: NavItem[] = [
+const resellerNav: NavItem[] = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard, description: "Wallet & overview" },
   { to: "/dashboard/keys", label: "API Keys", icon: KeyRound, description: "Create & manage" },
   { to: "/dashboard/wallet", label: "Wallet", icon: Wallet, description: "Balance & top-up" },
   { to: "/dashboard/transactions", label: "Transactions", icon: Receipt, description: "Coin history" },
   { to: "/dashboard/logs", label: "Request Logs", icon: ScrollText, description: "API call history" },
-  { to: "/dashboard/errors", label: "Error Log", icon: AlertTriangle, description: "Failed calls & reasons" },
-  { to: "/dashboard/callbacks", label: "Callback Mode", icon: Webhook, description: "Token & wallet callbacks" },
   { to: "/dashboard/docs", label: "API Docs", icon: BookOpen, description: "Integration guide" },
 ];
-
-interface NavSection { title: string; items: NavItem[] }
-
-const adminSections: NavSection[] = [
-  { title: "// control plane", items: adminNav },
-  { title: "// my account", items: accountNav },
-];
-const resellerSections: NavSection[] = [{ title: "// navigation", items: accountNav }];
 
 export function AppShell({
   children,
@@ -58,8 +44,7 @@ export function AppShell({
   const { user, signOut, isAdmin } = useAuth();
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-  const sections = mode === "admin" ? adminSections : resellerSections;
-  const items = sections.flatMap((s) => s.items);
+  const items = mode === "admin" ? adminNav : resellerNav;
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const initials = (user?.email ?? "U").slice(0, 2).toUpperCase();
@@ -82,10 +67,8 @@ export function AppShell({
       </div>
 
       <nav className="scrollbar-slim flex-1 space-y-0.5 overflow-y-auto p-2.5">
-        {sections.map((sec) => (
-          <div key={sec.title} className="pb-1">
-            <div className="label-mono px-2.5 pb-2 pt-1">{sec.title}</div>
-          {sec.items.map((it) => {
+        <div className="label-mono px-2.5 pb-2 pt-1">// navigation</div>
+        {items.map((it) => {
           const Icon = it.icon;
           const active =
             pathname === it.to ||
@@ -124,9 +107,7 @@ export function AppShell({
               {active && <span className="relative h-1.5 w-1.5 shrink-0 bg-primary" />}
             </Link>
           );
-          })}
-          </div>
-        ))}
+        })}
       </nav>
 
       <div className="border-t border-border p-2.5">

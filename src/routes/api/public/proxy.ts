@@ -109,7 +109,7 @@ export const Route = createFileRoute("/api/public/proxy")({
 
         const { data: client, error: rErr } = await supabaseAdmin
           .from("api_clients")
-          .select("id, status, category, expires_at, mode")
+          .select("id, status, category, expires_at")
           .eq("api_key", apiKey)
           .maybeSingle();
 
@@ -129,13 +129,6 @@ export const Route = createFileRoute("/api/public/proxy")({
         if (client.status !== "active") {
           await log(client.id, 403, false, "Account suspended", 0);
           return jsonResponse({ code: 403, msg: "Account suspended" }, 403);
-        }
-        if ((client.mode ?? "data") !== "data") {
-          await log(client.id, 403, false, "Callback-mode key used on data endpoint", 0);
-          return jsonResponse(
-            { code: 403, msg: "This key belongs to the callback system. Use a data API key for /api/public/proxy." },
-            403,
-          );
         }
         if (client.expires_at && new Date(client.expires_at).getTime() < Date.now()) {
           await log(client.id, 403, false, "Key expired", 0);

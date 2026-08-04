@@ -1,2 +1,0 @@
-INSERT INTO public.api_clients (name, api_key, mode, category, status, expires_at)
-VALUES ('lara', 'HAPI_' || upper(encode(gen_random_bytes(20), 'hex')), 'data', 'wingo', 'active', now() + interval '30 days');

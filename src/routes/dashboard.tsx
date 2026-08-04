@@ -11,14 +11,15 @@ export const Route = createFileRoute("/dashboard")({
 });
 
 function DashboardLayout() {
-  const { session, loading, user } = useAuth();
+  const { session, loading, isAdmin, user } = useAuth();
   const navigate = useNavigate();
   const [balance, setBalance] = useState<number | undefined>(undefined);
 
   useEffect(() => {
     if (loading) return;
     if (!session) { navigate({ to: "/login" }); return; }
-  }, [loading, session, navigate]);
+    if (isAdmin) { navigate({ to: "/admin" }); return; }
+  }, [loading, session, isAdmin, navigate]);
 
   useEffect(() => {
     if (!user?.id) return;
@@ -38,7 +39,7 @@ function DashboardLayout() {
     return () => { active = false; supabase.removeChannel(channel); };
   }, [user?.id]);
 
-  if (loading || !session) {
+  if (loading || !session || isAdmin) {
     return (
       <div className="min-h-screen p-8">
         <Skeleton className="h-32 w-full rounded-xl" />

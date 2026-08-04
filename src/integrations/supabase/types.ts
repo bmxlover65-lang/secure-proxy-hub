@@ -21,7 +21,6 @@ export type Database = {
           domain: string
           id: string
           label: string | null
-          op: string | null
         }
         Insert: {
           client_id: string
@@ -29,7 +28,6 @@ export type Database = {
           domain: string
           id?: string
           label?: string | null
-          op?: string | null
         }
         Update: {
           client_id?: string
@@ -37,7 +35,6 @@ export type Database = {
           domain?: string
           id?: string
           label?: string | null
-          op?: string | null
         }
         Relationships: [
           {
@@ -63,7 +60,6 @@ export type Database = {
           id: string
           ip_address: string
           label: string | null
-          op: string | null
         }
         Insert: {
           client_id: string
@@ -71,7 +67,6 @@ export type Database = {
           id?: string
           ip_address: string
           label?: string | null
-          op?: string | null
         }
         Update: {
           client_id?: string
@@ -79,7 +74,6 @@ export type Database = {
           id?: string
           ip_address?: string
           label?: string | null
-          op?: string | null
         }
         Relationships: [
           {
@@ -101,67 +95,40 @@ export type Database = {
       api_clients: {
         Row: {
           api_key: string
-          callback_enabled: boolean
-          callback_secret: string | null
-          callback_url: string | null
           category: string
-          cb_getbalance: boolean
-          cb_placebet: boolean
-          cb_token: boolean
-          cb_winloss: boolean
           created_at: string
           duration_days: number | null
           expires_at: string | null
           id: string
-          mode: string
           name: string
           notes: string | null
           status: string
-          token_ttl_seconds: number
           updated_at: string
           user_id: string | null
         }
         Insert: {
           api_key: string
-          callback_enabled?: boolean
-          callback_secret?: string | null
-          callback_url?: string | null
           category?: string
-          cb_getbalance?: boolean
-          cb_placebet?: boolean
-          cb_token?: boolean
-          cb_winloss?: boolean
           created_at?: string
           duration_days?: number | null
           expires_at?: string | null
           id?: string
-          mode?: string
           name: string
           notes?: string | null
           status?: string
-          token_ttl_seconds?: number
           updated_at?: string
           user_id?: string | null
         }
         Update: {
           api_key?: string
-          callback_enabled?: boolean
-          callback_secret?: string | null
-          callback_url?: string | null
           category?: string
-          cb_getbalance?: boolean
-          cb_placebet?: boolean
-          cb_token?: boolean
-          cb_winloss?: boolean
           created_at?: string
           duration_days?: number | null
           expires_at?: string | null
           id?: string
-          mode?: string
           name?: string
           notes?: string | null
           status?: string
-          token_ttl_seconds?: number
           updated_at?: string
           user_id?: string | null
         }
@@ -184,81 +151,6 @@ export type Database = {
           value?: Json
         }
         Relationships: []
-      }
-      callback_logs: {
-        Row: {
-          amount: number | null
-          callback_type: string
-          client_id: string | null
-          created_at: string
-          error_message: string | null
-          external_user_id: string | null
-          host: string | null
-          id: string
-          ip_address: string | null
-          new_balance: number | null
-          request_payload: Json | null
-          response_payload: Json | null
-          response_time_ms: number | null
-          signature_status: string | null
-          status_code: number | null
-          success: boolean
-          token: string | null
-        }
-        Insert: {
-          amount?: number | null
-          callback_type: string
-          client_id?: string | null
-          created_at?: string
-          error_message?: string | null
-          external_user_id?: string | null
-          host?: string | null
-          id?: string
-          ip_address?: string | null
-          new_balance?: number | null
-          request_payload?: Json | null
-          response_payload?: Json | null
-          response_time_ms?: number | null
-          signature_status?: string | null
-          status_code?: number | null
-          success?: boolean
-          token?: string | null
-        }
-        Update: {
-          amount?: number | null
-          callback_type?: string
-          client_id?: string | null
-          created_at?: string
-          error_message?: string | null
-          external_user_id?: string | null
-          host?: string | null
-          id?: string
-          ip_address?: string | null
-          new_balance?: number | null
-          request_payload?: Json | null
-          response_payload?: Json | null
-          response_time_ms?: number | null
-          signature_status?: string | null
-          status_code?: number | null
-          success?: boolean
-          token?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "callback_logs_client_id_fkey"
-            columns: ["client_id"]
-            isOneToOne: false
-            referencedRelation: "api_clients"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "callback_logs_client_id_fkey"
-            columns: ["client_id"]
-            isOneToOne: false
-            referencedRelation: "client_usage_stats"
-            referencedColumns: ["client_id"]
-          },
-        ]
       }
       coin_transactions: {
         Row: {
@@ -290,108 +182,6 @@ export type Database = {
           status?: string
           type?: string
           user_id?: string
-        }
-        Relationships: []
-      }
-      game_tokens: {
-        Row: {
-          client_id: string
-          created_at: string
-          domain: string | null
-          expired_hits: number
-          expires_at: string
-          external_user_id: string
-          id: string
-          ip_address: string | null
-          last_attempt_at: string | null
-          replay_count: number
-          token: string
-          used_at: string | null
-          used_domain: string | null
-          used_ip: string | null
-        }
-        Insert: {
-          client_id: string
-          created_at?: string
-          domain?: string | null
-          expired_hits?: number
-          expires_at: string
-          external_user_id: string
-          id?: string
-          ip_address?: string | null
-          last_attempt_at?: string | null
-          replay_count?: number
-          token: string
-          used_at?: string | null
-          used_domain?: string | null
-          used_ip?: string | null
-        }
-        Update: {
-          client_id?: string
-          created_at?: string
-          domain?: string | null
-          expired_hits?: number
-          expires_at?: string
-          external_user_id?: string
-          id?: string
-          ip_address?: string | null
-          last_attempt_at?: string | null
-          replay_count?: number
-          token?: string
-          used_at?: string | null
-          used_domain?: string | null
-          used_ip?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "game_tokens_client_id_fkey"
-            columns: ["client_id"]
-            isOneToOne: false
-            referencedRelation: "api_clients"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "game_tokens_client_id_fkey"
-            columns: ["client_id"]
-            isOneToOne: false
-            referencedRelation: "client_usage_stats"
-            referencedColumns: ["client_id"]
-          },
-        ]
-      }
-      integration_config: {
-        Row: {
-          allowed_categories: string[]
-          enforce_config: boolean
-          hyper_base: string
-          hyper_cb_key: string | null
-          hyper_cb_secret: string | null
-          hyper_data_key: string | null
-          hyper_token_ttl: number
-          id: string
-          updated_at: string
-        }
-        Insert: {
-          allowed_categories?: string[]
-          enforce_config?: boolean
-          hyper_base?: string
-          hyper_cb_key?: string | null
-          hyper_cb_secret?: string | null
-          hyper_data_key?: string | null
-          hyper_token_ttl?: number
-          id?: string
-          updated_at?: string
-        }
-        Update: {
-          allowed_categories?: string[]
-          enforce_config?: boolean
-          hyper_base?: string
-          hyper_cb_key?: string | null
-          hyper_cb_secret?: string | null
-          hyper_data_key?: string | null
-          hyper_token_ttl?: number
-          id?: string
-          updated_at?: string
         }
         Relationships: []
       }
@@ -637,17 +427,6 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
-      }
-      token_stats: {
-        Args: { _from?: string; _to?: string }
-        Returns: {
-          active: number
-          expired: number
-          expired_hits: number
-          replay_blocked: number
-          total: number
-          used: number
-        }[]
       }
       user_usage_in_range: {
         Args: { _from: string; _to: string }

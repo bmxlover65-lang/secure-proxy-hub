@@ -24,29 +24,20 @@ import { Route as DashboardWalletRouteImport } from './routes/dashboard.wallet'
 import { Route as DashboardTransactionsRouteImport } from './routes/dashboard.transactions'
 import { Route as DashboardLogsRouteImport } from './routes/dashboard.logs'
 import { Route as DashboardKeysRouteImport } from './routes/dashboard.keys'
-import { Route as DashboardErrorsRouteImport } from './routes/dashboard.errors'
 import { Route as DashboardDocsRouteImport } from './routes/dashboard.docs'
-import { Route as DashboardCallbacksRouteImport } from './routes/dashboard.callbacks'
 import { Route as AdminUsersRouteImport } from './routes/admin.users'
 import { Route as AdminTransactionsRouteImport } from './routes/admin.transactions'
 import { Route as AdminStatsRouteImport } from './routes/admin.stats'
 import { Route as AdminSettingsRouteImport } from './routes/admin.settings'
 import { Route as AdminPaymentsRouteImport } from './routes/admin.payments'
 import { Route as AdminLogsRouteImport } from './routes/admin.logs'
-import { Route as AdminIntegrationRouteImport } from './routes/admin.integration'
 import { Route as AdminHealthRouteImport } from './routes/admin.health'
-import { Route as AdminErrorsRouteImport } from './routes/admin.errors'
 import { Route as AdminDocsRouteImport } from './routes/admin.docs'
 import { Route as AdminClientsRouteImport } from './routes/admin.clients'
-import { Route as AdminCallbacksRouteImport } from './routes/admin.callbacks'
 import { Route as AdminCacheRouteImport } from './routes/admin.cache'
-import { Route as ApiPublicWalletRouteImport } from './routes/api/public/wallet'
 import { Route as ApiPublicSametrendRouteImport } from './routes/api/public/sametrend'
 import { Route as ApiPublicProxyRouteImport } from './routes/api/public/proxy'
 import { Route as ApiPublicBondpayCallbackRouteImport } from './routes/api/public/bondpay-callback'
-import { Route as ApiPublicTokenValidateRouteImport } from './routes/api/public/token/validate'
-import { Route as ApiPublicTokenIssueRouteImport } from './routes/api/public/token/issue'
-import { Route as ApiPublicTokenEnterRouteImport } from './routes/api/public/token/enter'
 
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
@@ -123,19 +114,9 @@ const DashboardKeysRoute = DashboardKeysRouteImport.update({
   path: '/keys',
   getParentRoute: () => DashboardRoute,
 } as any)
-const DashboardErrorsRoute = DashboardErrorsRouteImport.update({
-  id: '/errors',
-  path: '/errors',
-  getParentRoute: () => DashboardRoute,
-} as any)
 const DashboardDocsRoute = DashboardDocsRouteImport.update({
   id: '/docs',
   path: '/docs',
-  getParentRoute: () => DashboardRoute,
-} as any)
-const DashboardCallbacksRoute = DashboardCallbacksRouteImport.update({
-  id: '/callbacks',
-  path: '/callbacks',
   getParentRoute: () => DashboardRoute,
 } as any)
 const AdminUsersRoute = AdminUsersRouteImport.update({
@@ -168,19 +149,9 @@ const AdminLogsRoute = AdminLogsRouteImport.update({
   path: '/logs',
   getParentRoute: () => AdminRoute,
 } as any)
-const AdminIntegrationRoute = AdminIntegrationRouteImport.update({
-  id: '/integration',
-  path: '/integration',
-  getParentRoute: () => AdminRoute,
-} as any)
 const AdminHealthRoute = AdminHealthRouteImport.update({
   id: '/health',
   path: '/health',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminErrorsRoute = AdminErrorsRouteImport.update({
-  id: '/errors',
-  path: '/errors',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminDocsRoute = AdminDocsRouteImport.update({
@@ -193,20 +164,10 @@ const AdminClientsRoute = AdminClientsRouteImport.update({
   path: '/clients',
   getParentRoute: () => AdminRoute,
 } as any)
-const AdminCallbacksRoute = AdminCallbacksRouteImport.update({
-  id: '/callbacks',
-  path: '/callbacks',
-  getParentRoute: () => AdminRoute,
-} as any)
 const AdminCacheRoute = AdminCacheRouteImport.update({
   id: '/cache',
   path: '/cache',
   getParentRoute: () => AdminRoute,
-} as any)
-const ApiPublicWalletRoute = ApiPublicWalletRouteImport.update({
-  id: '/api/public/wallet',
-  path: '/api/public/wallet',
-  getParentRoute: () => rootRouteImport,
 } as any)
 const ApiPublicSametrendRoute = ApiPublicSametrendRouteImport.update({
   id: '/api/public/sametrend',
@@ -224,21 +185,6 @@ const ApiPublicBondpayCallbackRoute =
     path: '/api/public/bondpay-callback',
     getParentRoute: () => rootRouteImport,
   } as any)
-const ApiPublicTokenValidateRoute = ApiPublicTokenValidateRouteImport.update({
-  id: '/api/public/token/validate',
-  path: '/api/public/token/validate',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiPublicTokenIssueRoute = ApiPublicTokenIssueRouteImport.update({
-  id: '/api/public/token/issue',
-  path: '/api/public/token/issue',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiPublicTokenEnterRoute = ApiPublicTokenEnterRouteImport.update({
-  id: '/api/public/token/enter',
-  path: '/api/public/token/enter',
-  getParentRoute: () => rootRouteImport,
-} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -251,21 +197,16 @@ export interface FileRoutesByFullPath {
   '/signup': typeof SignupRoute
   '/terms': typeof TermsRoute
   '/admin/cache': typeof AdminCacheRoute
-  '/admin/callbacks': typeof AdminCallbacksRoute
   '/admin/clients': typeof AdminClientsRoute
   '/admin/docs': typeof AdminDocsRoute
-  '/admin/errors': typeof AdminErrorsRoute
   '/admin/health': typeof AdminHealthRoute
-  '/admin/integration': typeof AdminIntegrationRoute
   '/admin/logs': typeof AdminLogsRoute
   '/admin/payments': typeof AdminPaymentsRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/stats': typeof AdminStatsRoute
   '/admin/transactions': typeof AdminTransactionsRoute
   '/admin/users': typeof AdminUsersRoute
-  '/dashboard/callbacks': typeof DashboardCallbacksRoute
   '/dashboard/docs': typeof DashboardDocsRoute
-  '/dashboard/errors': typeof DashboardErrorsRoute
   '/dashboard/keys': typeof DashboardKeysRoute
   '/dashboard/logs': typeof DashboardLogsRoute
   '/dashboard/transactions': typeof DashboardTransactionsRoute
@@ -275,10 +216,6 @@ export interface FileRoutesByFullPath {
   '/api/public/bondpay-callback': typeof ApiPublicBondpayCallbackRoute
   '/api/public/proxy': typeof ApiPublicProxyRoute
   '/api/public/sametrend': typeof ApiPublicSametrendRoute
-  '/api/public/wallet': typeof ApiPublicWalletRoute
-  '/api/public/token/enter': typeof ApiPublicTokenEnterRoute
-  '/api/public/token/issue': typeof ApiPublicTokenIssueRoute
-  '/api/public/token/validate': typeof ApiPublicTokenValidateRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -289,21 +226,16 @@ export interface FileRoutesByTo {
   '/signup': typeof SignupRoute
   '/terms': typeof TermsRoute
   '/admin/cache': typeof AdminCacheRoute
-  '/admin/callbacks': typeof AdminCallbacksRoute
   '/admin/clients': typeof AdminClientsRoute
   '/admin/docs': typeof AdminDocsRoute
-  '/admin/errors': typeof AdminErrorsRoute
   '/admin/health': typeof AdminHealthRoute
-  '/admin/integration': typeof AdminIntegrationRoute
   '/admin/logs': typeof AdminLogsRoute
   '/admin/payments': typeof AdminPaymentsRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/stats': typeof AdminStatsRoute
   '/admin/transactions': typeof AdminTransactionsRoute
   '/admin/users': typeof AdminUsersRoute
-  '/dashboard/callbacks': typeof DashboardCallbacksRoute
   '/dashboard/docs': typeof DashboardDocsRoute
-  '/dashboard/errors': typeof DashboardErrorsRoute
   '/dashboard/keys': typeof DashboardKeysRoute
   '/dashboard/logs': typeof DashboardLogsRoute
   '/dashboard/transactions': typeof DashboardTransactionsRoute
@@ -313,10 +245,6 @@ export interface FileRoutesByTo {
   '/api/public/bondpay-callback': typeof ApiPublicBondpayCallbackRoute
   '/api/public/proxy': typeof ApiPublicProxyRoute
   '/api/public/sametrend': typeof ApiPublicSametrendRoute
-  '/api/public/wallet': typeof ApiPublicWalletRoute
-  '/api/public/token/enter': typeof ApiPublicTokenEnterRoute
-  '/api/public/token/issue': typeof ApiPublicTokenIssueRoute
-  '/api/public/token/validate': typeof ApiPublicTokenValidateRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -330,21 +258,16 @@ export interface FileRoutesById {
   '/signup': typeof SignupRoute
   '/terms': typeof TermsRoute
   '/admin/cache': typeof AdminCacheRoute
-  '/admin/callbacks': typeof AdminCallbacksRoute
   '/admin/clients': typeof AdminClientsRoute
   '/admin/docs': typeof AdminDocsRoute
-  '/admin/errors': typeof AdminErrorsRoute
   '/admin/health': typeof AdminHealthRoute
-  '/admin/integration': typeof AdminIntegrationRoute
   '/admin/logs': typeof AdminLogsRoute
   '/admin/payments': typeof AdminPaymentsRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/stats': typeof AdminStatsRoute
   '/admin/transactions': typeof AdminTransactionsRoute
   '/admin/users': typeof AdminUsersRoute
-  '/dashboard/callbacks': typeof DashboardCallbacksRoute
   '/dashboard/docs': typeof DashboardDocsRoute
-  '/dashboard/errors': typeof DashboardErrorsRoute
   '/dashboard/keys': typeof DashboardKeysRoute
   '/dashboard/logs': typeof DashboardLogsRoute
   '/dashboard/transactions': typeof DashboardTransactionsRoute
@@ -354,10 +277,6 @@ export interface FileRoutesById {
   '/api/public/bondpay-callback': typeof ApiPublicBondpayCallbackRoute
   '/api/public/proxy': typeof ApiPublicProxyRoute
   '/api/public/sametrend': typeof ApiPublicSametrendRoute
-  '/api/public/wallet': typeof ApiPublicWalletRoute
-  '/api/public/token/enter': typeof ApiPublicTokenEnterRoute
-  '/api/public/token/issue': typeof ApiPublicTokenIssueRoute
-  '/api/public/token/validate': typeof ApiPublicTokenValidateRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -372,21 +291,16 @@ export interface FileRouteTypes {
     | '/signup'
     | '/terms'
     | '/admin/cache'
-    | '/admin/callbacks'
     | '/admin/clients'
     | '/admin/docs'
-    | '/admin/errors'
     | '/admin/health'
-    | '/admin/integration'
     | '/admin/logs'
     | '/admin/payments'
     | '/admin/settings'
     | '/admin/stats'
     | '/admin/transactions'
     | '/admin/users'
-    | '/dashboard/callbacks'
     | '/dashboard/docs'
-    | '/dashboard/errors'
     | '/dashboard/keys'
     | '/dashboard/logs'
     | '/dashboard/transactions'
@@ -396,10 +310,6 @@ export interface FileRouteTypes {
     | '/api/public/bondpay-callback'
     | '/api/public/proxy'
     | '/api/public/sametrend'
-    | '/api/public/wallet'
-    | '/api/public/token/enter'
-    | '/api/public/token/issue'
-    | '/api/public/token/validate'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -410,21 +320,16 @@ export interface FileRouteTypes {
     | '/signup'
     | '/terms'
     | '/admin/cache'
-    | '/admin/callbacks'
     | '/admin/clients'
     | '/admin/docs'
-    | '/admin/errors'
     | '/admin/health'
-    | '/admin/integration'
     | '/admin/logs'
     | '/admin/payments'
     | '/admin/settings'
     | '/admin/stats'
     | '/admin/transactions'
     | '/admin/users'
-    | '/dashboard/callbacks'
     | '/dashboard/docs'
-    | '/dashboard/errors'
     | '/dashboard/keys'
     | '/dashboard/logs'
     | '/dashboard/transactions'
@@ -434,10 +339,6 @@ export interface FileRouteTypes {
     | '/api/public/bondpay-callback'
     | '/api/public/proxy'
     | '/api/public/sametrend'
-    | '/api/public/wallet'
-    | '/api/public/token/enter'
-    | '/api/public/token/issue'
-    | '/api/public/token/validate'
   id:
     | '__root__'
     | '/'
@@ -450,21 +351,16 @@ export interface FileRouteTypes {
     | '/signup'
     | '/terms'
     | '/admin/cache'
-    | '/admin/callbacks'
     | '/admin/clients'
     | '/admin/docs'
-    | '/admin/errors'
     | '/admin/health'
-    | '/admin/integration'
     | '/admin/logs'
     | '/admin/payments'
     | '/admin/settings'
     | '/admin/stats'
     | '/admin/transactions'
     | '/admin/users'
-    | '/dashboard/callbacks'
     | '/dashboard/docs'
-    | '/dashboard/errors'
     | '/dashboard/keys'
     | '/dashboard/logs'
     | '/dashboard/transactions'
@@ -474,10 +370,6 @@ export interface FileRouteTypes {
     | '/api/public/bondpay-callback'
     | '/api/public/proxy'
     | '/api/public/sametrend'
-    | '/api/public/wallet'
-    | '/api/public/token/enter'
-    | '/api/public/token/issue'
-    | '/api/public/token/validate'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -493,10 +385,6 @@ export interface RootRouteChildren {
   ApiPublicBondpayCallbackRoute: typeof ApiPublicBondpayCallbackRoute
   ApiPublicProxyRoute: typeof ApiPublicProxyRoute
   ApiPublicSametrendRoute: typeof ApiPublicSametrendRoute
-  ApiPublicWalletRoute: typeof ApiPublicWalletRoute
-  ApiPublicTokenEnterRoute: typeof ApiPublicTokenEnterRoute
-  ApiPublicTokenIssueRoute: typeof ApiPublicTokenIssueRoute
-  ApiPublicTokenValidateRoute: typeof ApiPublicTokenValidateRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -606,25 +494,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardKeysRouteImport
       parentRoute: typeof DashboardRoute
     }
-    '/dashboard/errors': {
-      id: '/dashboard/errors'
-      path: '/errors'
-      fullPath: '/dashboard/errors'
-      preLoaderRoute: typeof DashboardErrorsRouteImport
-      parentRoute: typeof DashboardRoute
-    }
     '/dashboard/docs': {
       id: '/dashboard/docs'
       path: '/docs'
       fullPath: '/dashboard/docs'
       preLoaderRoute: typeof DashboardDocsRouteImport
-      parentRoute: typeof DashboardRoute
-    }
-    '/dashboard/callbacks': {
-      id: '/dashboard/callbacks'
-      path: '/callbacks'
-      fullPath: '/dashboard/callbacks'
-      preLoaderRoute: typeof DashboardCallbacksRouteImport
       parentRoute: typeof DashboardRoute
     }
     '/admin/users': {
@@ -669,25 +543,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminLogsRouteImport
       parentRoute: typeof AdminRoute
     }
-    '/admin/integration': {
-      id: '/admin/integration'
-      path: '/integration'
-      fullPath: '/admin/integration'
-      preLoaderRoute: typeof AdminIntegrationRouteImport
-      parentRoute: typeof AdminRoute
-    }
     '/admin/health': {
       id: '/admin/health'
       path: '/health'
       fullPath: '/admin/health'
       preLoaderRoute: typeof AdminHealthRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/admin/errors': {
-      id: '/admin/errors'
-      path: '/errors'
-      fullPath: '/admin/errors'
-      preLoaderRoute: typeof AdminErrorsRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/docs': {
@@ -704,26 +564,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminClientsRouteImport
       parentRoute: typeof AdminRoute
     }
-    '/admin/callbacks': {
-      id: '/admin/callbacks'
-      path: '/callbacks'
-      fullPath: '/admin/callbacks'
-      preLoaderRoute: typeof AdminCallbacksRouteImport
-      parentRoute: typeof AdminRoute
-    }
     '/admin/cache': {
       id: '/admin/cache'
       path: '/cache'
       fullPath: '/admin/cache'
       preLoaderRoute: typeof AdminCacheRouteImport
       parentRoute: typeof AdminRoute
-    }
-    '/api/public/wallet': {
-      id: '/api/public/wallet'
-      path: '/api/public/wallet'
-      fullPath: '/api/public/wallet'
-      preLoaderRoute: typeof ApiPublicWalletRouteImport
-      parentRoute: typeof rootRouteImport
     }
     '/api/public/sametrend': {
       id: '/api/public/sametrend'
@@ -746,38 +592,14 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicBondpayCallbackRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/public/token/validate': {
-      id: '/api/public/token/validate'
-      path: '/api/public/token/validate'
-      fullPath: '/api/public/token/validate'
-      preLoaderRoute: typeof ApiPublicTokenValidateRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/token/issue': {
-      id: '/api/public/token/issue'
-      path: '/api/public/token/issue'
-      fullPath: '/api/public/token/issue'
-      preLoaderRoute: typeof ApiPublicTokenIssueRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/token/enter': {
-      id: '/api/public/token/enter'
-      path: '/api/public/token/enter'
-      fullPath: '/api/public/token/enter'
-      preLoaderRoute: typeof ApiPublicTokenEnterRouteImport
-      parentRoute: typeof rootRouteImport
-    }
   }
 }
 
 interface AdminRouteChildren {
   AdminCacheRoute: typeof AdminCacheRoute
-  AdminCallbacksRoute: typeof AdminCallbacksRoute
   AdminClientsRoute: typeof AdminClientsRoute
   AdminDocsRoute: typeof AdminDocsRoute
-  AdminErrorsRoute: typeof AdminErrorsRoute
   AdminHealthRoute: typeof AdminHealthRoute
-  AdminIntegrationRoute: typeof AdminIntegrationRoute
   AdminLogsRoute: typeof AdminLogsRoute
   AdminPaymentsRoute: typeof AdminPaymentsRoute
   AdminSettingsRoute: typeof AdminSettingsRoute
@@ -789,12 +611,9 @@ interface AdminRouteChildren {
 
 const AdminRouteChildren: AdminRouteChildren = {
   AdminCacheRoute: AdminCacheRoute,
-  AdminCallbacksRoute: AdminCallbacksRoute,
   AdminClientsRoute: AdminClientsRoute,
   AdminDocsRoute: AdminDocsRoute,
-  AdminErrorsRoute: AdminErrorsRoute,
   AdminHealthRoute: AdminHealthRoute,
-  AdminIntegrationRoute: AdminIntegrationRoute,
   AdminLogsRoute: AdminLogsRoute,
   AdminPaymentsRoute: AdminPaymentsRoute,
   AdminSettingsRoute: AdminSettingsRoute,
@@ -807,9 +626,7 @@ const AdminRouteChildren: AdminRouteChildren = {
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
 interface DashboardRouteChildren {
-  DashboardCallbacksRoute: typeof DashboardCallbacksRoute
   DashboardDocsRoute: typeof DashboardDocsRoute
-  DashboardErrorsRoute: typeof DashboardErrorsRoute
   DashboardKeysRoute: typeof DashboardKeysRoute
   DashboardLogsRoute: typeof DashboardLogsRoute
   DashboardTransactionsRoute: typeof DashboardTransactionsRoute
@@ -818,9 +635,7 @@ interface DashboardRouteChildren {
 }
 
 const DashboardRouteChildren: DashboardRouteChildren = {
-  DashboardCallbacksRoute: DashboardCallbacksRoute,
   DashboardDocsRoute: DashboardDocsRoute,
-  DashboardErrorsRoute: DashboardErrorsRoute,
   DashboardKeysRoute: DashboardKeysRoute,
   DashboardLogsRoute: DashboardLogsRoute,
   DashboardTransactionsRoute: DashboardTransactionsRoute,
@@ -845,20 +660,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicBondpayCallbackRoute: ApiPublicBondpayCallbackRoute,
   ApiPublicProxyRoute: ApiPublicProxyRoute,
   ApiPublicSametrendRoute: ApiPublicSametrendRoute,
-  ApiPublicWalletRoute: ApiPublicWalletRoute,
-  ApiPublicTokenEnterRoute: ApiPublicTokenEnterRoute,
-  ApiPublicTokenIssueRoute: ApiPublicTokenIssueRoute,
-  ApiPublicTokenValidateRoute: ApiPublicTokenValidateRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-  }
-}
