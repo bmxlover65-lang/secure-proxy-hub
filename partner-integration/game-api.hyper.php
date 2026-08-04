@@ -80,9 +80,25 @@ define('HYPER_CB_SECRET', 'PASTE_HMAC_SECRET_HERE');                        // C
 
 define('HYPER_TOKEN_TTL', 300);
 
+/* ---------- CALLBACK URL ----------
+   Ye wahi file ka REAL public URL hona chahiye jahan ye script rakhi hai.
+   Yahi URL callbacks (bet/win/refund) receive karta hai.
+   Agar file ka naam/folder badle to sirf yeh line badalni hai. */
+
+define('CALLBACK_URL_OVERRIDE', 'https://api.agniwinapi.buzz/api/webapi/GetGameUrl.php');
+
 $PROTOCOL = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
 
-$CALLBACK_URL = $PROTOCOL . '://' . $_SERVER['HTTP_HOST'] . preg_replace('/\.php$/', '', strtok($_SERVER['REQUEST_URI'], '?'));
+if (CALLBACK_URL_OVERRIDE !== '') {
+
+    $CALLBACK_URL = CALLBACK_URL_OVERRIDE;
+
+} else {
+
+    // fallback: exact current script path (extension preserve, query strip)
+    $CALLBACK_URL = $PROTOCOL . '://' . $_SERVER['HTTP_HOST'] . strtok($_SERVER['REQUEST_URI'], '?');
+
+}
 
 /* ================= HEADERS ================= */
 
