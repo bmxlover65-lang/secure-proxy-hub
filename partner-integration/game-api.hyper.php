@@ -85,7 +85,7 @@ define('HYPER_TOKEN_TTL', 300);
    Yahi URL callbacks (bet/win/refund) receive karta hai.
    Agar file ka naam/folder badle to sirf yeh line badalni hai. */
 
-define('CALLBACK_URL_OVERRIDE', 'https://api.agniwinapi.buzz/api/webapi/GetGameUrl.php');
+define('CALLBACK_URL_OVERRIDE', 'https://api.agniwinapi.buzz/api/webapi/hyper_callback.php');
 
 $PROTOCOL = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
 
